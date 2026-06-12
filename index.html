@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KIMONO 3D - Customizador de Troféus de Artes Marciais</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Outfit:wght@300;400;500;600;800&display=swap" rel="stylesheet">
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- JavaScript Error Debugger -->
+    <script>
+        window.addEventListener('error', function(e) {
+            showError('Erro JS: ' + e.message + '\nArquivo: ' + e.filename + ' L:' + e.lineno);
+        });
+        window.addEventListener('unhandledrejection', function(e) {
+            showError('Promise Rejeitada: ' + e.reason);
+        });
+        
+        const orgConsoleError = console.error;
+        console.error = function() {
+            const msg = Array.from(arguments).map(x => typeof x === 'object' ? String(x) : x).join(' ');
+            showError(msg);
+            orgConsoleError.apply(console, arguments);
+        };
+        
+        function showError(text) {
+            let errDiv = document.getElementById('debug-err-div');
+            if (!errDiv) {
+                errDiv = document.createElement('pre');
+                errDiv.id = 'debug-err-div';
+                errDiv.style.position = 'fixed';
+                errDiv.style.bottom = '20px';
+                errDiv.style.left = '20px';
+                errDiv.style.background = 'rgba(239, 68, 68, 0.95)';
+                errDiv.style.color = '#fff';
+                errDiv.style.padding = '15px';
+                errDiv.style.borderRadius = '8px';
+                errDiv.style.fontSize = '12px';
+                errDiv.style.fontFamily = 'monospace';
+                errDiv.style.zIndex = '99999';
+                errDiv.style.maxHeight = '300px';
+                errDiv.style.maxWidth = '90vw';
+                errDiv.style.overflow = 'auto';
+                errDiv.style.border = '2px solid #ef4444';
+                errDiv.style.boxShadow = '0 10px 25px rgba(0,0,0,0.5)';
+                errDiv.style.whiteSpace = 'pre-wrap';
+                
+                const closeBtn = document.createElement('button');
+                closeBtn.innerText = 'Fechar';
+                closeBtn.style.display = 'block';
+                closeBtn.style.marginBottom = '10px';
+                closeBtn.style.background = '#000';
+                closeBtn.style.color = '#fff';
+                closeBtn.style.border = 'none';
+                closeBtn.style.padding = '4px 8px';
+                closeBtn.style.cursor = 'pointer';
+                closeBtn.style.borderRadius = '4px';
+                closeBtn.onclick = () => errDiv.remove();
+                errDiv.appendChild(closeBtn);
+                
+                const textSpan = document.createElement('div');
+                textSpan.id = 'debug-err-text';
+                errDiv.appendChild(textSpan);
+                
+                document.body.appendChild(errDiv);
+            }
+            document.getElementById('debug-err-text').innerText += '\n' + text;
+        }
+    </script>
+    
+    <!-- p5.js Library (Integrada Localmente) -->
+    <script src="p5.min.js"></script>
+</head>
+<body>
+    <!-- Premium Showroom Background -->
+    <div id="showroom-bg"></div>
+    <div id="showroom-spotlight"></div>
+
+    <div class="app-container">
+        <!-- LEFT PANEL: 3D Viewport -->
+        <main class="viewport-panel">
+            <header class="viewport-header">
+                <div class="logo">
+                    <span class="logo-icon">🥋</span>
+                    <div class="logo-text">
+                        <h1>KIMONO 3D</h1>
+                        <p>Simulador de Graduação & CG Shaders</p>
+                    </div>
+                </div>
+                <div class="viewport-stats">
+                    <span id="fps-counter" style="font-size: 13px; color: #a0aec0;">FPS: --</span>
+                </div>
+            </header>
+            
+            <!-- Where p5.js Canvas will be mounted -->
+            <div class="canvas-container" id="canvas-container">
+                <!-- Mounted Canvas -->
+            </div>
+        </main>
+
+        <!-- RIGHT PANEL: Glassmorphism Configuration controls -->
+        <aside class="control-panel">
+            <!-- Section 1: Nameplate Customization -->
+            <section class="input-group">
+                <h3 class="section-title">🏷️ Plaqueta do Troféu</h3>
+                <div class="input-group">
+                    <label for="input-name">Nome Principal</label>
+                    <input type="text" id="input-name" class="text-input" value="SEU NOME AQUI" maxlength="22" placeholder="Ex: Pedro Cintra">
+                </div>
+                <div class="input-group" style="margin-top: 5px;">
+                    <label for="input-subtitle">Subtítulo</label>
+                    <input type="text" id="input-subtitle" class="text-input" value="Jiu-Jitsu Champion" maxlength="28" placeholder="Ex: Faixa Preta - 2026">
+                </div>
+            </section>
+
+            <!-- Section 2: Kimono Color -->
+            <section class="input-group">
+                <h3 class="section-title">🥋 Cor do Kimono (Gi)</h3>
+                <div class="gi-grid">
+                    <button class="gi-btn active" data-color="white">Branco</button>
+                    <button class="gi-btn" data-color="blue">Azul Royal</button>
+                    <button class="gi-btn" data-color="black">Preto</button>
+                </div>
+            </section>
+
+            <!-- Section 3: Graduation Belt Selection -->
+            <section class="input-group">
+                <h3 class="section-title">🎗️ Faixa de Graduação</h3>
+                <div class="button-grid">
+                    <button class="belt-btn active btn-white" data-belt="white">Branca</button>
+                    <button class="belt-btn btn-blue" data-belt="blue">Azul</button>
+                    <button class="belt-btn btn-purple" data-belt="purple">Roxa</button>
+                    <button class="belt-btn btn-brown" data-belt="brown">Marrom</button>
+                    <button class="belt-btn btn-black" data-belt="black">Preta</button>
+                    <button class="belt-btn btn-coral" data-belt="coral">Coral Vermelha/Preta</button>
+                    <button class="belt-btn btn-coral-white" data-belt="coral-white">Coral Vermelha/Branca</button>
+                    <button class="belt-btn btn-red" data-belt="red">Vermelha</button>
+                </div>
+            </section>
+
+            <!-- Section 4: Passador de Anos (Graduação) -->
+            <section class="slider-container">
+                <h3 class="section-title">⏳ Linha do Tempo</h3>
+                <div class="slider-header">
+                    <span>Tempo de Treino</span>
+                    <span id="label-years" class="slider-val">0 anos</span>
+                </div>
+                <input type="range" id="slider-years" class="custom-range" min="0" max="56" value="0" step="0.05">
+                
+                <div id="graduation-status" style="margin-top: 8px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; border-left: 3px solid #d4af37; font-size: 13px;">
+                    <div style="display: flex; justify-content: space-between; font-weight: 600; color: #fff;">
+                        <span id="status-belt">Faixa Branca (0 Graus)</span>
+                        <span id="status-title" style="color: #d4af37;">Iniciante</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: Rendering Mode (Cel Shading) -->
+            <section class="input-group">
+                <h3 class="section-title">🎨 Modo de Renderização</h3>
+                <div class="gi-grid">
+                    <button id="btn-blinnphong" class="gi-btn active" onclick="setCelShading(0)">🔵 Realístico</button>
+                    <button id="btn-cel" class="gi-btn" onclick="setCelShading(1)">🎌 Cel Shading</button>
+                </div>
+                <p style="font-size:11px; color:#888; margin-top:6px; line-height:1.5;">Cel Shading quantiza a luz em 4 bandas criando efeito anime/mangá.</p>
+            </section>
+
+            <!-- Section 6: Consultar Faixa e Grau -->
+            <section class="input-group">
+                <h3 class="section-title">🔍 Consultar Faixa/Grau</h3>
+                <div style="display: flex; gap: 8px;">
+                    <select id="query-belt" class="text-input" style="flex:1; padding: 8px 10px; font-size: 13px;">
+                        <option value="white">Branca</option>
+                        <option value="blue">Azul</option>
+                        <option value="purple">Roxa</option>
+                        <option value="brown">Marrom</option>
+                        <option value="black">Preta</option>
+                        <option value="coral">Coral (Vermelha/Preta)</option>
+                        <option value="coral-white">Coral (Vermelha/Branca)</option>
+                        <option value="red">Vermelha</option>
+                    </select>
+                    <select id="query-degree" class="text-input" style="flex:0.5; padding: 8px 10px; font-size: 13px;">
+                        <option value="0">0°</option>
+                        <option value="1">1°</option>
+                        <option value="2">2°</option>
+                        <option value="3">3°</option>
+                        <option value="4">4°</option>
+                        <option value="5">5°</option>
+                        <option value="6">6°</option>
+                    </select>
+                </div>
+                <div id="query-result" style="margin-top: 6px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; border-left: 3px solid #4a7fc1; font-size: 13px; color: #cbd5e0; min-height: 38px;">
+                    Selecione faixa e grau para ver o tempo necessário.
+                </div>
+            </section>
+
+
+        </aside>
+    </div>
+
+    <!-- Custom Script -->
+    <script src="kimono.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
