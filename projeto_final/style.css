@@ -108,7 +108,7 @@ body {
     letter-spacing: 1px;
 }
 
-.canvas-container {
+.container-canvas {
     flex: 1;
     position: relative;
     display: flex;
@@ -120,14 +120,14 @@ body {
     box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
 }
 
-.canvas-container canvas {
+.container-canvas canvas {
     display: block;
     max-width: 100%;
     height: auto !important;
 }
 
 /* Control Panel (Glassmorphism Sidebar) */
-.control-panel {
+.painel-controle {
     flex: 0.8;
     background: rgba(17, 22, 30, 0.75);
     border: 1px solid rgba(212, 175, 55, 0.15);
@@ -166,6 +166,13 @@ body {
     letter-spacing: 0.5px;
 }
 
+/* Premium Boutique Styles */
+.boutique-hover:hover {
+    background: linear-gradient(90deg, #2d3748, #4a5568) !important;
+    color: white !important;
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.6);
+}
+
 .text-input {
     background: rgba(0, 0, 0, 0.4);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -175,6 +182,52 @@ body {
     font-family: inherit;
     font-size: 14px;
     transition: all 0.3s ease;
+}
+
+/* Size Buttons */
+.btn-size-top, .btn-size-pants, .btn-size-belt {
+    /* Use default btn-kimono styles but we need to override the circle color when active */
+}
+
+.btn-size-top.active .circulo-tamanho, .btn-size-pants.active .circulo-tamanho {
+    background-color: #d4af37 !important;
+    border-color: #d4af37 !important;
+}
+
+.circulo-tamanho {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+    background: transparent;
+    transition: all 0.2s ease;
+}
+
+.btn-color-belt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 11px;
+    padding: 8px 4px;
+    transition: all 0.2s;
+}
+
+.btn-color-belt.active {
+    border: 1px solid #d4af37;
+    background: rgba(212, 175, 55, 0.1);
+}
+
+.belt-color-circle {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
 }
 
 .text-input:focus {
@@ -190,10 +243,13 @@ body {
     gap: 10px;
 }
 
-.belt-btn {
+.btn-faixa {
+    flex: 1;
+    min-width: 0;
+    word-break: break-word;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px;
-    padding: 12px 6px;
+    padding: 12px 2px;
     cursor: pointer;
     font-family: inherit;
     font-size: 11px;
@@ -207,41 +263,23 @@ body {
     overflow: hidden;
 }
 
-.belt-btn::before {
-    content: '';
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-}
+/* Removed redundant btn-faixa::before pseudo-elements */
 
-/* Belt colors */
-.btn-white::before { background: #ffffff; }
-.btn-blue::before { background: #1a56db; }
-.btn-purple::before { background: #7e3af2; }
-.btn-brown::before { background: #6b46c1; } /* brownish purple in p5, let's use classic brown hex */
-.btn-brown::before { background: #5c3a21; }
-.btn-black::before { background: #1a1a1a; }
-.btn-coral::before { background: linear-gradient(90deg, #ff3333 50%, #1a1a1a 50%); }
-.btn-coral-white::before { background: linear-gradient(90deg, #ff3333 50%, #ffffff 50%); }
-.btn-red::before { background: #ff3333; }
-
-.belt-btn {
+.btn-faixa {
     background: rgba(255, 255, 255, 0.03);
     color: #cbd5e0;
 }
 
-.belt-btn:hover {
+.btn-faixa:hover {
     background: rgba(255, 255, 255, 0.08);
     transform: translateY(-2px);
 }
 
-.belt-btn.active {
-    background: rgba(212, 175, 55, 0.1);
-    border-color: #d4af37;
-    color: #fff;
-    box-shadow: 0 0 15px rgba(212, 175, 55, 0.15);
+.btn-faixa.active {
+    background-color: #d4af37 !important;
+    color: black !important;
+    border-color: #d4af37 !important;
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
 }
 
 /* Gi Colors Selector */
@@ -250,7 +288,7 @@ body {
     gap: 12px;
 }
 
-.gi-btn {
+.btn-kimono {
     flex: 1;
     background: rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -264,15 +302,19 @@ body {
     text-transform: capitalize;
 }
 
-.gi-btn:hover {
+.btn-kimono:hover {
     background: rgba(255, 255, 255, 0.05);
 }
 
-.gi-btn.active {
-    border-color: #d4af37;
-    background: rgba(212, 175, 55, 0.1);
-    color: #fff;
-    box-shadow: 0 0 10px rgba(212, 175, 55, 0.1);
+.btn-kimono.active {
+    background-color: #d4af37 !important;
+    color: black !important;
+    border-color: #d4af37 !important;
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+}
+
+.btn-kimono.active * {
+    color: black !important;
 }
 
 /* Camera Grid Selectors */

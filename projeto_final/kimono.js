@@ -1,267 +1,347 @@
 // kimono.js
-// Procedural Generation of the BJJ Kimono Geometry
+// Geração Procedural da Geometria do Kimono de Jiu-Jitsu
 
-let kimonoTorsoGeom;
-let kimonoLeftSleeveGeom;
-let kimonoRightSleeveGeom;
-let proceduralBeltGeom;
-let lapelLeftGeom;
-let lapelRightGeom;
+let malhaTroncoKimono;
+let malhaBracoSuperior;
+let malhaAntebraco;
+let malhaFaixa;
+let malhaLapelaEsquerda;
+let malhaLapelaDireita;
+let malhaCalca;
 
-function initKimonoGeometry() {
-    // We use p5.Geometry to build custom shapes with UVs and Normals once, caching them.
-    
-    // Use unique detailX/Y parameters to avoid p5.Geometry cache collisions!
-    kimonoTorsoGeom = new p5.Geometry(1, 1, function() {
-        let rows = 40;
-        let cols = 50;
-        
-        for (let r = 0; r <= rows; r++) {
-            let v = r / rows;
-            // Waist Y=68, Neck Y=145, Skirt Y=0 (touches the pedestal)
+function iniciarGeometriaKimono() {
+    // Usamos p5.Geometry para construir formas personalizadas com UVs e Normais uma vez, guardando em cache.
+
+    // Use parâmetros detailX/Y únicos para evitar colisões de cache no p5.Geometry!
+    malhaTroncoKimono = new p5.Geometry(1, 1, function () {
+        let linhas = 40;
+        let colunas = 50;
+
+        for (let r = 0; r <= linhas; r++) {
+            let v = r / linhas;
+            // Cintura Y=68, Pescoço Y=145, Saia Y=0 (toca o pedestal)
             let y = 0 + v * (145 - 0);
-            
+
             let rX, rZ;
             if (y < 68) {
-                // Skirt below the belt
+                // Saia abaixo da faixa
                 let t = map(y, 0, 68, 0, 1);
-                rX = lerp(66, 52.5, t); // flare out more at bottom
+                rX = lerp(66, 52.5, t); // abrir mais na parte inferior
                 rZ = lerp(45, 30, t);
             } else {
-                // Torso above the belt
+                // Tronco acima da faixa
                 let t = map(y, 68, 145, 0, 1);
                 rX = lerp(52.5, 68, t);
                 rZ = lerp(30, 38, t);
-                
-                // Curve the body (chest bulge)
-                let chestBulge = sin(t * PI);
-                rX += chestBulge * 2.0;
-                rZ += chestBulge * 4.0;
+
+                // Curvar o corpo (volume do peito)
+                let volumePeito = sin(t * PI);
+                rX += volumePeito * 2.0;
+                rZ += volumePeito * 4.0;
             }
-            
-            for (let c = 0; c <= cols; c++) {
-                let u = c / cols;
+
+            for (let c = 0; c <= colunas; c++) {
+                let u = c / colunas;
                 let angle = u * TWO_PI;
-                
+
                 let nx = cos(angle);
                 let nz = sin(angle);
-                
+
                 let px = rX * nx;
                 let pz = rZ * nz;
-                
-                // Add soft procedural cloth folds (wrinkles)
-                let foldScale = map(y, 0, 145, 0.6, 1.0);
-                if (y >= 60 && y <= 76) foldScale = 0.0; // tight at the belt
-                let wrinkle = sin(u * TWO_PI * 6.0 + v * 3.0) * sin(v * PI * 3.0) * 1.5;
-                
-                px += nx * wrinkle * foldScale;
-                pz += nz * wrinkle * foldScale;
-                
+
+                // Add soft procedural cloth folds (dobras)
+                let escalaDobra = map(y, 0, 145, 0.6, 1.0);
+
+                // Suavizar o achatamento na área da faixa para evitar linhas pretas/cortes na malha
+                let distFaixa = abs(y - 68.0);
+                if (distFaixa < 12.0) {
+                    let t = distFaixa / 12.0;
+                    let tSmooth = t * t * (3.0 - 2.0 * t); // Smoothstep manual
+                    escalaDobra *= tSmooth;
+                }
+
+                let dobra = sin(u * TWO_PI * 6.0 + v * 3.0) * sin(v * PI * 3.0) * 1.5;
+
+                px += nx * dobra * escalaDobra;
+                pz += nz * dobra * escalaDobra;
+
                 this.vertices.push(createVector(px, y, pz));
-                // UV mapping: u goes around (0 to 1), v goes up (0 to 1)
+                // Mapeamento UV: u dá a volta (0 a 1), v sobe (0 a 1)
                 this.uvs.push([u, v * 2.0]);
             }
         }
-        
-        // Generate Triangles with correct Counter-Clockwise winding order
-        for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < cols; c++) {
-                let i0 = r * (cols + 1) + c;
+
+        // Gerar triângulos com a ordem de enrolamento Anti-Horária correta
+        for (let r = 0; r < linhas; r++) {
+            for (let c = 0; c < colunas; c++) {
+                let i0 = r * (colunas + 1) + c;
                 let i1 = i0 + 1;
-                let i2 = (r + 1) * (cols + 1) + c;
+                let i2 = (r + 1) * (colunas + 1) + c;
                 let i3 = i2 + 1;
-                
-                // Flip winding order to CCW to fix black inward-pointing normals
+
+                // Inverter a ordem de enrolamento para Anti-Horária para consertar normais pretas
                 this.faces.push([i0, i2, i1]);
                 this.faces.push([i1, i2, i3]);
             }
         }
         this.computeNormals();
-    });
-    
-    // Create sleeve geometries similarly to avoid harsh cylinders
-    kimonoLeftSleeveGeom = createSleeveGeometry('left');
-    kimonoRightSleeveGeom = createSleeveGeometry('right');
-    
-    // Force unique IDs
-    kimonoTorsoGeom.id = 'kimonoTorso_geom';
-    kimonoTorsoGeom.gid = 'kimonoTorso_geom';
-    kimonoLeftSleeveGeom.id = 'kimonoLeftSleeve_geom';
-    kimonoLeftSleeveGeom.gid = 'kimonoLeftSleeve_geom';
-    kimonoRightSleeveGeom.id = 'kimonoRightSleeve_geom';
-    kimonoRightSleeveGeom.gid = 'kimonoRightSleeve_geom';
-    
-    // Create the procedural belt that wraps perfectly around the waist
-    initBeltGeometry();
-    proceduralBeltGeom.id = 'proceduralBelt_geom';
-    proceduralBeltGeom.gid = 'proceduralBelt_geom';
-    
-    lapelLeftGeom = createLapelGeometry(true);
-    lapelRightGeom = createLapelGeometry(false);
-    lapelLeftGeom.id = 'lapelLeft_geom';
-    lapelLeftGeom.gid = 'lapelLeft_geom';
-    lapelRightGeom.id = 'lapelRight_geom';
-    lapelRightGeom.gid = 'lapelRight_geom';
-}
 
-function initBeltGeometry() {
-    proceduralBeltGeom = new p5.Geometry(1, 1, function() {
-        let cols = 60; // high detail for smooth curve
-        let rows = 4;
-        
-        // Belt sits at Y=68, height=13
-        let yStart = 61.5;
-        let yEnd = 74.5;
-        
-        for (let r = 0; r <= rows; r++) {
-            let v = r / rows;
-            let y = lerp(yStart, yEnd, v);
-            
-            // Belt radius pushed further out to completely clear the body
-            let rX = 56.5;
-            let rZ = 34.0;
-            
-            for (let c = 0; c <= cols; c++) {
-                let u = c / cols;
-                let angle = u * TWO_PI;
-                
-                let nx = cos(angle);
-                let nz = sin(angle);
-                
-                let px = rX * nx;
-                let pz = rZ * nz;
-                
-                // Keep the front slightly open or just close it (the knot covers it)
-                // We'll just make a continuous tube, the knot will sit on top of the front
-                this.vertices.push(createVector(px, y, pz));
+        // Corrigir a costura (seam) do tronco fundindo as normais das bordas (u=0 e u=1)
+        for (let r = 0; r <= linhas; r++) {
+            let i0 = r * (colunas + 1) + 0;
+            let i1 = r * (colunas + 1) + colunas;
+            let n0 = this.vertexNormals[i0];
+            let n1 = this.vertexNormals[i1];
+            let avgN = p5.Vector.add(n0, n1).normalize();
+            this.vertexNormals[i0] = avgN.copy();
+            this.vertexNormals[i1] = avgN.copy();
+        }
+    });
+
+    // Criar geometrias das mangas de forma semelhante para evitar cilindros duros
+    malhaBracoSuperior = criarMalhaSegmentoBraco(48, 16, 13);
+    malhaAntebraco = criarMalhaSegmentoBraco(48, 13, 9.5);
+
+    malhaBracoSuperior.id = 'upperArm_geom';
+    malhaBracoSuperior.gid = 'upperArm_geom';
+    malhaAntebraco.id = 'forearm_geom';
+    malhaAntebraco.gid = 'forearm_geom';
+
+    // Criar a faixa procedural que envolve perfeitamente a cintura
+    iniciarMalhaFaixa();
+    malhaFaixa.id = 'proceduralBelt_geom';
+    malhaFaixa.gid = 'proceduralBelt_geom';
+
+    malhaLapelaEsquerda = criarMalhaLapela(true);
+    malhaLapelaDireita = criarMalhaLapela(false);
+    malhaLapelaEsquerda.id = 'lapelLeft_geom';
+    malhaLapelaEsquerda.gid = 'lapelLeft_geom';
+    malhaLapelaDireita.id = 'lapelRight_geom';
+    malhaLapelaDireita.gid = 'lapelRight_geom';
+
+    // Criar geometria da calça (uma perna, reutilizada esquerda e direita)
+    malhaCalca = new p5.Geometry(1, 1, function () {
+        let linhas = 40;
+        let colunas = 30;
+        for (let r = 0; r <= linhas; r++) {
+            let v = r / linhas;
+            let y = lerp(68, -80, v);
+            let radiusX = lerp(28, 18, v);
+            let radiusZ = lerp(26, 16, v);
+
+            for (let c = 0; c <= colunas; c++) {
+                let u = c / colunas;
+                let a = u * TWO_PI;
+                let w = sin(u * TWO_PI * 4) * sin(v * PI * 8) * 1.5; // dobras
+                this.vertices.push(createVector(cos(a) * radiusX + w, y, sin(a) * radiusZ + w));
                 this.uvs.push([u, v]);
             }
         }
-        
-        // Generate Triangles
-        for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < cols; c++) {
-                let i0 = r * (cols + 1) + c;
+        for (let r = 0; r < linhas; r++) {
+            for (let c = 0; c < colunas; c++) {
+                let i0 = r * (colunas + 1) + c;
                 let i1 = i0 + 1;
-                let i2 = (r + 1) * (cols + 1) + c;
+                let i2 = (r + 1) * (colunas + 1) + c;
                 let i3 = i2 + 1;
-                
-                // Y goes from 61.5 to 74.5 (increasing). So Y goes UP.
-                // If +Y is UP, then matches Torso winding order.
-                this.faces.push([i0, i2, i1]);
-                this.faces.push([i1, i2, i3]);
-            }
-        }
-        this.computeNormals();
-    });
-}
-
-function createSleeveGeometry(side) {
-    return new p5.Geometry(1, 1, function() {
-        let rows = 20;
-        let cols = 30;
-        
-        let length = 95; // Longer sleeves, below the belt
-        let startRadius = 16; // Much thinner shoulder
-        let endRadius = 10; // Much thinner wrist
-        
-        for (let r = 0; r <= rows; r++) {
-            let v = r / rows;
-            let currentRadius = lerp(startRadius, endRadius, v);
-            // Negative Y to go DOWN the arm (since +Y is visually UP in p5)
-            let y = -v * length;
-            
-            for (let c = 0; c <= cols; c++) {
-                let u = c / cols;
-                let angle = u * TWO_PI;
-                
-                let nx = cos(angle);
-                let nz = sin(angle);
-                
-                let px = currentRadius * nx;
-                let pz = currentRadius * nz;
-                
-                // Add soft sleeve folds
-                let wrinkle = sin(u * TWO_PI * 5.0) * sin(v * PI * 4.0) * 1.2;
-                px += nx * wrinkle;
-                pz += nz * wrinkle;
-                
-                this.vertices.push(createVector(px, y, pz));
-                this.uvs.push([u, v]);
-            }
-        }
-        
-        for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < cols; c++) {
-                let i0 = r * (cols + 1) + c;
-                let i1 = i0 + 1;
-                let i2 = (r + 1) * (cols + 1) + c;
-                let i3 = i2 + 1;
-                
-                // CCW winding order for sleeves (since Y goes from 0 down to -85)
                 this.faces.push([i0, i1, i2]);
                 this.faces.push([i1, i3, i2]);
             }
         }
         this.computeNormals();
+
+        // Corrigir a costura (seam) da calça
+        for (let r = 0; r <= linhas; r++) {
+            let i0 = r * (colunas + 1) + 0;
+            let i1 = r * (colunas + 1) + colunas;
+            let n0 = this.vertexNormals[i0];
+            let n1 = this.vertexNormals[i1];
+            let avgN = p5.Vector.add(n0, n1).normalize();
+            this.vertexNormals[i0] = avgN.copy();
+            this.vertexNormals[i1] = avgN.copy();
+        }
+    });
+    malhaCalca.id = 'pants_geom';
+    malhaCalca.gid = 'pants_geom';
+}
+
+function iniciarMalhaFaixa() {
+    malhaFaixa = new p5.Geometry(1, 1, function () {
+        let colunas = 60; // alto detalhe para curva suave
+        let linhas = 4;
+
+        // Faixa fica em Y=68, altura=13
+        let yStart = 61.5;
+        let yEnd = 74.5;
+
+        for (let r = 0; r <= linhas; r++) {
+            let v = r / linhas;
+            let y = lerp(yStart, yEnd, v);
+
+            // Raio da faixa empurrado mais para fora para liberar totalmente o corpo
+            let rX = 56.5;
+            let rZ = 34.0;
+
+            for (let c = 0; c <= colunas; c++) {
+                let u = c / colunas;
+                let angle = u * TWO_PI;
+
+                let nx = cos(angle);
+                let nz = sin(angle);
+
+                let px = rX * nx;
+                let pz = rZ * nz;
+
+                // Manter a frente levemente aberta ou fechar (o nó cobre)
+                // Faremos apenas um tubo contínuo, o nó ficará no topo da frente
+                this.vertices.push(createVector(px, y, pz));
+                this.uvs.push([u, v]);
+            }
+        }
+
+        // Gerar Triângulos
+        for (let r = 0; r < linhas; r++) {
+            for (let c = 0; c < colunas; c++) {
+                let i0 = r * (colunas + 1) + c;
+                let i1 = i0 + 1;
+                let i2 = (r + 1) * (colunas + 1) + c;
+                let i3 = i2 + 1;
+
+                // Y vai de 61.5 a 74.5 (aumentando). Então Y sobe.
+                // Se +Y é para CIMA, então combina com a ordem de enrolamento do Tronco.
+                this.faces.push([i0, i2, i1]);
+                this.faces.push([i1, i2, i3]);
+            }
+        }
+        this.computeNormals();
+
+        // Corrigir a costura (seam) do tronco
+        for (let j = 0; j <= linhas; j++) {
+            let i0 = j * (colunas + 1) + 0;
+            let i1 = j * (colunas + 1) + colunas;
+            let n0 = this.vertexNormals[i0];
+            let n1 = this.vertexNormals[i1];
+            let avgN = p5.Vector.add(n0, n1).normalize();
+            this.vertexNormals[i0] = avgN.copy();
+            this.vertexNormals[i1] = avgN.copy();
+        }
     });
 }
 
-function createLapelGeometry(isLeft) {
-    return new p5.Geometry(1, 1, function() {
-        let rows = 30;
-        
-        for (let r = 0; r <= rows; r++) {
-            let v = r / rows;
-            let y = lerp(145, 68, v); // Stop exactly at the belt (68) so it doesn't stick out below
-            
-            // Torso dimensions at this Y
-            let t = map(y, 68, 145, 0, 1);
+function criarMalhaSegmentoBraco(length, startRadius, endRadius) {
+    return new p5.Geometry(1, 1, function () {
+        let linhas = 15;
+        let colunas = 30;
+
+        for (let r = 0; r <= linhas; r++) {
+            let v = r / linhas;
+            let raioAtual = lerp(startRadius, endRadius, v);
+            // Y negativo para descer o braço (já que +Y é visualmente para CIMA no p5)
+            let y = -v * length;
+
+            for (let c = 0; c <= colunas; c++) {
+                let u = c / colunas;
+                let angle = u * TWO_PI;
+
+                let nx = cos(angle);
+                let nz = sin(angle);
+
+                let px = raioAtual * nx;
+                let pz = raioAtual * nz;
+
+                // Adicionar dobras suaves na manga
+                let dobra = sin(u * TWO_PI * 5.0) * sin(v * PI * 4.0) * 1.2;
+                px += nx * dobra;
+                pz += nz * dobra;
+
+                this.vertices.push(createVector(px, y, pz));
+                this.uvs.push([u, v]);
+            }
+        }
+
+        for (let r = 0; r < linhas; r++) {
+            for (let c = 0; c < colunas; c++) {
+                let i0 = r * (colunas + 1) + c;
+                let i1 = i0 + 1;
+                let i2 = (r + 1) * (colunas + 1) + c;
+                let i3 = i2 + 1;
+
+                // Ordem de enrolamento Anti-Horária para mangas
+                this.faces.push([i0, i1, i2]);
+                this.faces.push([i1, i3, i2]);
+            }
+        }
+        this.computeNormals();
+
+        // Corrigir a costura (seam) do cilindro fundindo as normais das bordas (u=0 e u=1)
+        for (let r = 0; r <= linhas; r++) {
+            let i0 = r * (colunas + 1) + 0;
+            let i1 = r * (colunas + 1) + colunas;
+            let n0 = this.vertexNormals[i0];
+            let n1 = this.vertexNormals[i1];
+            let avgN = p5.Vector.add(n0, n1).normalize();
+            this.vertexNormals[i0] = avgN.copy();
+            this.vertexNormals[i1] = avgN.copy();
+        }
+    });
+}
+
+function criarMalhaLapela(ehEsquerdo) {
+    return new p5.Geometry(1, 1, function () {
+        let linhas = 30;
+
+        for (let r = 0; r <= linhas; r++) {
+            let v = r / linhas;
+            let y = lerp(145, 60, v); // Estender até 60 para esconder completamente sob a faixa
+
+            // Dimensões do tronco neste Y
+            let t = map(y, 60, 145, 0, 1);
             if (t < 0) t = 0;
             let rX = lerp(52.5, 68, t);
             let rZ = lerp(30, 38, t);
-            let chestBulge = sin(t * PI);
-            rX += chestBulge * 2.0;
-            rZ += chestBulge * 4.0;
-            
-            // isLeft means WEARER's left (viewer's right)
-            // Top lapel goes to -10 (across center). Under lapel goes to 15.
-            let xCenter = isLeft ? lerp(35, -10, v) : lerp(-35, 10, v);
+            let volumePeito = sin(t * PI);
+            rX += volumePeito * 2.0;
+            rZ += volumePeito * 4.0;
+
+            // ehEsquerdo means WEARER's left (viewer's right)
+            // Fazer a lapela cruzar mais para o lado (como um Kimono real) até -15 e 15
+            let xCenter = ehEsquerdo ? lerp(35, -15, v) : lerp(-35, 15, v);
             let angleCenter = acos(constrain(xCenter / rX, -1, 1));
-            
-            let widthAngle = 0.30; // Increased to ensure no gap
+
+            // Lógica SEPARADA para cada lapela (Esquerda vs Direita)
+            let anguloLargura = 0.20; // Largura base no pescoço
+
+            // Sem lógica de afinamento (removido o map para 0.0)
+            // Assim a lapela continua grossa até o fim, formando um V perfeito sem bico!
+
             for (let c = 0; c <= 1; c++) {
-                let angle = angleCenter + (c === 0 ? -widthAngle/2 : widthAngle/2);
+                let angle = angleCenter + (c === 0 ? -anguloLargura / 2 : anguloLargura / 2);
                 let px = rX * cos(angle);
                 let pz = rZ * sin(angle);
-                
-                // Left lapel goes OVER right lapel.
-                let thickness = isLeft ? 5.5 : 3.0; // Increased thickness to avoid clipping
-                
-                // Make the under lapel vanish into the chest a bit lower down
-                if (!isLeft && v > 0.6) {
-                    thickness -= (v - 0.6) * 30.0; 
+
+                // Lapela esquerda passa POR CIMA da direita.
+                // Espessura muito fina para "grudar" no kimono e não criar vão
+                let espessura = ehEsquerdo ? 0.8 : 0.4;
+
+                // Prender ambas as lapelas suavemente para dentro do kimono no final
+                if (v > 0.6) {
+                    espessura -= (v - 0.6) * 10.0;
                 }
-                
-                // Tuck both lapels behind the belt at the very bottom
-                if (v > 0.8) {
-                    thickness -= (v - 0.8) * 20.0;
-                }
-                px += cos(angle) * thickness;
-                pz += sin(angle) * thickness;
-                
+                px += cos(angle) * espessura;
+                pz += sin(angle) * espessura;
+
                 this.vertices.push(createVector(px, y, pz));
                 this.uvs.push([c, v]);
             }
         }
-        
-        for (let r = 0; r < rows; r++) {
+
+        for (let r = 0; r < linhas; r++) {
             let i0 = r * 2;
             let i1 = i0 + 1;
             let i2 = (r + 1) * 2;
             let i3 = i2 + 1;
-            
-            // Fix winding order to OUTWARDS to prevent black normals (Lapels are drawn top-down, so Y decreases)
+
+            // Consertar a ordem de enrolamento para FORA para prevenir normais pretas
             this.faces.push([i0, i1, i2]);
             this.faces.push([i1, i3, i2]);
         }
@@ -269,78 +349,134 @@ function createLapelGeometry(isLeft) {
     });
 }
 
-function drawKimonoTorso() {
-    // If not initialized yet, initialize them
-    if (!kimonoTorsoGeom) {
-        initKimonoGeometry();
+function desenharTroncoKimono() {
+    // Se ainda não foi inicializado, inicializar
+    if (!malhaTroncoKimono) {
+        iniciarGeometriaKimono();
     }
-    
-    // Globally disable strokes so no black wireframes appear on anything (spheres, collars, etc)
+
+    // Desativar contornos globalmente para não aparecer wireframes pretos (spheres, collars, etc)
     noStroke();
-    
-    // Material Type 1: Matte Procedural Pearl Weave Fabric
-    myShader.setUniform('uMaterialType', 1);
-    
-    let col = [0.95, 0.95, 0.95]; // Default White
-    if (currentGiColor === 'blue') {
-        col = [0.08, 0.22, 0.58]; // Royal blue
-    } else if (currentGiColor === 'black') {
-        col = [0.12, 0.12, 0.14]; // Pitch Black
+
+    // Material Type 1: Tecido Trançado Fosco Procedural
+    meuShader.setUniform('uMaterialType', 1);
+
+    let col = [0.95, 0.95, 0.95]; // Branco Padrão
+    let giColorStr = 'white';
+    if (window.modoApp === 'boutique') {
+        giColorStr = window.corKimonoAtual || 'white';
+    } else {
+        giColorStr = (window.estadoLoja && window.estadoLoja.blusa) ? window.estadoLoja.blusa.cor : 'white';
     }
-    myShader.setUniform('uBaseColor', col);
-    
-    // Draw the procedural Torso
+
+    if (giColorStr === 'blue') {
+        col = [0.08, 0.22, 0.58]; // Azul Royal
+    } else if (giColorStr === 'black') {
+        col = [0.12, 0.12, 0.14]; // Preto Profundo
+    }
+
+    // -----------------------------------------------------------------
+    // DESENHO DO CORPO (Torso e Mangas)
+    // -----------------------------------------------------------------
+
+    // TRONCO PRINCIPAL DO KIMONO
+    // Toda a abertura do peito, rashguard e lapela são desenhados 
+    // diretamente via fragment shader (frag.glsl)!
     push();
-    model(kimonoTorsoGeom);
+    meuShader.setUniform('uMaterialType', 1);
+    meuShader.setUniform('uBaseColor', col);
+
+    // Configurar o decalque do peito
+    meuShader.setUniform('uKimonoPart', 1);
+    let brand = (typeof modoApp !== 'undefined' && modoApp === 'ecommerce' && typeof estadoLoja !== 'undefined') ? estadoLoja.blusa.marca : 'Atama';
+
+    let brandId = 0; // Atama
+    if (brand === 'Vouk') brandId = 1;
+    if (brand === 'Kingz') brandId = 2;
+    meuShader.setUniform('uBrandId', brandId);
+
+    let isLightGi = false;
+    if (col && (col.toLowerCase().includes('white') || col.toLowerCase().includes('fff'))) isLightGi = true;
+    
+    if (brand === 'Vouk' && typeof texturaVouk !== 'undefined') meuShader.setUniform('texPeito', texturaVouk);
+    if (brand === 'Atama' && typeof texturaPeitoAtamaClara !== 'undefined') meuShader.setUniform('texPeito', isLightGi ? texturaPeitoAtamaEscura : texturaPeitoAtamaClara);
+    if (brand === 'Kingz' && typeof texturaPeitoKingzClara !== 'undefined') meuShader.setUniform('texPeito', isLightGi ? texturaPeitoKingzEscura : texturaPeitoKingzClara);
+
+    model(malhaTroncoKimono);
+
+    meuShader.setUniform('uKimonoPart', 0); // Reset
     pop();
-    
-    // Draw Inner Chest (Rashguard/Shirt) to show behind the V-neck
-    // We use a slightly scaled-down Torso so it perfectly hugs the body shape!
-    push();
-    myShader.setUniform('uMaterialType', 5);
-    myShader.setUniform('tex', rashguardTex);
-    scale(0.97, 1.0, 0.97); // 3% smaller in X and Z
-    model(kimonoTorsoGeom);
-    pop();
-    
-    // RESTORE Kimono Material and Color for the Sleeves!
-    myShader.setUniform('uMaterialType', 1);
-    myShader.setUniform('uBaseColor', col);
-    
-    // Draw Left Sleeve
-    push();
-    // Shoulder attachment point
-    translate(-60, 134, 0); // attached at the sphere
-    rotateZ(radians(-20)); // Point more DOWNWARDS
-    model(kimonoLeftSleeveGeom);
-    pop();
-    
-    // Draw Right Sleeve
-    push();
-    translate(60, 134, 0); // attached at the sphere
-    rotateZ(radians(20)); // Point more DOWNWARDS
-    model(kimonoRightSleeveGeom);
-    pop();
-    
-    // Shoulder rounded ends to cap the sleeves smoothly
-    // Use solid material so they don't get black Moire patterns
-    myShader.setUniform('uMaterialType', 4); 
-    push();
-    translate(-60, 134, 0);
-    sphere(16);
-    pop();
-    push();
-    translate(60, 134, 0);
-    sphere(16);
-    pop();
-    
-    // COLLAR LAPELS (Gola do Kimono)
-    // Procedural rendering of the lapel as overlapping ribbons
-    drawLapel();
-    
-    // Inside shadow/neck opening
-    myShader.setUniform('uMaterialType', 4);
-    myShader.setUniform('uBaseColor', [0.08, 0.08, 0.08]);
+
+    // O peito interno (Rashguard) agora é resolvido via Fragment Shader,
+    // garantindo que NADA vaze ou trespasse a malha do kimono!
+
+    // RESTAURAR Material e Cor do Kimono para as Mangas!
+    meuShader.setUniform('uMaterialType', 1);
+    meuShader.setUniform('uBaseColor', col);
+
+    // --- SISTEMA HIERÁRQUICO DE OSSOS (Cinemática Direta) ---
+    // Garantir que 'pose' global está definida no script.js
+    let p = typeof pose !== 'undefined' ? pose : { lShoulderZ: -20, lShoulderX: 0, lElbowX: -5, rShoulderZ: 20, rShoulderX: 0, rElbowX: -5 };
+
+    // função auxiliar para desenhar um braço
+    let drawArm = function (ehEsquerdo) {
+        let sign = ehEsquerdo ? -1 : 1;
+        let sZ = ehEsquerdo ? p.lShoulderZ : p.rShoulderZ;
+        let sX = ehEsquerdo ? p.lShoulderX : p.rShoulderX;
+        let eX = ehEsquerdo ? p.lElbowX : p.rElbowX;
+
+        push();
+        // 1. Articulação do Ombro (Translação a partir do tronco)
+        translate(sign * 60, 134, 0);
+
+        // Capa Esférica do Ombro (Usa o mesmo tecido do kimono para não parecer uma bola de plástico)
+        meuShader.setUniform('uMaterialType', 1);
+        sphere(15);
+
+        // 2. Rotação do Ombro
+        rotateZ(radians(sZ));
+        rotateX(radians(sX));
+
+        // 3. Desenhar Braço Superior
+        let pantsColor = (typeof modoApp !== 'undefined' && modoApp === 'ecommerce' && typeof estadoLoja !== 'undefined') ? estadoLoja.calca.cor : 'white';
+        let isLightPants = (pantsColor && typeof pantsColor === 'string') ? pantsColor.toLowerCase().replace(/\s/g, '').includes('white') || pantsColor.toLowerCase().includes('fff') : false;
+
+        if (brand === 'Vouk' && typeof texturaCalcaVouk !== 'undefined') {
+            meuShader.setUniform('texCalca', texturaCalcaVouk);
+        } else if (brand === 'Atama' && typeof texturaCalcaAtamaClara !== 'undefined') {
+            meuShader.setUniform('texCalca', isLightPants ? texturaCalcaAtamaEscura : texturaCalcaAtamaClara);
+        } else if (brand === 'Kingz' && typeof texturaCalcaKingz !== 'undefined') {
+            meuShader.setUniform('texCalca', texturaCalcaKingz);
+        }      model(malhaBracoSuperior);
+        meuShader.setUniform('uKimonoPart', 0); // Reset
+
+        // 4. Articulação do Cotovelo (Translação para o fim do braço superior)
+        translate(0, -48, 0); // Comprimento do braço superior é 48
+
+        // Capa Esférica do Cotovelo (Usa o tecido do kimono para misturar perfeitamente)
+        meuShader.setUniform('uMaterialType', 1);
+        sphere(11.5);
+
+        // 5. Rotação do Cotovelo (Articulação de Dobradiça)
+        rotateX(radians(eX));
+
+        // 6. Desenhar Antebraço
+        model(malhaAntebraco);
+
+        pop();
+    };
+
+    // Desenhar Braços Esquerdo e Direito Hierarquicamente
+    drawArm(true);
+    drawArm(false);
+
+    // LAPELAS DA GOLA (Agora no Shader!)
+    // As malhas 3D antigas foram removidas para usar a lapela procedural
+    // no frag.glsl. Isso permite projeção de decalque sem degraus!
+
+    // Parte de trás da Gola (Sombra interna / Abertura do pescoço)
+    meuShader.setUniform('uMaterialType', 4);
+    meuShader.setUniform('uBaseColor', [0.08, 0.08, 0.08]);
     push();
     translate(0, 150, 0);
     rotateX(HALF_PI);
@@ -348,26 +484,206 @@ function drawKimonoTorso() {
     pop();
 }
 
-function drawLapel() {    
-    // COLLAR LAPELS (Procedural)
-    // Use solid fabric material so lapels stand out clearly from the pearl weave torso
-    myShader.setUniform('uMaterialType', 4);
-    
-    // Very subtly darker shade of the kimono color (98%) so it looks like the exact same fabric
-    let col = [0.95, 0.95, 0.95]; 
-    if (currentGiColor === 'blue') col = [0.08, 0.22, 0.58];
-    else if (currentGiColor === 'black') col = [0.12, 0.12, 0.14];
-    myShader.setUniform('uBaseColor', [col[0]*0.98, col[1]*0.98, col[2]*0.98]);
-    
+function desenharLapela() {
+    // LAPELAS DA GOLA (Procedural)
+    // Usar material de tecido sólido para as lapelas se destacarem
+    meuShader.setUniform('uMaterialType', 4);
+
+    // Tom sutilmente mais escuro (98%) para parecer o mesmo tecido
+    let col = [0.95, 0.95, 0.95];
+    let giColorStr = 'white';
+    if (window.modoApp === 'boutique') {
+        giColorStr = window.corKimonoAtual || 'white';
+    } else {
+        giColorStr = (window.estadoLoja && window.estadoLoja.blusa) ? window.estadoLoja.blusa.cor : 'white';
+    }
+
+    if (giColorStr === 'blue') col = [0.08, 0.22, 0.58];
+    else if (giColorStr === 'black') col = [0.12, 0.12, 0.14];
+
+    // Estilo personalizado da marca para a Lapela
+    let brand = (typeof modoApp !== 'undefined' && modoApp === 'ecommerce' && typeof estadoLoja !== 'undefined') ? estadoLoja.blusa.marca : 'Atama';
+
+    meuShader.setUniform('uBaseColor', [col[0] * 0.98, col[1] * 0.98, col[2] * 0.98]);
+
     push();
-    model(lapelRightGeom); // Draw bottom first
-    model(lapelLeftGeom);  // Draw top
+
+    // ATIVAR PROJEÇÃO DE DECALQUE NO PEITO PARA A LAPELA
+    meuShader.setUniform('uKimonoPart', 1);
+    isLightGi = false;
+    if (col && (col.toLowerCase().includes('white') || col.toLowerCase().includes('fff'))) isLightGi = true;
+
+    if (brand === 'Vouk' && typeof texturaVouk !== 'undefined') meuShader.setUniform('texPeito', texturaVouk);
+    if (brand === 'Atama' && typeof texturaPeitoAtamaClara !== 'undefined') meuShader.setUniform('texPeito', isLightGi ? texturaPeitoAtamaEscura : texturaPeitoAtamaClara);
+    if (brand === 'Kingz' && typeof texturaPeitoKingzClara !== 'undefined') meuShader.setUniform('texPeito', isLightGi ? texturaPeitoKingzEscura : texturaPeitoKingzClara);
+
+    model(malhaLapelaDireita); // Desenhar o de baixo primeiro
+    model(malhaLapelaEsquerda);  // Desenhar o de cima
+
+    meuShader.setUniform('uKimonoPart', 0); // reset
     pop();
-    
-    // Collar Back
+
+    // Parte de trás da Gola
     push();
     translate(0, 145, -8);
     rotateX(HALF_PI);
     cylinder(38, 12);
+    pop();
+}
+
+function desenharCalca() {
+    if (!malhaCalca) iniciarGeometriaKimono();
+
+    let pColorStr = 'white';
+    if (window.modoApp === 'boutique') {
+        // Usar a cor da blusa para a calça no modo clássico
+        pColorStr = window.corKimonoAtual || 'white';
+    } else {
+        pColorStr = (window.estadoLoja && window.estadoLoja.calca) ? window.estadoLoja.calca.cor : 'white';
+    }
+
+    let pColor = [0.95, 0.95, 0.95];
+    if (pColorStr === 'blue') pColor = [0.08, 0.22, 0.58];
+    if (pColorStr === 'black') pColor = [0.12, 0.12, 0.14];
+
+    meuShader.setUniform('uMaterialType', 1);
+    meuShader.setUniform('uBaseColor', pColor);
+    noStroke();
+
+    // Desenhar perna esquerda
+    push();
+    translate(-16.5, 0, 0);
+    meuShader.setUniform('uKimonoPart', 4);
+    let brand = (typeof modoApp !== 'undefined' && modoApp === 'ecommerce' && typeof estadoLoja !== 'undefined') ? estadoLoja.calca.marca : 'Atama';
+
+    let brandId = 0; // Atama
+    if (brand === 'Vouk') brandId = 1;
+    if (brand === 'Kingz') brandId = 2;
+    meuShader.setUniform('uBrandId', brandId);
+
+    if (brand === 'Vouk' && typeof texturaCalcaVouk !== 'undefined') {
+        meuShader.setUniform('texCalca', texturaCalcaVouk);
+        meuShader.setUniform('uPantsPatchSize', [18.0, 18.0]);
+    } else if (brand === 'Atama' && typeof texturaCalcaAtama !== 'undefined') {
+        meuShader.setUniform('texCalca', texturaCalcaAtama);
+        meuShader.setUniform('uPantsPatchSize', [18.0, 18.0]);
+    } else if (brand === 'Kingz' && typeof texturaCalcaKingz !== 'undefined') {
+        meuShader.setUniform('texCalca', texturaCalcaKingz);
+        meuShader.setUniform('uPantsPatchSize', [18.0, 18.0]);
+    }
+    model(malhaCalca);
+    meuShader.setUniform('uKimonoPart', 0); // Reset
+    pop();
+
+    // Desenhar perna direita
+    push();
+    translate(16.5, 0, 0);
+    // Remove scale(-1, 1, 1) so text doesn't render backwards
+    meuShader.setUniform('uKimonoPart', 5); // Right leg
+
+    // Bind texture again just to be 100% safe
+    if (brand === 'Vouk' && typeof texturaCalcaVouk !== 'undefined') {
+        meuShader.setUniform('texCalca', texturaCalcaVouk);
+        meuShader.setUniform('uPantsPatchSize', [18.0, 18.0]);
+    } else if (brand === 'Atama' && typeof texturaCalcaAtama !== 'undefined') {
+        meuShader.setUniform('texCalca', texturaCalcaAtama);
+        meuShader.setUniform('uPantsPatchSize', [18.0, 18.0]);
+    } else if (brand === 'Kingz' && typeof texturaCalcaKingz !== 'undefined') {
+        meuShader.setUniform('texCalca', texturaCalcaKingz);
+        meuShader.setUniform('uPantsPatchSize', [18.0, 18.0]);
+    }
+
+    model(malhaCalca);
+    meuShader.setUniform('uKimonoPart', 0); // Reset
+    pop();
+
+    // Preenchimento do Quadril/Virilha
+    push();
+    translate(0, 60, 0);
+    scale(24, 18, 20);
+    sphere(1, 16, 16);
+    pop();
+}
+
+function desenharManequim() {
+    push();
+    scale(1, -1, 1); // Inverter verticalmente devido à câmera
+    meuShader.setUniform('uMaterialType', 1); // Acabamento fosco
+    meuShader.setUniform('uBaseColor', [0.75, 0.55, 0.45]); // Cor de pele
+    noStroke();
+
+    // Cabeça
+    push();
+    translate(0, -90, 5);
+    ellipsoid(16, 20, 18);
+    pop();
+
+    // Pescoço
+    push();
+    translate(0, -70, 2);
+    cylinder(7, 20);
+    pop();
+
+    // Tronco (um pouco menor que o kimono)
+    push();
+    translate(0, -10, 0);
+    ellipsoid(28, 50, 18);
+    pop();
+
+    // Braço Esquerdo
+    push();
+    translate(-26, -50, 0); // Pivô do ombro
+    rotateZ(pose.lShoulderZ);
+    rotateX(pose.lShoulderX);
+    translate(0, 25, 0); // Mover para o centro do braço
+    cylinder(7, 50);
+
+    translate(0, 25, 0); // Pivô do cotovelo
+    rotateX(pose.lElbowX);
+    translate(0, 20, 0); // Mover para o centro do antebraço
+    cylinder(6.5, 40);
+
+    // Mão Esquerda
+    translate(0, 20, 0);
+    ellipsoid(7, 10, 8);
+    pop();
+
+    // Braço Direito
+    push();
+    translate(26, -50, 0); // Pivô do ombro
+    rotateZ(pose.rShoulderZ);
+    rotateX(pose.rShoulderX);
+    translate(0, 25, 0);
+    cylinder(7, 50);
+
+    translate(0, 25, 0);
+    rotateX(pose.rElbowX);
+    translate(0, 20, 0);
+    cylinder(6.5, 40);
+
+    // Mão Direita
+    translate(0, 20, 0);
+    ellipsoid(7, 10, 8);
+    pop();
+
+    // Pernas
+    // Perna Esquerda
+    push();
+    translate(-16, 50, 0);
+    cylinder(11, 80);
+    // Pé Esquerdo
+    translate(0, 40, 8);
+    ellipsoid(9, 6, 15);
+    pop();
+
+    // Perna Direita
+    push();
+    translate(16, 50, 0);
+    cylinder(11, 80);
+    // Pé Direito
+    translate(0, 40, 8);
+    ellipsoid(9, 6, 15);
+    pop();
+
     pop();
 }

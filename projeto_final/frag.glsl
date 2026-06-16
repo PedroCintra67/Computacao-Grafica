@@ -17,6 +17,12 @@ uniform vec3 uLightDir;         // View-space light direction
 uniform int uMaterialType;      // Material flag
 uniform vec3 uBaseColor;        // Base color for the active material
 uniform int uCelShading;        // 0=normal Blinn-Phong, 1=Cel/Toon shading
+uniform float uKimonoPart;      // 0=None, 1=Chest, 2=LeftArm, 3=RightArm, 4=LeftPants, 5=RightPants
+uniform sampler2D texPeito;
+uniform sampler2D texOmbro;
+uniform sampler2D texCalca;
+uniform vec2 uPantsPatchSize;
+uniform int uBrandId;
 
 void main() {
     // Vectors for lighting
@@ -44,27 +50,175 @@ void main() {
     }
     
     // Material 1: Kimono Fabric (Matte Pearl Weave)
-    else if (uMaterialType == 1) {
+    if (uMaterialType == 1) {
         diffuseColor = uBaseColor;
         
-        // V-Neck Cutout for Kimono Torso
-        // vTexCoord.y goes 0.0 to 2.0. Neck is 2.0. Cross is ~1.0. Front center is x=0.25.
-        if (vTexCoord.y > 1.25) {
-            float vWidth = (vTexCoord.y - 1.25) * 0.10; 
-            if (abs(vTexCoord.x - 0.25) < vWidth) {
-                discard; // Creates the physical opening on the chest!
+        float distFront = abs(vTexCoord.x - 0.25);
+        
+        // Soft Noise Texture (Pearl Weave)
+        float noise = fract(sin(dot(vModelPosition.xyz, vec3(12.9898, 78.233, 45.164))) * 43758.5453);
+        vec3 weaveBump = vec3(noise * 0.05);
+        
+        // --- V-NECK, RASHGUARD E LAPELA TOTALMENTE PROCEDURAIS ---
+        float vCutoutEdge = (vTexCoord.y - 1.25) * 0.10; // Borda interna do V
+        float lapelEdge = (vTexCoord.y - 1.25) * 0.10 + 0.028; // Borda externa da lapela (reduzido para ficar mais fina)
+        
+        if (vTexCoord.y > 1.25 && distFront < vCutoutEdge) {
+            // Rashguard Interna (Lycra Preta) - Sem bump de kimono
+            diffuseColor = vec3(0.08, 0.08, 0.09);
+            N = normalize(vNormal); 
+            specularStrength = 0.02;
+            shininess = 2.0;
+        } else if (lapelEdge > 0.0 && distFront < lapelEdge) {
+            // Faixa da Lapela (Escurecida) - Mantém a textura do kimono
+            diffuseColor = uBaseColor * 0.85; 
+            N = normalize(N + weaveBump);
+            specularStrength = 0.08;
+            shininess = 6.0;
+        } else {
+            // Tecido Principal (Pearl Weave)
+            diffuseColor = uBaseColor;
+            N = normalize(N + weaveBump);
+            specularStrength = 0.08;
+            shininess = 6.0;
+        }
+    }
+        
+    // Material 4: Solid Matte Fabric (Lapels, Spheres, Collar)
+    else if (uMaterialType == 4) {
+        diffuseColor = uBaseColor;
+        specularStrength = 0.05;
+        shininess = 2.0;
+    }
+    
+    // --- GLOBAL DECAL PROJECTION MAPPING (Bordado Direto na Malha) ---
+    // Apply to any fabric (Material 1, 4, etc.)
+    if (uMaterialType == 1 || uMaterialType == 4 || uMaterialType == 5) {
+        vec4 decalColor = vec4(0.0);
+        float shadowAlpha = 0.0;
+        
+        // Função para apagar bordas do decalque e evitar linhas de bounding box
+        #define FADE_EDGE(uv) (smoothstep(0.0, 0.03, uv.x) * smoothstep(1.0, 0.97, uv.x) * smoothstep(0.0, 0.03, uv.y) * smoothstep(1.0, 0.97, uv.y))
+        
+        if (abs(uKimonoPart - 1.0) < 0.1) {
+            vec3 projCenter;
+            vec2 uv;
+            vec3 p;
+            if (uBrandId == 2) {
+                // Kingz: Centro do Peito, mais largo
+                projCenter = vec3(-40.0, 110.0, 43.0);
+                p = vModelPosition - projCenter;
+                uv = vec2(1.0 - (p.x / 45.0 + 0.5), -p.y / 18.0 + 0.5);
+            } else {
+                // Atama/Vouk: Barra da saia (Esquerda do usuário)
+                projCenter = vec3(-30.0, 45.0, 35.0);
+                p = vModelPosition - projCenter;
+                uv = vec2(1.0 - (p.x / 36.0 + 0.5), -p.y / 18.0 + 0.5);
+            }
+            
+            if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0 && abs(p.z) < 30.0) {
+                decalColor = texture(texPeito, uv);
+                decalColor.a *= FADE_EDGE(uv);
+                
+                vec2 shadowUv = uv + vec2(-0.015, 0.015);
+                if (uBaseColor.r > 0.8 && shadowUv.x > 0.0 && shadowUv.x < 1.0 && shadowUv.y > 0.0 && shadowUv.y < 1.0) {
+                    shadowAlpha = texture(texPeito, shadowUv).a * FADE_EDGE(shadowUv);
+                }
+            }
+        } else if (abs(uKimonoPart - 2.0) < 0.1) {
+            // Left Sleeve Patch Projection
+            vec3 p = vModelPosition - vec3(-11.5, -18.0, 11.5);
+            float cx = cos(0.069); float sx = sin(0.069); // Inverse rotX(-4 deg)
+            vec3 p1 = vec3(p.x, p.y * cx - p.z * sx, p.y * sx + p.z * cx);
+            float cy = cos(0.785); float sy = sin(0.785); // Inverse rotY(45 deg)
+            vec3 p2 = vec3(p1.x * cy + p1.z * sy, p1.y, -p1.x * sy + p1.z * cy);
+            
+            vec2 uv = vec2(1.0 - (p2.x / 18.0 + 0.5), -p2.y / 18.0 + 0.5);
+            if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0 && abs(p2.z) < 10.0) {
+                decalColor = texture(texOmbro, uv);
+                decalColor.a *= FADE_EDGE(uv);
+                
+                vec2 shadowUv = uv + vec2(-0.015, 0.015);
+                if (uBaseColor.r > 0.8 && shadowUv.x > 0.0 && shadowUv.x < 1.0 && shadowUv.y > 0.0 && shadowUv.y < 1.0) {
+                    shadowAlpha = texture(texOmbro, shadowUv).a * FADE_EDGE(shadowUv);
+                }
+            }
+        } else if (abs(uKimonoPart - 3.0) < 0.1) {
+            // Right Sleeve Patch Projection
+            vec3 p = vModelPosition - vec3(11.5, -18.0, 11.5);
+            float cx = cos(-0.069); float sx = sin(-0.069); // Inverse rotX(4 deg)
+            vec3 p1 = vec3(p.x, p.y * cx - p.z * sx, p.y * sx + p.z * cx);
+            float cy = cos(-0.785); float sy = sin(-0.785); // Inverse rotY(-45 deg)
+            vec3 p2 = vec3(p1.x * cy + p1.z * sy, p1.y, -p1.x * sy + p1.z * cy);
+            
+            vec2 uv = vec2(1.0 - (p2.x / 18.0 + 0.5), -p2.y / 18.0 + 0.5);
+            if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0 && abs(p2.z) < 10.0) {
+                decalColor = texture(texOmbro, uv);
+                decalColor.a *= FADE_EDGE(uv);
+                
+                vec2 shadowUv = uv + vec2(-0.015, 0.015);
+                if (uBaseColor.r > 0.8 && shadowUv.x > 0.0 && shadowUv.x < 1.0 && shadowUv.y > 0.0 && shadowUv.y < 1.0) {
+                    shadowAlpha = texture(texOmbro, shadowUv).a * FADE_EDGE(shadowUv);
+                }
+            }
+        } else if (abs(uKimonoPart - 4.0) < 0.1 || abs(uKimonoPart - 5.0) < 0.1) {
+            // Pants Patch Projection (4.0 = Left, 5.0 = Right)
+            vec3 projCenter = vec3(9999.0); // Hidden by default
+            
+            if (uBrandId == 2 && abs(uKimonoPart - 4.0) < 0.1) {
+                // Kingz: Projeção APENAS na perna esquerda
+                projCenter = vec3(-5.0, -10.0, 20.0);
+            } else if (uBrandId == 1 && abs(uKimonoPart - 5.0) < 0.1) {
+                // Vouk: Projeção APENAS na perna direita
+                projCenter = vec3(0.0, -10.0, 20.0);
+            } else if (uBrandId == 0 && abs(uKimonoPart - 5.0) < 0.1) {
+                // Atama: Projeção APENAS na perna direita
+                projCenter = vec3(5.0, -30.0, 20.0);
+            }
+            vec3 p = vModelPosition - projCenter;
+            vec2 uv = vec2(1.0 - (p.x / uPantsPatchSize.x + 0.5), -p.y / uPantsPatchSize.y + 0.5);
+            if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0 && abs(p.z) < 15.0) {
+                decalColor = texture(texCalca, uv);
+                decalColor.a *= FADE_EDGE(uv);
+                
+                vec2 shadowUv = uv + vec2(-0.015, 0.015);
+                if (uBaseColor.r > 0.8 && shadowUv.x > 0.0 && shadowUv.x < 1.0 && shadowUv.y > 0.0 && shadowUv.y < 1.0) {
+                    shadowAlpha = texture(texCalca, shadowUv).a * FADE_EDGE(shadowUv);
+                }
             }
         }
         
-        // Soft Noise Texture to prevent Moire aliasing (ondulações)
-        float noise = fract(sin(dot(vModelPosition.xyz, vec3(12.9898, 78.233, 45.164))) * 43758.5453);
-        vec3 weaveBump = vec3(noise * 0.05); // Very subtle noise
+        // Se estivermos em um kimono branco, adiciona um leve drop shadow para o amarelo não sumir
+        if (shadowAlpha > 0.05 && decalColor.a < 0.8) {
+            diffuseColor = mix(diffuseColor, vec3(0.0), shadowAlpha * 0.6);
+        }
         
-        N = normalize(N + weaveBump);
-        
-        // Fabric is very matte but has slight thread scattering
-        specularStrength = 0.08;
-        shininess = 6.0;
+        // Se a textura acertou um pixel opaco, aplique a cor e o efeito de bordado usando Alpha Blending!
+        if (decalColor.a > 0.05) {
+            // Mistura suave do bordado com a cor do kimono (resolve bordas escuras e melhora leitura)
+            diffuseColor = mix(diffuseColor, decalColor.rgb, decalColor.a);
+            
+            // Efeito de linha de bordado (fios de seda brilhantes)
+            float threadX = sin((vModelPosition.x + vModelPosition.z) * 20.0);
+            float threadY = sin(vModelPosition.y * 20.0);
+            float threadPattern = (threadX * threadY) * 0.15 * decalColor.a;
+            N = normalize(N + vec3(threadPattern, threadPattern, 0.0));
+            
+            float brightness = dot(decalColor.rgb, vec3(0.299, 0.587, 0.114));
+            specularColor = decalColor.rgb;
+            
+            // O brilho do bordado depende do alpha
+            specularStrength = mix(specularStrength, 0.8 * brightness, decalColor.a); 
+            shininess = mix(shininess, 15.0, decalColor.a); 
+        }
+    }
+    
+    // Material 5: Textured Matte (Rashguard inner shirt)
+    else if (uMaterialType == 5) {
+        vec4 texColor = texture(tex, vTexCoord);
+        diffuseColor = texColor.rgb;
+        specularStrength = 0.02; // Very matte
+        shininess = 2.0;
     }
     
     // Material 2: Belt Fabric (Matte Ribbon)
@@ -87,24 +241,9 @@ void main() {
         diffuseColor = beltColor;
         
         // Fine linear texture for the belt weave
-        float beltWeave = sin(vModelPosition.x * 4.0 + vModelPosition.y * 4.0 + vModelPosition.z * 4.0) * 0.08;
-        N = normalize(N + vec3(beltWeave));
+        // float beltWeave = sin(vModelPosition.x * 4.0 + vModelPosition.y * 4.0 + vModelPosition.z * 4.0) * 0.08;
+        // N = normalize(N + vec3(beltWeave));
         
-        specularStrength = 0.02; // Very matte
-        shininess = 2.0;
-    }
-    
-    // Material 4: Solid Matte Fabric (Lapels, Spheres, Collar)
-    else if (uMaterialType == 4) {
-        diffuseColor = uBaseColor;
-        specularStrength = 0.05;
-        shininess = 2.0;
-    }
-    
-    // Material 5: Textured Matte (Rashguard inner shirt)
-    else if (uMaterialType == 5) {
-        vec4 texColor = texture(tex, vTexCoord);
-        diffuseColor = texColor.rgb;
         specularStrength = 0.02; // Very matte
         shininess = 2.0;
     }
@@ -124,33 +263,27 @@ void main() {
         shininess = 80.0;
     }
     
-    // Material 4: Metallic Gold details
-    else if (uMaterialType == 4) {
-        diffuseColor = vec3(0.85, 0.68, 0.22); // Solid gold base
-        specularColor = vec3(1.0, 0.9, 0.6);
-        specularStrength = 2.5;
-        shininess = 90.0;
+    // Material 7: Large Grid/Quadriculado Tatami Floor
+    else if (uMaterialType == 7) {
+        vec2 uv = vTexCoord * 16.0;
+        vec2 grid = fract(uv);
+        
+        // Usar derivadas (fwidth) para manter as linhas pretas sempre com 2 pixels de espessura
+        // na tela, independentemente do zoom. Isso elimina o serrilhado e o "flicker" de Moiré.
+        vec2 lineThickness = min(fwidth(uv) * 2.0, 0.5); 
+        
+        vec2 edge = smoothstep(1.0 - lineThickness, 1.0 - lineThickness * 0.5, grid);
+        float isLine = max(edge.x, edge.y);
+        
+        vec3 color1 = uBaseColor; // Base color from JS
+        vec3 color2 = vec3(0.05, 0.05, 0.05); // Black lines
+        
+        diffuseColor = mix(color1, color2, isLine);
+        
+        specularStrength = 0.0; 
+        shininess = 1.0;
     }
-    
-    // Material 5: White BJJ Tatami Floor with black safety border
-    else if (uMaterialType == 5) {
-        float absX = abs(vModelPosition.x);
-        float absZ = abs(vModelPosition.z);
-        
-        diffuseColor = uBaseColor;
-        
-        // Tatami checkerboard/grid pattern (Black lines)
-        float scale = 40.0; // 40 squares across the texture map (matches ~50 units per square)
-        float gridX = step(0.96, fract(vTexCoord.x * scale));
-        float gridY = step(0.96, fract(vTexCoord.y * scale));
-        float isLine = max(gridX, gridY);
-        
-        // Mix between white base and black lines
-        diffuseColor = mix(uBaseColor, vec3(0.05, 0.05, 0.05), isLine);
-        
-        specularStrength = 0.25; // Rubbery vinyl specularity
-        shininess = 20.0;
-    }
+
     
     // Material 6: Unlit/Basic Texture (Picture Frame and Wall Text)
     else if (uMaterialType == 6) {
@@ -190,8 +323,7 @@ void main() {
     
     // Final color composition
     vec3 finalColor;
-    
-    if (uCelShading == 1 && uMaterialType != 6) {
+    if (uCelShading == 1 && uMaterialType == 1) {
         // CEL / TOON SHADING
         // Quantize diffuse into 4 discrete steps
         float celDiff = floor(diff * 4.0) / 4.0;
@@ -212,6 +344,7 @@ void main() {
         // BLINN-PHONG (standard)
         finalColor = ambient + diffuse + specular + rimLight;
     }
+    
     
     fragColor = vec4(finalColor, 1.0);
 }

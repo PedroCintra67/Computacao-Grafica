@@ -1,98 +1,50 @@
-# Melhorias Possíveis para o Projeto — Kimono BJJ 3D
+# 🥋 Lista Extensa de Melhorias e Ideias para o Projeto (Computação Gráfica)
 
-> Lista organizada por prioridade e dificuldade de implementação.
+Aqui está um apanhado massivo de ideias que podem elevar a qualidade gráfica, física e de código do Troféu de Jiu-Jitsu. Elas estão divididas por áreas de estudo de Computação Gráfica.
 
----
+## 1. 🎨 Iluminação, Shading e Materiais (Fragment Shader)
+- **SSAO (Screen Space Ambient Occlusion):** O interior do kimono (vão do pescoço) e debaixo das axilas não recebem sombras naturais. O SSAO simularia como a luz tem dificuldade de entrar nas frestas, gerando um sombreamento hiper-realista nas dobras.
+- **Normal Mapping + Mipmapping:** Substituir o Bump Map matemático que tentamos fazer (que gerou ruído e aliasing) por texturas 2D reais capturadas de um kimono, com filtro anisotrópico e mipmapping ativado para nunca serrilhar à distância.
+- **Fresnel Effect (Rim Lighting):** Adicionar um cálculo de produto escalar entre a normal do objeto e a direção da câmera (`1.0 - dot(N, V)`) para iluminar sutilmente os contornos do kimono, destacando a silhueta (efeito muito usado no Cel Shading de animes, ex: Zelda Breath of the Wild).
+- **Specular Mapping para Patches:** Permitir que, se houver um patch da academia no kimono, o fio de nylon dele brilhe contra a luz de forma diferente do tecido de algodão opaco do kimono.
+- **Sombras Suaves (PCF):** A técnica de "Percentage-Closer Filtering" aplicada no Shadow Mapping para borrar inteligentemente as bordas da sombra projetada no chão.
+- **Multiple Dynamic Lights:** Criar luzes pontuais (Point Lights) e luzes de holofote (Spotlights) móveis. Ex: um "holofote" pendurado no teto do dojo balançando e mudando dinamicamente as sombras em tempo real.
 
-## 🟢 Fáceis (até 1 hora cada)
+## 2. 📐 Modelagem e Geometria (Vertex Shader & CPU)
+- **Importação de Malha Real (.gltf / .obj):** Parar de desenhar cilindros e prismas procedurais e carregar um modelo 3D hiper-detalhado feito por um artista no Blender/Maya.
+- **Blend Shapes para Dobras:** Quando o braço dobra na pose "Guarda Alta", a junta é apenas uma esfera encaixando no cilindro. Com blend shapes, poderíamos amassar a malha do cotovelo para simular os "amassos" do tecido.
+- **Física de Tecidos (Cloth Simulation):** As pontas da faixa (Belt) e as saias do kimono (Lapelas inferiores) poderiam balançar usando simulação física de Springs (Mass-Spring model), caindo e respeitando gravidade e colisão com as pernas.
+- **Modelagem das Calças:** Adicionar as pernas, joelhos e pés para fechar o corpo inteiro do manequim.
+- **Decal Mapping:** Uma forma geométrica e matemática de projetar logos ("adesivos") no modelo 3D sem precisar modificar a coordenada de textura (UV) inteira do corpo. Útil para o usuário colar a logo da sua equipe no peito do kimono.
 
-### 1. Segundo Manequim ao Lado
-Adicionar um segundo manequim estático com cor de faixa diferente, criando uma cena de dojô mais completa. Requer apenas duplicar a chamada `drawKimonoTorso()` com um `push()/translate()/pop()` diferente.
+## 3. 🎬 Animação, Cinemática e Interação
+- **Inverse Kinematics (IK):** Em vez do usuário clicar num botão de pose "Base" ou "Vitória", ele poderia clicar na *mão* do boneco e arrastá-la com o mouse. A matemática do IK faria o cotovelo e o ombro dobrarem de forma fisicamente correta para alcançar o mouse!
+- **Interpolação de Quaternions (SLERP):** Atualmente usamos *Euler Angles* (X, Y, Z) no Lerp. Isso pode causar rotações esquisitas (Gimbal Lock). O certo na indústria de CG é usar *Quaternions* com Spherical Linear Interpolation para rodar as juntas.
+- **Transições Cinemáticas de Câmera (Cutscenes):** Ao selecionar a Faixa Preta no slider, a câmera foge do controle orbital, dá um zoom dramático e faz um "Slow Motion" de 360 graus na faixa.
+- **Respirar (Idle Animation):** Criar uma leve curva seno (`sin(time)`) aplicada ao tórax e ombros na Posição Base, para parecer que o competidor invisível está ofegante/respirando no tatame.
 
-### 2. Botão de Câmera Fixa (Frente / Lateral / Cima)
-Adicionar 3 botões na UI que reposicionam a câmera instantaneamente para vistas canônicas. Atualmente a câmera volta suavemente ao centro, mas não há botões de preset.
+## 4. 📺 Pós-Processamento (Post-Processing Effects)
+*Para implementar pós-processamento no p5, renderiza-se a cena inteira para um Framebuffer/Textura (FBO) e aplica-se shaders em um quadrado 2D que ocupa a tela toda.*
+- **Bloom / Glow:** Fazer os textos Dourados da Plaqueta e do troféu literalmente brilharem ("vazarem luz") na tela.
+- **Depth of Field (Profundidade de Campo):** Deixar as faixas do tatame no fundo da tela embaçadas (Out of Focus), igual a uma lente de câmera profissional (Bokeh effect), guiando a atenção toda para o kimono focado no centro.
+- **Anti-Aliasing de Tela Completa (FXAA):** Como as bordas de geometria WebGL podem ficar 'denteadas', aplicar um shader de FXAA para suavizar os dentes das arestas na imagem final.
+- **Color Grading e Vignette:** Adicionar bordas mais escuras na tela e filtros cinematográficos (LUTs) de cor para dar clima de "Luta de Final de Campeonato".
 
-### 3. Animação Idle (Oscilação suave)
-Usar `sin(frameCount * 0.01)` para dar uma oscilação muito suave ao manequim, como se estivesse respirando. Uma transformação de `rotateY` com amplitude mínima já daria vida à cena.
+## 5. 💻 UI, UX e Performance
+- **Caching da Textura Dinâmica:** No `script.js`, a plaqueta de texto é redesenhada em um `createGraphics` a cada frame do draw loop. A performance melhoraria brutalmente (FPS subiria) se você atualizasse a placa gráfica apenas quando o usuário alterar os campos de nome, evitando subir texturas da CPU pra GPU a 60 vezes por segundo sem necessidade.
+- **Botão de Exportação e Snapshot:** Adicionar um botão "Salvar Troféu", que renderiza um frame transparente e baixa um arquivo PNG de altíssima resolução para o usuário guardar de lembrança.
+- **Modo VR / AR:** Usar a API WebXR (nativa de browsers modernos) para projetar o modelo 3D do kimono e o troféu no mundo real pela câmera do celular (Realidade Aumentada).
 
-### 4. Worley Noise no Tecido do Kimono
-No `frag.glsl`, substituir o ruído simples atual por um **Worley Noise** para simular a trama do pérola (pearl weave) com variação orgânica de cor entre os fios.
-
-### 5. Sombra Simplificada no Chão (Shadow Map Fake)
-Desenhar uma elipse escura e semi-transparente embaixo do pedestal no tatame para simular sombra. Não requer ray casting, apenas um `plane` com material escuro e translúcido.
-
----
-
-## 🟡 Médias (1 dia cada)
-
-### 6. Visualizador de Posições de Golpes (Mais impactante!)
-Adicionar um segundo manequim e exibir **poses estáticas de técnicas de BJJ** com botões na UI:
-- Guard Fechado
-- Mount (Posição de domínio)
-- Armbar
-- Rear Naked Choke
-- Triangle Choke
-
-Requer definir um sistema de `transforms[]` por parte do corpo para cada pose. As poses são estáticas (sem animação), o que simplifica muito.
-
-### 7. Animação "Belt Ceremony" ao Graduar
-Quando o slider de tempo sobe de nível de faixa, disparar:
-1. Faixa atual desce (lerp para baixo por 30 frames)
-2. Flash dourado no shader (`uFlashIntensity` uniform)
-3. Nova faixa desce do topo (lerp)
-
-Usa `frameCount` e uma máquina de estados simples (`animState`).
-
-### 8. Dithering de Bayer no Shader
-No modo de iluminação padrão, aplicar a **matriz de Bayer 4×4** para quantizar a sombra em padrões de pontilhado, criando efeito retro/artístico nas partes em sombra do kimono.
-
-```glsl
-// Exemplo no frag.glsl — aplicar ao valor de diffuse antes da composição final
-float bayerThreshold = bayerMatrix[int(gl_FragCoord.y)%4 * 4 + int(gl_FragCoord.x)%4];
-float ditheredDiff = step(bayerThreshold, diff);
-```
-
-### 9. Normal Mapping Procedural nos Graus da Faixa
-Usar perturbação da normal no shader para simular que as listras (graus) têm borda levantada/costurada sem adicionar geometria. Aumenta o realismo da faixa.
-
-### 10. Painel de Informações sobre cada Faixa
-Ao clicar em um botão de faixa na UI, mostrar um painel lateral com texto informativo sobre a faixa:
-- Tempo médio de graduação
-- Requisitos técnicos (número de faixas, atletas famosos)
-- Curiosidades do BJJ
-
-Apenas HTML/CSS, sem código 3D.
-
----
-
-## 🔴 Avançadas (vários dias)
-
-### 11. Superfície de Bézier para o Corpo do Kimono
-Substituir as geometrias de cilindros por **retalhos de Bézier bicúbicos** (grade 4×4 de pontos de controle) gerados via `beginShape(TRIANGLES)/vertex()`. O torso ficaria com curvas orgânicas reais em vez da elipse extrudida atual.
-
-### 12. Sweep para o Colarinho
-Modelar o colarinho usando a técnica de **varredura (sweep)**: um perfil trapezoidal varrido ao longo da curva do pescoço do manequim. Resultado: colarinho com curvatura natural e espessura variável, como um kimono real.
-
-### 13. Marching Cubes para Manequim Orgânico
-Gerar o manequim inteiro a partir de **SDFs (Signed Distance Functions)** combinadas com `smin()` (união suave) e trianguladas via Marching Cubes. O resultado seria um manequim anatomicamente correto com transições orgânicas entre membros.
-
-### 14. Quiz Interativo "Que Faixa é Essa?"
-Mini-jogo na sidebar: o sistema mostra uma faixa aleatória sem revelar o nome, e o usuário deve clicar na opção correta entre 4 escolhas. Acerto → efeito dourado no shader. Erro → flash vermelho.
-
-### 15. Câmera Walk-Through do Dojô
-Teclas WASD movem a câmera pelo ambiente do dojô livremente (tatame + paredes + quadros). Demonstra implementação de câmera em first-person com look-at dinâmico.
-
----
-
-## 📊 Resumo por Prioridade
-
-| # | Melhoria | Dificuldade | Impacto Visual | Cobre Conceito da Aula |
-|---|---|---|---|---|
-| 6 | Visualizador de Golpes | 🟡 Médio | ⭐⭐⭐⭐⭐ | Transformações 3D |
-| 7 | Belt Ceremony animado | 🟡 Médio | ⭐⭐⭐⭐⭐ | Animação/Lerp |
-| 3 | Animação idle | 🟢 Fácil | ⭐⭐⭐ | Transformações |
-| 4 | Worley Noise tecido | 🟢 Fácil | ⭐⭐⭐⭐ | Texturas Procedurais |
-| 8 | Dithering de Bayer | 🟡 Médio | ⭐⭐⭐ | Proc. de Imagem |
-| 11 | Superfície de Bézier | 🔴 Difícil | ⭐⭐⭐⭐⭐ | Superfícies |
-| 12 | Sweep no colarinho | 🔴 Difícil | ⭐⭐⭐⭐⭐ | Malhas |
-| 13 | Marching Cubes | 🔴 Difícil | ⭐⭐⭐⭐⭐ | Malhas |
+## 6. 🚀 Mudanças Radicais e Expansões de Escopo (Projetos Maiores)
+- **E-Commerce / App de Personalização (Estilo Nike By You):**
+  - Transformar o projeto em uma loja virtual (B2C) onde o usuário customiza seu próprio kimono antes de comprá-lo na vida real.
+  - Adicionar sliders para mudar a cor da lapela independente da cor do tecido, escolher a cor das costuras, e fazer upload de imagens que viram "patches" (Decals) aplicados diretamente no peito e nas costas do 3D.
+  - Integrar um painel de orçamento dinâmico que atualiza o preço final baseado nas texturas e patches escolhidos.
+- **Motor de Replay de Lutas (Motion Capture):**
+  - Importar dados de captura de movimento (MoCap) reais de atletas lutando no tatame.
+  - Adicionar um segundo manequim na cena e aplicar os dados nas juntas de Cinemática Direta/Inversa (Forward/Inverse Kinematics).
+  - O usuário poderia dar "Play/Pause" e girar a câmera em 360º para estudar quedas, raspagens e finalizações (como um *UFC 4* voltado para o estudo acadêmico de artes marciais).
+- **Criar um Minigame de Jiu-Jitsu (Web Game):**
+  - Acoplar uma biblioteca física (como Cannon.js ou Ammo.js) no WebGL.
+  - Transformar as Poses que criamos (Guarda Alta, Posição Base) em *Hitboxes* dinâmicas controladas pelo teclado (WASD).
+  - Colocar um oponente controlado por uma IA básica de NavMesh que tenta avançar, e o jogador deve trocar as poses no tempo exato (como um *Rock-Paper-Scissors* físico) para defender quedas ou encaixar triângulos holográficos em tempo real!
