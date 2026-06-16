@@ -35,24 +35,7 @@ let estaArrastando = false;
 let ultimoMouseX = 0;
 let ultimoMouseY = 0;
 
-let pose = { lShoulderZ: -20, lShoulderX: 0, lElbowX: -5, rShoulderZ: 20, rShoulderX: 0, rElbowX: -5 };
-let alvoPose = { lShoulderZ: -20, lShoulderX: 0, lElbowX: -5, rShoulderZ: 20, rShoulderX: 0, rElbowX: -5 };
 
-const POSES = {
-    base: { lShoulderZ: -20, lShoulderX: 0, lElbowX: -5, rShoulderZ: 20, rShoulderX: 0, rElbowX: -5 },
-    guarda: { lShoulderZ: -15, lShoulderX: 85, lElbowX: -80, rShoulderZ: 15, rShoulderX: 85, rElbowX: -80 },
-    peito: { lShoulderZ: -15, lShoulderX: 0, lElbowX: -5, rShoulderZ: 5, rShoulderX: 20, rElbowX: -110 },
-    vitoria: { lShoulderZ: -160, lShoulderX: -20, lElbowX: -10, rShoulderZ: 160, rShoulderX: -20, rElbowX: -10 }
-};
-
-function definirPose(poseName) {
-    if (POSES[poseName]) {
-        alvoPose = { ...POSES[poseName] };
-        document.querySelectorAll('.btn-pose').forEach(b => b.classList.remove('active'));
-        let btn = document.getElementById('btn-pose-' + poseName);
-        if (btn) btn.classList.add('active');
-    }
-}
 
 function preload() {
     meuShader = loadShader('vert.glsl', 'frag.glsl');
@@ -114,12 +97,7 @@ function draw() {
         background(230, 235, 240);
     }
 
-    pose.lShoulderZ = lerp(pose.lShoulderZ, alvoPose.lShoulderZ, 0.08);
-    pose.lShoulderX = lerp(pose.lShoulderX, alvoPose.lShoulderX, 0.08);
-    pose.lElbowX = lerp(pose.lElbowX, alvoPose.lElbowX, 0.08);
-    pose.rShoulderZ = lerp(pose.rShoulderZ, alvoPose.rShoulderZ, 0.08);
-    pose.rShoulderX = lerp(pose.rShoulderX, alvoPose.rShoulderX, 0.08);
-    pose.rElbowX = lerp(pose.rElbowX, alvoPose.rElbowX, 0.08);
+
 
     updateCameraPosition();
     camera(posCamera.x, posCamera.y, posCamera.z, olharCamera.x, olharCamera.y, olharCamera.z, 0, -1, 0);

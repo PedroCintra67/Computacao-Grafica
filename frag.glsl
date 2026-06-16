@@ -127,7 +127,7 @@ void main() {
             }
         } else if (abs(uKimonoPart - 2.0) < 0.1) {
             // Left Sleeve Patch Projection
-            vec3 p = vModelPosition - vec3(-11.5, -18.0, 11.5);
+            vec3 p = vModelPosition - vec3(-11.5, -24.0, 11.5);
             float cx = cos(0.069); float sx = sin(0.069); // Inverse rotX(-4 deg)
             vec3 p1 = vec3(p.x, p.y * cx - p.z * sx, p.y * sx + p.z * cx);
             float cy = cos(0.785); float sy = sin(0.785); // Inverse rotY(45 deg)
@@ -145,7 +145,7 @@ void main() {
             }
         } else if (abs(uKimonoPart - 3.0) < 0.1) {
             // Right Sleeve Patch Projection
-            vec3 p = vModelPosition - vec3(11.5, -18.0, 11.5);
+            vec3 p = vModelPosition - vec3(11.5, -24.0, 11.5);
             float cx = cos(-0.069); float sx = sin(-0.069); // Inverse rotX(4 deg)
             vec3 p1 = vec3(p.x, p.y * cx - p.z * sx, p.y * sx + p.z * cx);
             float cy = cos(-0.785); float sy = sin(-0.785); // Inverse rotY(-45 deg)

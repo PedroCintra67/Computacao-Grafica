@@ -19,26 +19,7 @@ function iniciarGeometriaKimono() {
 
         for (let r = 0; r <= linhas; r++) {
             let v = r / linhas;
-            // Cintura Y=68, Pescoço Y=145, Saia Y=0 (toca o pedestal)
-            let y = 0 + v * (145 - 0);
-
-            let rX, rZ;
-            if (y < 68) {
-                // Saia abaixo da faixa
-                let t = map(y, 0, 68, 0, 1);
-                rX = lerp(66, 52.5, t); // abrir mais na parte inferior
-                rZ = lerp(45, 30, t);
-            } else {
-                // Tronco acima da faixa
-                let t = map(y, 68, 145, 0, 1);
-                rX = lerp(52.5, 68, t);
-                rZ = lerp(30, 38, t);
-
-                // Curvar o corpo (volume do peito)
-                let volumePeito = sin(t * PI);
-                rX += volumePeito * 2.0;
-                rZ += volumePeito * 4.0;
-            }
+            let yBase = 0 + v * (145 - 0);
 
             for (let c = 0; c <= colunas; c++) {
                 let u = c / colunas;
@@ -46,6 +27,43 @@ function iniciarGeometriaKimono() {
 
                 let nx = cos(angle);
                 let nz = sin(angle);
+
+                let rX, rZ;
+                let y = yBase;
+
+                if (yBase < 68) {
+                    // Saia abaixo da faixa
+                    let t = map(yBase, 0, 68, 0, 1);
+                    rX = lerp(66, 52.5, t); // abrir mais na parte inferior
+                    rZ = lerp(45, 30, t);
+                } else {
+                    // Tronco acima da faixa
+                    let t = map(yBase, 68, 145, 0, 1);
+                    
+                    if (t < 0.8) {
+                        let t2 = t / 0.8;
+                        rX = lerp(52.5, 68, t2);
+                        rZ = lerp(30, 38, t2);
+                    } else {
+                        let t2 = (t - 0.8) / 0.2;
+                        let smoothT2 = t2 * t2 * (3.0 - 2.0 * t2); 
+                        rX = lerp(68, 32, smoothT2); 
+                        rZ = lerp(38, 28, smoothT2); 
+                    }
+
+                    // Curvar o corpo (volume do peito)
+                    let volumePeito = sin(t * PI);
+                    rX += volumePeito * 2.0;
+                    rZ += volumePeito * 4.0;
+                }
+
+                // Decote nas costas (nuca) para um caimento realista
+                if (yBase > 130) {
+                    let tNeck = map(yBase, 130, 145, 0, 1);
+                    if (nz < 0) {
+                        y -= tNeck * abs(nz) * 8.0; // Abaixa o colarinho nas costas
+                    }
+                }
 
                 let px = rX * nx;
                 let pz = rZ * nz;
@@ -396,7 +414,7 @@ function desenharTroncoKimono() {
     meuShader.setUniform('uBrandId', brandId);
 
     let isLightGi = false;
-    if (col && (col.toLowerCase().includes('white') || col.toLowerCase().includes('fff'))) isLightGi = true;
+    if (giColorStr && (giColorStr.toLowerCase().includes('white') || giColorStr.toLowerCase().includes('branco') || giColorStr.toLowerCase().includes('fff'))) isLightGi = true;
     
     if (brand === 'Vouk' && typeof texturaVouk !== 'undefined') meuShader.setUniform('texPeito', texturaVouk);
     if (brand === 'Atama' && typeof texturaPeitoAtamaClara !== 'undefined') meuShader.setUniform('texPeito', isLightGi ? texturaPeitoAtamaEscura : texturaPeitoAtamaClara);
@@ -415,8 +433,8 @@ function desenharTroncoKimono() {
     meuShader.setUniform('uBaseColor', col);
 
     // --- SISTEMA HIERÁRQUICO DE OSSOS (Cinemática Direta) ---
-    // Garantir que 'pose' global está definida no script.js
-    let p = typeof pose !== 'undefined' ? pose : { lShoulderZ: -20, lShoulderX: 0, lElbowX: -5, rShoulderZ: 20, rShoulderX: 0, rElbowX: -5 };
+    // A pose agora é estática já que a animação de poses foi removida.
+    let p = { lShoulderZ: -20, lShoulderX: 0, lElbowX: -5, rShoulderZ: 20, rShoulderX: 0, rElbowX: -5 };
 
     // função auxiliar para desenhar um braço
     let drawArm = function (ehEsquerdo) {
@@ -427,27 +445,31 @@ function desenharTroncoKimono() {
 
         push();
         // 1. Articulação do Ombro (Translação a partir do tronco)
-        translate(sign * 60, 134, 0);
+        translate(sign * 54, 125, 0);
 
-        // Capa Esférica do Ombro (Usa o mesmo tecido do kimono para não parecer uma bola de plástico)
+        // Capa Esférica do Ombro (achatada para não parecer uma bola)
         meuShader.setUniform('uMaterialType', 1);
-        sphere(15);
+        push();
+        scale(1.0, 0.35, 1.0); // Achata no eixo Y para virar uma "tampa"
+        sphere(16.5);
+        pop();
 
         // 2. Rotação do Ombro
         rotateZ(radians(sZ));
         rotateX(radians(sX));
 
         // 3. Desenhar Braço Superior
-        let pantsColor = (typeof modoApp !== 'undefined' && modoApp === 'ecommerce' && typeof estadoLoja !== 'undefined') ? estadoLoja.calca.cor : 'white';
-        let isLightPants = (pantsColor && typeof pantsColor === 'string') ? pantsColor.toLowerCase().replace(/\s/g, '').includes('white') || pantsColor.toLowerCase().includes('fff') : false;
+        let brand = (typeof modoApp !== 'undefined' && modoApp === 'ecommerce' && typeof estadoLoja !== 'undefined') ? estadoLoja.blusa.marca : 'Atama';
+        if (ehEsquerdo) {
+            meuShader.setUniform('uKimonoPart', 2);
+        } else {
+            meuShader.setUniform('uKimonoPart', 3);
+        }
+        if (brand === 'Vouk' && typeof texturaOmbroVouk !== 'undefined') meuShader.setUniform('texOmbro', texturaOmbroVouk);
+        if (brand === 'Atama' && typeof texturaOmbroAtamaClara !== 'undefined') meuShader.setUniform('texOmbro', isLightGi ? texturaOmbroAtamaEscura : texturaOmbroAtamaClara);
+        if (brand === 'Kingz' && typeof texturaOmbroKingz !== 'undefined') meuShader.setUniform('texOmbro', texturaOmbroKingz);
 
-        if (brand === 'Vouk' && typeof texturaCalcaVouk !== 'undefined') {
-            meuShader.setUniform('texCalca', texturaCalcaVouk);
-        } else if (brand === 'Atama' && typeof texturaCalcaAtamaClara !== 'undefined') {
-            meuShader.setUniform('texCalca', isLightPants ? texturaCalcaAtamaEscura : texturaCalcaAtamaClara);
-        } else if (brand === 'Kingz' && typeof texturaCalcaKingz !== 'undefined') {
-            meuShader.setUniform('texCalca', texturaCalcaKingz);
-        }      model(malhaBracoSuperior);
+        model(malhaBracoSuperior);
         meuShader.setUniform('uKimonoPart', 0); // Reset
 
         // 4. Articulação do Cotovelo (Translação para o fim do braço superior)
@@ -474,14 +496,7 @@ function desenharTroncoKimono() {
     // As malhas 3D antigas foram removidas para usar a lapela procedural
     // no frag.glsl. Isso permite projeção de decalque sem degraus!
 
-    // Parte de trás da Gola (Sombra interna / Abertura do pescoço)
-    meuShader.setUniform('uMaterialType', 4);
-    meuShader.setUniform('uBaseColor', [0.08, 0.08, 0.08]);
-    push();
-    translate(0, 150, 0);
-    rotateX(HALF_PI);
-    cylinder(24, 20);
-    pop();
+
 }
 
 function desenharLapela() {
@@ -511,7 +526,7 @@ function desenharLapela() {
     // ATIVAR PROJEÇÃO DE DECALQUE NO PEITO PARA A LAPELA
     meuShader.setUniform('uKimonoPart', 1);
     isLightGi = false;
-    if (col && (col.toLowerCase().includes('white') || col.toLowerCase().includes('fff'))) isLightGi = true;
+    if (giColorStr && (giColorStr.toLowerCase().includes('white') || giColorStr.toLowerCase().includes('branco') || giColorStr.toLowerCase().includes('fff'))) isLightGi = true;
 
     if (brand === 'Vouk' && typeof texturaVouk !== 'undefined') meuShader.setUniform('texPeito', texturaVouk);
     if (brand === 'Atama' && typeof texturaPeitoAtamaClara !== 'undefined') meuShader.setUniform('texPeito', isLightGi ? texturaPeitoAtamaEscura : texturaPeitoAtamaClara);
@@ -561,11 +576,14 @@ function desenharCalca() {
     if (brand === 'Kingz') brandId = 2;
     meuShader.setUniform('uBrandId', brandId);
 
+    let isLightPants = false;
+    if (pColorStr && (pColorStr.toLowerCase().includes('white') || pColorStr.toLowerCase().includes('branco') || pColorStr.toLowerCase().includes('fff'))) isLightPants = true;
+
     if (brand === 'Vouk' && typeof texturaCalcaVouk !== 'undefined') {
         meuShader.setUniform('texCalca', texturaCalcaVouk);
         meuShader.setUniform('uPantsPatchSize', [18.0, 18.0]);
-    } else if (brand === 'Atama' && typeof texturaCalcaAtama !== 'undefined') {
-        meuShader.setUniform('texCalca', texturaCalcaAtama);
+    } else if (brand === 'Atama' && typeof texturaCalcaAtamaClara !== 'undefined') {
+        meuShader.setUniform('texCalca', isLightPants ? texturaCalcaAtamaEscura : texturaCalcaAtamaClara);
         meuShader.setUniform('uPantsPatchSize', [18.0, 18.0]);
     } else if (brand === 'Kingz' && typeof texturaCalcaKingz !== 'undefined') {
         meuShader.setUniform('texCalca', texturaCalcaKingz);
@@ -581,12 +599,14 @@ function desenharCalca() {
     // Remove scale(-1, 1, 1) so text doesn't render backwards
     meuShader.setUniform('uKimonoPart', 5); // Right leg
 
-    // Bind texture again just to be 100% safe
+    let isLightPantsR = false;
+    if (pColorStr && (pColorStr.toLowerCase().includes('white') || pColorStr.toLowerCase().includes('branco') || pColorStr.toLowerCase().includes('fff'))) isLightPantsR = true;
+
     if (brand === 'Vouk' && typeof texturaCalcaVouk !== 'undefined') {
         meuShader.setUniform('texCalca', texturaCalcaVouk);
         meuShader.setUniform('uPantsPatchSize', [18.0, 18.0]);
-    } else if (brand === 'Atama' && typeof texturaCalcaAtama !== 'undefined') {
-        meuShader.setUniform('texCalca', texturaCalcaAtama);
+    } else if (brand === 'Atama' && typeof texturaCalcaAtamaClara !== 'undefined') {
+        meuShader.setUniform('texCalca', isLightPantsR ? texturaCalcaAtamaEscura : texturaCalcaAtamaClara);
         meuShader.setUniform('uPantsPatchSize', [18.0, 18.0]);
     } else if (brand === 'Kingz' && typeof texturaCalcaKingz !== 'undefined') {
         meuShader.setUniform('texCalca', texturaCalcaKingz);
@@ -605,85 +625,4 @@ function desenharCalca() {
     pop();
 }
 
-function desenharManequim() {
-    push();
-    scale(1, -1, 1); // Inverter verticalmente devido à câmera
-    meuShader.setUniform('uMaterialType', 1); // Acabamento fosco
-    meuShader.setUniform('uBaseColor', [0.75, 0.55, 0.45]); // Cor de pele
-    noStroke();
 
-    // Cabeça
-    push();
-    translate(0, -90, 5);
-    ellipsoid(16, 20, 18);
-    pop();
-
-    // Pescoço
-    push();
-    translate(0, -70, 2);
-    cylinder(7, 20);
-    pop();
-
-    // Tronco (um pouco menor que o kimono)
-    push();
-    translate(0, -10, 0);
-    ellipsoid(28, 50, 18);
-    pop();
-
-    // Braço Esquerdo
-    push();
-    translate(-26, -50, 0); // Pivô do ombro
-    rotateZ(pose.lShoulderZ);
-    rotateX(pose.lShoulderX);
-    translate(0, 25, 0); // Mover para o centro do braço
-    cylinder(7, 50);
-
-    translate(0, 25, 0); // Pivô do cotovelo
-    rotateX(pose.lElbowX);
-    translate(0, 20, 0); // Mover para o centro do antebraço
-    cylinder(6.5, 40);
-
-    // Mão Esquerda
-    translate(0, 20, 0);
-    ellipsoid(7, 10, 8);
-    pop();
-
-    // Braço Direito
-    push();
-    translate(26, -50, 0); // Pivô do ombro
-    rotateZ(pose.rShoulderZ);
-    rotateX(pose.rShoulderX);
-    translate(0, 25, 0);
-    cylinder(7, 50);
-
-    translate(0, 25, 0);
-    rotateX(pose.rElbowX);
-    translate(0, 20, 0);
-    cylinder(6.5, 40);
-
-    // Mão Direita
-    translate(0, 20, 0);
-    ellipsoid(7, 10, 8);
-    pop();
-
-    // Pernas
-    // Perna Esquerda
-    push();
-    translate(-16, 50, 0);
-    cylinder(11, 80);
-    // Pé Esquerdo
-    translate(0, 40, 8);
-    ellipsoid(9, 6, 15);
-    pop();
-
-    // Perna Direita
-    push();
-    translate(16, 50, 0);
-    cylinder(11, 80);
-    // Pé Direito
-    translate(0, 40, 8);
-    ellipsoid(9, 6, 15);
-    pop();
-
-    pop();
-}
