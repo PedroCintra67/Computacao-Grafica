@@ -1,34 +1,37 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KIMONO 3D - Customizador de Troféus de Artes Marciais</title>
-    
+    <title>ATACADO BJJ - Loja de Kimonos</title>
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Outfit:wght@300;400;500;600;800&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Outfit:wght@300;400;500;600;800&display=swap"
+        rel="stylesheet">
+
     <!-- Custom Stylesheet -->
     <link rel="stylesheet" href="style.css">
-    
+
     <!-- JavaScript Error Debugger -->
     <script>
-        window.addEventListener('error', function(e) {
+        window.addEventListener('error', function (e) {
             showError('Erro JS: ' + e.message + '\nArquivo: ' + e.filename + ' L:' + e.lineno);
         });
-        window.addEventListener('unhandledrejection', function(e) {
+        window.addEventListener('unhandledrejection', function (e) {
             showError('Promise Rejeitada: ' + e.reason);
         });
-        
+
         const orgConsoleError = console.error;
-        console.error = function() {
+        console.error = function () {
             const msg = Array.from(arguments).map(x => typeof x === 'object' ? String(x) : x).join(' ');
             showError(msg);
             orgConsoleError.apply(console, arguments);
         };
-        
+
         function showError(text) {
             let errDiv = document.getElementById('debug-err-div');
             if (!errDiv) {
@@ -38,7 +41,7 @@
                 errDiv.style.bottom = '20px';
                 errDiv.style.left = '20px';
                 errDiv.style.background = 'rgba(239, 68, 68, 0.95)';
-                errDiv.style.color = '#fff';
+                errDiv.style.cor = '#fff';
                 errDiv.style.padding = '15px';
                 errDiv.style.borderRadius = '8px';
                 errDiv.style.fontSize = '12px';
@@ -50,37 +53,88 @@
                 errDiv.style.border = '2px solid #ef4444';
                 errDiv.style.boxShadow = '0 10px 25px rgba(0,0,0,0.5)';
                 errDiv.style.whiteSpace = 'pre-wrap';
-                
+
                 const closeBtn = document.createElement('button');
                 closeBtn.innerText = 'Fechar';
                 closeBtn.style.display = 'block';
                 closeBtn.style.marginBottom = '10px';
                 closeBtn.style.background = '#000';
-                closeBtn.style.color = '#fff';
+                closeBtn.style.cor = '#fff';
                 closeBtn.style.border = 'none';
                 closeBtn.style.padding = '4px 8px';
                 closeBtn.style.cursor = 'pointer';
                 closeBtn.style.borderRadius = '4px';
                 closeBtn.onclick = () => errDiv.remove();
                 errDiv.appendChild(closeBtn);
-                
+
                 const textSpan = document.createElement('div');
                 textSpan.id = 'debug-err-text';
                 errDiv.appendChild(textSpan);
-                
+
                 document.body.appendChild(errDiv);
             }
             document.getElementById('debug-err-text').innerText += '\n' + text;
         }
     </script>
-    
+
     <!-- p5.js Library (Integrada Localmente) -->
     <script src="p5.min.js"></script>
 </head>
+
 <body>
     <!-- Premium Showroom Background -->
     <div id="showroom-bg"></div>
     <div id="showroom-spotlight"></div>
+
+    <!-- Checkout Success Overlay -->
+    <div id="checkout-overlay"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 9999; justify-content: center; align-items: center;">
+        <div
+            style="background: linear-gradient(145deg, #1a202c, #2d3748); border: 2px solid #d4af37; border-radius: 16px; padding: 40px; width: 90%; max-width: 500px; text-align: center; box-shadow: 0 10px 40px rgba(212, 175, 55, 0.2); position: relative; overflow: hidden;">
+            <div style="font-size: 60px; margin-bottom: 20px;">🎉</div>
+            <h2
+                style="color: #d4af37; font-size: 28px; margin-bottom: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">
+                Compra Finalizada!</h2>
+            <p style="color: #cbd5e0; font-size: 16px; margin-bottom: 30px; line-height: 1.5;">O seu <strong>Kimono
+                    Customizado</strong> já está sendo preparado pela nossa equipe. Obrigado por testar o BJJ
+                Customizer!</p>
+
+            <div
+                style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 12px; border-left: 4px solid #d4af37; text-align: left; margin-bottom: 30px;">
+                <h4 style="color: white; margin-bottom: 15px; font-size: 14px; text-transform: uppercase;">Resumo do
+                    Pedido</h4>
+                <div id="checkout-row-top"
+                    style="display: flex; justify-content: space-between; margin-bottom: 8px; color: #a0aec0; font-size: 13px;">
+                    <span id="checkout-top-desc">Vagui</span>
+                    <span id="checkout-top-price" style="color: white;">R$ 0</span>
+                </div>
+                <div id="checkout-row-pants"
+                    style="display: flex; justify-content: space-between; margin-bottom: 8px; color: #a0aec0; font-size: 13px;">
+                    <span id="checkout-pants-desc">Calça</span>
+                    <span id="checkout-pants-price" style="color: white;">R$ 0</span>
+                </div>
+                <div id="checkout-row-belt"
+                    style="display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; color: #a0aec0; font-size: 13px;">
+                    <span id="checkout-belt-desc">Faixa</span>
+                    <span id="checkout-belt-price" style="color: white;">R$ 0</span>
+                </div>
+                <div id="checkout-discount-row" style="display: none; justify-content: space-between; font-weight: bold; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); color: #4ade80;">
+                    <span>DESCONTO COMBO</span>
+                    <span>- R$ <span id="checkout-discount-price">0</span>,00</span>
+                </div>
+                <div
+                    style="display: flex; justify-content: space-between; font-weight: bold; font-size: 18px; color: #d4af37;">
+                    <span>TOTAL</span>
+                    <span id="checkout-total-price">R$ 0,00</span>
+                </div>
+            </div>
+
+            <button onclick="closeCheckout()"
+                style="background: #d4af37; color: black; font-weight: bold; font-size: 16px; padding: 15px 30px; border: none; border-radius: 8px; cursor: pointer; text-transform: uppercase; width: 100%; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4); transition: all 0.3s ease;">
+                Voltar ao Início
+            </button>
+        </div>
+    </div>
 
     <div class="app-container">
         <!-- LEFT PANEL: 3D Viewport -->
@@ -89,123 +143,424 @@
                 <div class="logo">
                     <span class="logo-icon">🥋</span>
                     <div class="logo-text">
-                        <h1>KIMONO 3D</h1>
-                        <p>Simulador de Graduação & CG Shaders</p>
+                        <h1>Trabalho de Computação Gráfica</h1>
+                        <p>Pedro Cintra Silveira - 2026.1</p>
                     </div>
                 </div>
                 <div class="viewport-stats">
                     <span id="fps-counter" style="font-size: 13px; color: #a0aec0;">FPS: --</span>
                 </div>
             </header>
-            
+
             <!-- Where p5.js Canvas will be mounted -->
-            <div class="canvas-container" id="canvas-container">
+            <div class="container-canvas" id="container-canvas" style="position: relative;">
                 <!-- Mounted Canvas -->
             </div>
         </main>
 
-        <!-- RIGHT PANEL: Glassmorphism Configuration controls -->
-        <aside class="control-panel">
-            <!-- Section 1: Nameplate Customization -->
-            <section class="input-group">
-                <h3 class="section-title">🏷️ Plaqueta do Troféu</h3>
-                <div class="input-group">
-                    <label for="input-name">Nome Principal</label>
-                    <input type="text" id="input-name" class="text-input" value="SEU NOME AQUI" maxlength="22" placeholder="Ex: Pedro Cintra">
-                </div>
-                <div class="input-group" style="margin-top: 5px;">
-                    <label for="input-subtitle">Subtítulo</label>
-                    <input type="text" id="input-subtitle" class="text-input" value="Jiu-Jitsu Champion" maxlength="28" placeholder="Ex: Faixa Preta - 2026">
-                </div>
-            </section>
+        <!-- RIGHT PANEL: Classic Trophy Controls -->
+        <!-- RIGHT PANEL: Boutique Landing Page -->
+        <aside class="painel-controle" id="boutique-panel"
+            style="display: flex; flex-direction: column; justify-content: center;">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <div style="font-size: 40px; margin-bottom: 10px;">🛡️</div>
+                <h1
+                    style="font-family: 'Outfit', sans-serif; font-size: 28px; color: #d4af37; letter-spacing: 2px; font-weight: 800; margin-bottom: 10px; text-transform: uppercase;">
+                    ATACADO BJJ</h1>
+                <p style="color: #cbd5e0; font-size: 14px; line-height: 1.6;">Bem-vindo à maior e mais exclusiva loja de
+                    equipamentos de Jiu-Jitsu do mundo. Construa sua armadura com precisão 3D e tecidos de alta
+                    performance.</p>
+            </div>
 
-            <!-- Section 2: Kimono Color -->
-            <section class="input-group">
-                <h3 class="section-title">🥋 Cor do Kimono (Gi)</h3>
-                <div class="gi-grid">
-                    <button class="gi-btn active" data-color="white">Branco</button>
-                    <button class="gi-btn" data-color="blue">Azul Royal</button>
-                    <button class="gi-btn" data-color="black">Preto</button>
-                </div>
-            </section>
-
-            <!-- Section 3: Graduation Belt Selection -->
-            <section class="input-group">
-                <h3 class="section-title">🎗️ Faixa de Graduação</h3>
-                <div class="button-grid">
-                    <button class="belt-btn active btn-white" data-belt="white">Branca</button>
-                    <button class="belt-btn btn-blue" data-belt="blue">Azul</button>
-                    <button class="belt-btn btn-purple" data-belt="purple">Roxa</button>
-                    <button class="belt-btn btn-brown" data-belt="brown">Marrom</button>
-                    <button class="belt-btn btn-black" data-belt="black">Preta</button>
-                    <button class="belt-btn btn-coral" data-belt="coral">Coral Vermelha/Preta</button>
-                    <button class="belt-btn btn-coral-white" data-belt="coral-white">Coral Vermelha/Branca</button>
-                    <button class="belt-btn btn-red" data-belt="red">Vermelha</button>
-                </div>
-            </section>
-
-            <!-- Section 4: Passador de Anos (Graduação) -->
-            <section class="slider-container">
-                <h3 class="section-title">⏳ Linha do Tempo</h3>
-                <div class="slider-header">
-                    <span>Tempo de Treino</span>
-                    <span id="label-years" class="slider-val">0 anos</span>
-                </div>
-                <input type="range" id="slider-years" class="custom-range" min="0" max="56" value="0" step="0.05">
+            <div
+                style="background: rgba(0,0,0,0.4); padding: 15px; border-radius: 12px; border-left: 4px solid #d4af37; margin-bottom: 25px;">
+                <h3 style="color: white; font-size: 16px; margin-bottom: 12px; text-transform: uppercase;">Promoções da Semana</h3>
                 
-                <div id="graduation-status" style="margin-top: 8px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; border-left: 3px solid #d4af37; font-size: 13px;">
-                    <div style="display: flex; justify-content: space-between; font-weight: 600; color: #fff;">
-                        <span id="status-belt">Faixa Branca (0 Graus)</span>
-                        <span id="status-title" style="color: #d4af37;">Iniciante</span>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <button class="btn-kimono boutique-hover"
+                        style="width: 100%; background: linear-gradient(90deg, #1a202c, #2d3748); border: 1px solid #d4af37; color: #d4af37; font-weight: bold; padding: 12px; font-size: 13px; text-align: left; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-radius: 6px;"
+                        onclick="loadDropDaSemana(1)">
+                        <div style="display: flex; flex-direction: column;">
+                            <span>Vouk Branco + Faixa Azul (A1)</span>
+                            <span style="color: #4ade80; font-size: 14px; margin-top: 4px;">R$ 450</span>
+                        </div>
+                        <span style="background: #d4af37; color: black; padding: 5px 10px; border-radius: 4px; font-size: 11px; text-transform: uppercase;">Comprar ➔</span>
+                    </button>
+                    
+                    <button class="btn-kimono boutique-hover"
+                        style="width: 100%; background: linear-gradient(90deg, #1a202c, #2d3748); border: 1px solid #d4af37; color: #d4af37; font-weight: bold; padding: 12px; font-size: 13px; text-align: left; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-radius: 6px;"
+                        onclick="loadDropDaSemana(2)">
+                        <div style="display: flex; flex-direction: column;">
+                            <span>Atama Azul + Faixa Roxa (A2)</span>
+                            <span style="color: #4ade80; font-size: 14px; margin-top: 4px;">R$ 720</span>
+                        </div>
+                        <span style="background: #d4af37; color: black; padding: 5px 10px; border-radius: 4px; font-size: 11px; text-transform: uppercase;">Comprar ➔</span>
+                    </button>
+                    
+                    <button class="btn-kimono boutique-hover"
+                        style="width: 100%; background: linear-gradient(90deg, #1a202c, #2d3748); border: 1px solid #d4af37; color: #d4af37; font-weight: bold; padding: 12px; font-size: 13px; text-align: left; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-radius: 6px;"
+                        onclick="loadDropDaSemana(3)">
+                        <div style="display: flex; flex-direction: column;">
+                            <span>Kingz Preto + Faixa Preta (A3)</span>
+                            <span style="color: #4ade80; font-size: 14px; margin-top: 4px;">R$ 1080</span>
+                        </div>
+                        <span style="background: #d4af37; color: black; padding: 5px 10px; border-radius: 4px; font-size: 11px; text-transform: uppercase;">Comprar ➔</span>
+                    </button>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 30px;">
+                <h3
+                    style="color: white; font-size: 14px; margin-bottom: 10px; text-transform: uppercase; text-align: center; letter-spacing: 1px;">
+                    Marcas Parceiras</h3>
+                <div style="display: flex; justify-content: space-between; gap: 10px;">
+                    <div
+                        style="flex: 1; background: rgba(255,255,255,0.05); text-align: center; padding: 15px 5px; border-radius: 8px; font-weight: bold; color: #a0aec0; font-family: 'Outfit';">
+                        VOUK</div>
+                    <div
+                        style="flex: 1; background: rgba(255,255,255,0.05); text-align: center; padding: 15px 5px; border-radius: 8px; font-weight: bold; color: #a0aec0; font-family: 'Outfit';">
+                        ATAMA</div>
+                    <div
+                        style="flex: 1; background: rgba(255,255,255,0.05); text-align: center; padding: 15px 5px; border-radius: 8px; font-weight: bold; color: #a0aec0; font-family: 'Outfit';">
+                        KINGZ</div>
+                </div>
+            </div>
+
+            <button class="btn-kimono"
+                style="width: 100%; background: #d4af37; color: black; font-weight: bold; padding: 16px; font-size: 16px; border: none; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4); text-transform: uppercase; letter-spacing: 1px; cursor: pointer; border-radius: 8px;"
+                onclick="enterFittingRoom()">SELECIONAR PRODUTOS</button>
+        </aside>
+
+        <!-- RIGHT PANEL: E-Commerce Controls -->
+        <aside class="painel-controle" id="painel-ecommerce" style="display: none; flex-direction: column;">
+            <button onclick="voltarVitrine()" class="btn-kimono boutique-hover" style="flex: none; background: #2b5b84; border: 1px solid rgba(255,255,255,0.2); color: white; cursor: pointer; font-size: 12px; font-weight: 600; padding: 8px 14px; margin-bottom: 15px; border-radius: 6px; display: inline-flex; align-items: center; gap: 8px; width: fit-content; align-self: flex-start; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">
+                <span style="font-size: 14px;">⬅️</span> VOLTAR AO MENU
+            </button>
+            <h2 style="color: white; margin-bottom: 10px; margin-top: 0; font-family: 'Outfit'; font-size: 20px;">Customização do Kimono</h2>
+
+            <!-- Step Navigation -->
+            <div
+                style="display: flex; gap: 5px; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
+                <button id="tab-cart" class="btn-kimono active" style="flex:1; padding: 8px 4px; font-size:12px;"
+                    onclick="setStep('cart')">🛒 Carrinho</button>
+                <button id="aba-blusa" class="btn-kimono" style="flex:1; padding: 8px 4px; font-size:12px;"
+                    onclick="setStep('blusa')">🥋 Vagui</button>
+                <button id="aba-calca" class="btn-kimono" style="flex:1; padding: 8px 4px; font-size:12px;"
+                    onclick="setStep('calca')">👖 Calça</button>
+                <button id="aba-faixa" class="btn-kimono" style="flex:1; padding: 8px 4px; font-size:12px;"
+                    onclick="setStep('faixa')">🎗️ Faixa</button>
+            </div>
+
+            <!-- Dynamic Content Area -->
+            <div id="step-content" style="flex-grow: 1; overflow-y: auto; padding-right: 5px;">
+                <!-- Step 1: Casaco (Top) -->
+                <div id="passo-blusa" class="step-section" style="display: none;">
+                    <div style="margin-bottom: 10px;">
+                        <h3 class="section-title" style="margin-bottom: 0;">Casaco do Kimono (Vagui)</h3>
+                    </div>
+
+                    <label class="input-label"
+                        style="display:block; margin-bottom: 4px; color:#a0aec0; font-size:12px; text-transform:uppercase;">Marca</label>
+                    <div class="gi-grid" style="margin-bottom: 15px;">
+                        <button class="btn-kimono btn-brand-top active" data-brand="Vouk"
+                            onclick="selectItem('blusa', 'brand', 'Vouk')">
+                            <div style="font-weight:bold;">Vouk</div>
+                            <div style="font-size:10px; color:#a0aec0;">R$ 330</div>
+                        </button>
+                        <button class="btn-kimono btn-brand-top" data-brand="Atama"
+                            onclick="selectItem('blusa', 'brand', 'Atama')">
+                            <div style="font-weight:bold;">Atama</div>
+                            <div style="font-size:10px; color:#a0aec0;">R$ 530</div>
+                        </button>
+                        <button class="btn-kimono btn-brand-top" data-brand="Kingz"
+                            onclick="selectItem('blusa', 'brand', 'Kingz')">
+                            <div style="font-weight:bold;">Kingz</div>
+                            <div style="font-size:10px; color:#a0aec0;">R$ 800</div>
+                        </button>
+                    </div>
+
+                    <label class="input-label"
+                        style="display:block; margin-bottom: 4px; color:#a0aec0; font-size:12px; text-transform:uppercase;">Cor
+                    </label>
+                    <div class="gi-grid" style="margin-bottom: 15px;">
+                        <button class="btn-kimono btn-color-top active" data-color="white"
+                            onclick="selectItem('blusa', 'color', 'white')">Branco</button>
+                        <button class="btn-kimono btn-color-top" data-color="blue"
+                            onclick="selectItem('blusa', 'color', 'blue')">Azul</button>
+                        <button class="btn-kimono btn-color-top" data-color="black"
+                            onclick="selectItem('blusa', 'color', 'black')">Preto</button>
+                    </div>
+
+                    <label class="input-label"
+                        style="display:block; margin-bottom: 4px; color:#a0aec0; font-size:12px; text-transform:uppercase;">Tamanho</label>
+                    <div class="gi-grid" style="grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px;">
+                        <button class="btn-kimono btn-size-top" data-size="A0"
+                            onclick="selectItem('blusa', 'size', 'A0')">
+                            <div style="font-weight:bold;">A0</div>
+                            <div style="font-size:10px; color:#4ade80;">-10%</div>
+                        </button>
+                        <button class="btn-kimono btn-size-top" data-size="A1"
+                            onclick="selectItem('blusa', 'size', 'A1')">
+                            <div style="font-weight:bold;">A1</div>
+                            <div style="font-size:10px; color:#4ade80;">-5%</div>
+                        </button>
+                        <button class="btn-kimono btn-size-top active" data-size="A2"
+                            onclick="selectItem('blusa', 'size', 'A2')">
+                            <div style="font-weight:bold;">A2</div>
+                            <div style="font-size:10px; color:#a0aec0;">Base</div>
+                        </button>
+                        <button class="btn-kimono btn-size-top" data-size="A3"
+                            onclick="selectItem('blusa', 'size', 'A3')">
+                            <div style="font-weight:bold;">A3</div>
+                            <div style="font-size:10px; color:#ef4444;">+5%</div>
+                        </button>
+                        <button class="btn-kimono btn-size-top" data-size="A4"
+                            onclick="selectItem('blusa', 'size', 'A4')">
+                            <div style="font-weight:bold;">A4</div>
+                            <div style="font-size:10px; color:#ef4444;">+10%</div>
+                        </button>
+                        <button class="btn-kimono btn-size-top" data-size="A5"
+                            onclick="selectItem('blusa', 'size', 'A5')">
+                            <div style="font-weight:bold;">A5</div>
+                            <div style="font-size:10px; color:#ef4444;">+15%</div>
+                        </button>
+                    </div>
+
+                    <button id="btn-alternar-blusa" class="btn-kimono"
+                        style="width: 100%; background: #2b5b84; font-size: 14px; padding: 12px; font-weight: bold; margin-top: 10px; border: none; color: white;"
+                        onclick="alternarItemBtn('blusa')">🛒 Colocar no Carrinho</button>
+                </div>
+
+                <!-- Step 2: Calça -->
+                <div id="passo-calca" class="step-section" style="display: none;">
+                    <div style="margin-bottom: 10px;">
+                        <h3 class="section-title" style="margin-bottom: 0;">Calça do Kimono</h3>
+                    </div>
+
+                    <label class="input-label"
+                        style="display:block; margin-bottom: 4px; color:#a0aec0; font-size:12px; text-transform:uppercase;">Marca
+                    </label>
+                    <div class="gi-grid" style="margin-bottom: 15px;">
+                        <button class="btn-kimono btn-brand-pants active" data-brand="Vouk"
+                            onclick="selectItem('calca', 'brand', 'Vouk')">
+                            <div style="font-weight:bold;">Vouk</div>
+                            <div style="font-size:10px; color:#a0aec0;">R$ 170</div>
+                        </button>
+                        <button class="btn-kimono btn-brand-pants" data-brand="Atama"
+                            onclick="selectItem('calca', 'brand', 'Atama')">
+                            <div style="font-weight:bold;">Atama</div>
+                            <div style="font-size:10px; color:#a0aec0;">R$ 270</div>
+                        </button>
+                        <button class="btn-kimono btn-brand-pants" data-brand="Kingz"
+                            onclick="selectItem('calca', 'brand', 'Kingz')">
+                            <div style="font-weight:bold;">Kingz</div>
+                            <div style="font-size:10px; color:#a0aec0;">R$ 400</div>
+                        </button>
+                    </div>
+
+                    <label class="input-label"
+                        style="display:block; margin-bottom: 4px; color:#a0aec0; font-size:12px; text-transform:uppercase;">Cor</label>
+                    <div class="gi-grid" style="margin-bottom: 15px;">
+                        <button class="btn-kimono btn-color-pants active" data-color="white"
+                            onclick="selectItem('calca', 'color', 'white')">Branco</button>
+                        <button class="btn-kimono btn-color-pants" data-color="blue"
+                            onclick="selectItem('calca', 'color', 'blue')">Azul</button>
+                        <button class="btn-kimono btn-color-pants" data-color="black"
+                            onclick="selectItem('calca', 'color', 'black')">Preto</button>
+                    </div>
+
+                    <label class="input-label"
+                        style="display:block; margin-bottom: 4px; color:#a0aec0; font-size:12px; text-transform:uppercase;">Tamanho</label>
+                    <div class="gi-grid" style="grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px;">
+                        <button class="btn-kimono btn-size-pants" data-size="A0"
+                            onclick="selectItem('calca', 'size', 'A0')">
+                            <div style="font-weight:bold;">A0</div>
+                            <div style="font-size:10px; color:#4ade80;">-10%</div>
+                        </button>
+                        <button class="btn-kimono btn-size-pants" data-size="A1"
+                            onclick="selectItem('calca', 'size', 'A1')">
+                            <div style="font-weight:bold;">A1</div>
+                            <div style="font-size:10px; color:#4ade80;">-5%</div>
+                        </button>
+                        <button class="btn-kimono btn-size-pants active" data-size="A2"
+                            onclick="selectItem('calca', 'size', 'A2')">
+                            <div style="font-weight:bold;">A2</div>
+                            <div style="font-size:10px; color:#a0aec0;">Base</div>
+                        </button>
+                        <button class="btn-kimono btn-size-pants" data-size="A3"
+                            onclick="selectItem('calca', 'size', 'A3')">
+                            <div style="font-weight:bold;">A3</div>
+                            <div style="font-size:10px; color:#ef4444;">+5%</div>
+                        </button>
+                        <button class="btn-kimono btn-size-pants" data-size="A4"
+                            onclick="selectItem('calca', 'size', 'A4')">
+                            <div style="font-weight:bold;">A4</div>
+                            <div style="font-size:10px; color:#ef4444;">+10%</div>
+                        </button>
+                        <button class="btn-kimono btn-size-pants" data-size="A5"
+                            onclick="selectItem('calca', 'size', 'A5')">
+                            <div style="font-weight:bold;">A5</div>
+                            <div style="font-size:10px; color:#ef4444;">+15%</div>
+                        </button>
+                    </div>
+
+                    <button id="btn-alternar-calca" class="btn-kimono"
+                        style="width: 100%; background: #2b5b84; font-size: 14px; padding: 12px; font-weight: bold; margin-top: 10px; border: none; color: white;"
+                        onclick="alternarItemBtn('calca')">🛒 Colocar no Carrinho</button>
+                </div>
+
+                <!-- Step 3: Faixa -->
+                <div id="passo-faixa" class="step-section" style="display: none;">
+                    <div style="margin-bottom: 10px;">
+                        <h3 class="section-title" style="margin-bottom: 0;">Faixa (R$ 100)</h3>
+                    </div>
+
+                    <label class="input-label"
+                        style="display:block; margin-bottom: 4px; color:#a0aec0; font-size:12px; text-transform:uppercase;">Graduação</label>
+                    <div class="gi-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px;">
+                        <button class="btn-faixa btn-color-belt active" data-belt="white"
+                            onclick="selectItem('faixa', 'color', 'white')">
+                            <div class="belt-color-circle" style="background: white; border: 1px solid #ccc;"></div>
+                            Branca
+                        </button>
+                        <button class="btn-faixa btn-color-belt" data-belt="blue"
+                            onclick="selectItem('faixa', 'color', 'blue')">
+                            <div class="belt-color-circle" style="background: #2b5b84;"></div> Azul
+                        </button>
+                        <button class="btn-faixa btn-color-belt" data-belt="purple"
+                            onclick="selectItem('faixa', 'color', 'purple')">
+                            <div class="belt-color-circle" style="background: #5e35b1;"></div> Roxa
+                        </button>
+                        <button class="btn-faixa btn-color-belt" data-belt="brown"
+                            onclick="selectItem('faixa', 'color', 'brown')">
+                            <div class="belt-color-circle" style="background: #5d4037;"></div> Marrom
+                        </button>
+                        <button class="btn-faixa btn-color-belt" data-belt="black"
+                            onclick="selectItem('faixa', 'color', 'black')">
+                            <div class="belt-color-circle" style="background: #212121;"></div> Preta
+                        </button>
+                        <button class="btn-faixa btn-color-belt" data-belt="coral"
+                            onclick="selectItem('faixa', 'color', 'coral')">
+                            <div class="belt-color-circle"
+                                style="background: linear-gradient(90deg, red 50%, black 50%);"></div> Coral Vermelha/Preta
+                        </button>
+                        <button class="btn-faixa btn-color-belt" data-belt="coral-white"
+                            onclick="selectItem('faixa', 'color', 'coral-white')">
+                            <div class="belt-color-circle"
+                                style="background: linear-gradient(90deg, red 50%, white 50%);"></div> Coral Vermelha/Branca
+                        </button>
+                        <button class="btn-faixa btn-color-belt" data-belt="red"
+                            onclick="selectItem('faixa', 'color', 'red')">
+                            <div class="belt-color-circle" style="background: #d32f2f;"></div> Vermelha
+                        </button>
+                    </div>
+
+                    <label class="input-label"
+                        style="display:block; margin-bottom: 4px; color:#a0aec0; font-size:12px; text-transform:uppercase;">Tamanho</label>
+                    <div class="gi-grid" style="grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px;">
+                        <button class="btn-kimono btn-size-belt" data-size="A0"
+                            onclick="selectItem('faixa', 'size', 'A0')">
+                            <div style="font-weight:bold;">A0</div>
+                            <div style="font-size:10px; color:#4ade80;">-10%</div>
+                        </button>
+                        <button class="btn-kimono btn-size-belt" data-size="A1"
+                            onclick="selectItem('faixa', 'size', 'A1')">
+                            <div style="font-weight:bold;">A1</div>
+                            <div style="font-size:10px; color:#4ade80;">-5%</div>
+                        </button>
+                        <button class="btn-kimono btn-size-belt active" data-size="A2"
+                            onclick="selectItem('faixa', 'size', 'A2')">
+                            <div style="font-weight:bold;">A2</div>
+                            <div style="font-size:10px; color:#a0aec0;">Base</div>
+                        </button>
+                        <button class="btn-kimono btn-size-belt" data-size="A3"
+                            onclick="selectItem('faixa', 'size', 'A3')">
+                            <div style="font-weight:bold;">A3</div>
+                            <div style="font-size:10px; color:#ef4444;">+5%</div>
+                        </button>
+                        <button class="btn-kimono btn-size-belt" data-size="A4"
+                            onclick="selectItem('faixa', 'size', 'A4')">
+                            <div style="font-weight:bold;">A4</div>
+                            <div style="font-size:10px; color:#ef4444;">+10%</div>
+                        </button>
+                        <button class="btn-kimono btn-size-belt" data-size="A5"
+                            onclick="selectItem('faixa', 'size', 'A5')">
+                            <div style="font-weight:bold;">A5</div>
+                            <div style="font-size:10px; color:#ef4444;">+15%</div>
+                        </button>
+                    </div>
+
+                    <button id="btn-alternar-faixa" class="btn-kimono"
+                        style="width: 100%; background: #2b5b84; font-size: 14px; padding: 12px; font-weight: bold; margin-top: 10px; border: none; color: white;"
+                        onclick="alternarItemBtn('faixa')">🛒 Colocar no Carrinho</button>
+                </div>
+
+                <!-- Checkout / Cart -->
+                <div id="step-cart" class="step-section">
+                    <h3 class="section-title">📦 Seu Carrinho</h3>
+                    <div
+                        style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border-left: 3px solid #d4af37; font-size: 13px; color: #fff;">
+                        <div id="cart-row-top" style="margin-bottom: 8px;"><strong>Vagui:</strong> <span
+                                id="cart-desc-top">Atama / Branco / A0</span> <span
+                                style="float:right; color:#cbd5e0;">R$ <span id="cart-price-top">350</span></span></div>
+                        <div id="cart-row-pants" style="margin-bottom: 8px;"><strong>Calça:</strong> <span
+                                id="cart-desc-pants">Atama / Branco / A0</span> <span
+                                style="float:right; color:#cbd5e0;">R$ <span id="cart-price-pants">180</span></span>
+                        </div>
+                        <div id="cart-row-belt"
+                            style="margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">
+                            <strong>Faixa:</strong> <span id="cart-desc-belt">Branca</span> <span
+                                style="float:right; color:#cbd5e0;">R$ <span id="cart-price-belt">60</span></span></div>
+
+                        <div id="cart-row-discount" style="display: none; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 8px;">
+                            <strong style="color: #4ade80;">🏷️ Desconto Combo:</strong> <span
+                                style="float:right; color:#4ade80;">- R$ <span id="cart-price-discount">0</span>,00</span>
+                        </div>
+
+                        <div
+                            style="text-align: right; margin-top: 10px; font-size: 18px; color: #d4af37; font-weight: bold;">
+                            Total: R$ <span id="cart-price-total">590,00</span>
+                        </div>
+                    </div>
+
+                    <!-- Poses para testar o Kimono montado -->
+                    <h3 class="section-title" style="margin-top: 20px;">🎭 Testar Poses</h3>
+                    <div class="gi-grid" style="grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <button id="btn-pose-base" class="btn-kimono btn-pose active"
+                            onclick="definirPose('base')">Posição Base</button>
+                        <button id="btn-pose-guardaa" class="btn-kimono btn-pose" onclick="definirPose('guarda')">Guarda
+                            Alta</button>
+                        <button id="btn-pose-peito" class="btn-kimono btn-pose" onclick="definirPose('peito')">Mão no
+                            Peito</button>
+                        <button id="btn-pose-vitoria" class="btn-kimono btn-pose"
+                            onclick="definirPose('vitoria')">Vitória</button>
                     </div>
                 </div>
-            </section>
+            </div>
 
-            <!-- Section 5: Rendering Mode (Cel Shading) -->
-            <section class="input-group">
-                <h3 class="section-title">🎨 Modo de Renderização</h3>
-                <div class="gi-grid">
-                    <button id="btn-blinnphong" class="gi-btn active" onclick="setCelShading(0)">🔵 Realístico</button>
-                    <button id="btn-cel" class="gi-btn" onclick="setCelShading(1)">🎌 Cel Shading</button>
+            <!-- Cart Summary fixed at bottom -->
+            <div
+                style="margin-top: 15px; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; border-top: 2px solid #d4af37;">
+                <div style="display: flex; justify-content: space-between; color: white; margin-bottom: 10px;">
+                    <span>Total Estimado:</span>
+                    <span id="total-flutuante" style="color: #d4af37; font-weight: bold; font-size: 18px;">R$
+                        590,00</span>
                 </div>
-                <p style="font-size:11px; color:#888; margin-top:6px; line-height:1.5;">Cel Shading quantiza a luz em 4 bandas criando efeito anime/mangá.</p>
-            </section>
-
-            <!-- Section 6: Consultar Faixa e Grau -->
-            <section class="input-group">
-                <h3 class="section-title">🔍 Consultar Faixa/Grau</h3>
-                <div style="display: flex; gap: 8px;">
-                    <select id="query-belt" class="text-input" style="flex:1; padding: 8px 10px; font-size: 13px;">
-                        <option value="white">Branca</option>
-                        <option value="blue">Azul</option>
-                        <option value="purple">Roxa</option>
-                        <option value="brown">Marrom</option>
-                        <option value="black">Preta</option>
-                        <option value="coral">Coral (Vermelha/Preta)</option>
-                        <option value="coral-white">Coral (Vermelha/Branca)</option>
-                        <option value="red">Vermelha</option>
-                    </select>
-                    <select id="query-degree" class="text-input" style="flex:0.5; padding: 8px 10px; font-size: 13px;">
-                        <option value="0">0°</option>
-                        <option value="1">1°</option>
-                        <option value="2">2°</option>
-                        <option value="3">3°</option>
-                        <option value="4">4°</option>
-                        <option value="5">5°</option>
-                        <option value="6">6°</option>
-                    </select>
-                </div>
-                <div id="query-result" style="margin-top: 6px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; border-left: 3px solid #4a7fc1; font-size: 13px; color: #cbd5e0; min-height: 38px;">
-                    Selecione faixa e grau para ver o tempo necessário.
-                </div>
-            </section>
-
-
+                <button id="btn-checkout" class="btn-kimono"
+                    style="width: 100%; background: #d4af37; color: black; font-weight: bold; padding: 12px; border: none; font-size: 14px;"
+                    onclick="checkout()">Finalizar Montagem</button>
+            </div>
         </aside>
     </div>
 
-    <!-- Custom Script -->
-    <script src="kimono.js"></script>
-    <script src="script.js"></script>
+    <!-- Custom Scripts -->
+    <script src="texturas.js?v=2"></script>
+    <script src="ui.js?v=2"></script>
+    <script src="camera_eventos.js?v=2"></script>
+    <script src="ambiente.js?v=2"></script>
+    <script src="faixa.js?v=2"></script>
+    <script src="kimono.js?v=2"></script>
+    <script src="main.js?v=2"></script>
 </body>
+
 </html>

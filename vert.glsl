@@ -17,9 +17,23 @@ out vec3 vNormal;
 out vec3 vViewPosition;
 out vec3 vModelPosition;
 
+uniform float uKimonoPart;
+uniform float uSqueezePantsTop;
+
 void main() {
+    vec3 pos = aPosition;
+    
+    // Se for a calça (4.0 ou 5.0) e tivermos que afinar o topo
+    if ((abs(uKimonoPart - 4.0) < 0.1 || abs(uKimonoPart - 5.0) < 0.1) && uSqueezePantsTop > 0.0) {
+        // Afinar progressivamente da altura Y=0 (barra da saia) até Y=68 (cintura)
+        float squeezeAmount = smoothstep(0.0, 68.0, pos.y);
+        float currentScale = mix(1.0, uSqueezePantsTop, squeezeAmount);
+        pos.x *= currentScale;
+        pos.z *= currentScale;
+    }
+
     // Transform vertex to view space
-    vec4 viewModelPos = uModelViewMatrix * vec4(aPosition, 1.0);
+    vec4 viewModelPos = uModelViewMatrix * vec4(pos, 1.0);
     
     // Final position on screen
     gl_Position = uProjectionMatrix * viewModelPos;
@@ -28,5 +42,5 @@ void main() {
     vTexCoord = aTexCoord;
     vNormal = uNormalMatrix * aNormal;
     vViewPosition = viewModelPos.xyz;
-    vModelPosition = aPosition;
+    vModelPosition = pos;
 }
