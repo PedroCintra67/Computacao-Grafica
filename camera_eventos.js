@@ -3,18 +3,31 @@ function updateCameraPosition() {
     raioOrbita = lerp(raioOrbita, alvoRaioOrbita, 0.1);
     alturaFocoCamera = lerp(alturaFocoCamera, alvoAlturaFocoCamera, 0.08);
 
-    // No auto-rotation; camera returns gently to front view when not dragging
-    if (!estaArrastando) {
-        rotacaoOrbitaY = atan2(sin(rotacaoOrbitaY), cos(rotacaoOrbitaY));
-        rotacaoOrbitaX = lerp(rotacaoOrbitaX, 0.1, 0.04);
-        rotacaoOrbitaY = lerp(rotacaoOrbitaY, 0.0, 0.04);
-    }
+    if (modoApp === 'vitrine') {
+        // Câmera Totalmente Fixa na vitrine
+        alvoPosCamera.x = -50;
+        alvoPosCamera.y = alturaFocoCamera;
+        alvoPosCamera.z = raioOrbita;
+        alvoOlharCamera.set(-50, alturaFocoCamera, 0);
+        
+        // Zera rotações para não dar problema se mudar pro ecommerce
+        rotacaoOrbitaX = 0;
+        rotacaoOrbitaY = 0;
 
-    // Both modes share the exact same height and target calculation
-    alvoPosCamera.x = raioOrbita * cos(rotacaoOrbitaX) * sin(rotacaoOrbitaY);
-    alvoPosCamera.y = raioOrbita * sin(rotacaoOrbitaX) + alturaFocoCamera;
-    alvoPosCamera.z = raioOrbita * cos(rotacaoOrbitaX) * cos(rotacaoOrbitaY);
-    alvoOlharCamera.set(0, alturaFocoCamera, 10);
+    } else {
+        // Lógica do Ecommerce
+        if (!estaArrastando) {
+            rotacaoOrbitaY = atan2(sin(rotacaoOrbitaY), cos(rotacaoOrbitaY)); // Normaliza
+            rotacaoOrbitaX = lerp(rotacaoOrbitaX, 0.0, 0.04);
+            rotacaoOrbitaY = lerp(rotacaoOrbitaY, 0.0, 0.04);
+        }
+        
+        // Câmera Fixa (Nova): Câmera parada, gira só o objeto
+        alvoPosCamera.x = 0;
+        alvoPosCamera.y = alturaFocoCamera;
+        alvoPosCamera.z = raioOrbita;
+        alvoOlharCamera.set(0, alturaFocoCamera, 10);
+    }
 
     // Smoothly interpolate position vectors
     posCamera.lerp(alvoPosCamera, 0.08);
@@ -39,8 +52,11 @@ function mouseDragged() {
         let dx = mouseX - ultimoMouseX;
         let dy = mouseY - ultimoMouseY;
 
-        rotacaoOrbitaY += dx * 0.007; // positive = drag right → model rotates right
-        rotacaoOrbitaX = constrain(rotacaoOrbitaX + dy * 0.007, -HALF_PI + 0.05, HALF_PI - 0.05);
+        // Permite girar o objeto apenas no modo ecommerce
+        if (modoApp !== 'vitrine') {
+            rotacaoOrbitaY += dx * 0.007;
+            rotacaoOrbitaX = constrain(rotacaoOrbitaX + dy * 0.007, -HALF_PI + 0.05, HALF_PI - 0.05);
+        }
 
         ultimoMouseX = mouseX;
         ultimoMouseY = mouseY;
@@ -51,7 +67,15 @@ function mouseWheel(event) {
     // Only zoom when mouse is over the canvas
     if (mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
         alvoRaioOrbita += event.delta * 0.5;
-        alvoRaioOrbita = constrain(alvoRaioOrbita, ORBIT_MIN, ORBIT_MAX);
+
+        if (modoApp === 'vitrine') {
+            // No modo vitrine, o limite de zoom out é 900 (não afasta mais que a rua)
+            alvoRaioOrbita = constrain(alvoRaioOrbita, ORBIT_MIN, 900);
+        } else {
+            // No ecommerce, o limite de zoom out é 800 para não perder o foco na peça
+            alvoRaioOrbita = constrain(alvoRaioOrbita, ORBIT_MIN, 600);
+        }
+
         return false; // prevent page scroll
     }
 }

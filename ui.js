@@ -1,15 +1,24 @@
 function alternarModoApp(mode) {
     modoApp = mode;
     if (mode === 'ecommerce') {
-        document.getElementById('boutique-panel').style.display = 'none';
+        document.getElementById('vitrine-panel').style.display = 'none';
         document.getElementById('painel-ecommerce').style.display = 'flex';
+        
+        // Reset rotation to ensure item faces forward
+        rotacaoOrbitaX = 0.0;
+        rotacaoOrbitaY = 0.0;
+        
         setStep('blusa'); // start e-commerce flow
     } else {
         document.getElementById('painel-ecommerce').style.display = 'none';
-        document.getElementById('boutique-panel').style.display = 'flex';
+        document.getElementById('vitrine-panel').style.display = 'flex';
         // Reset camera to default view
-        alvoOlharCamera = createVector(-100, 60, 0);
-        alvoPosCamera = createVector(-100, 150, 750);
+        alvoRaioOrbita = 900;
+        alvoAlturaFocoCamera = 120;
+        rotacaoOrbitaX = 0.0;
+        rotacaoOrbitaY = 0.0;
+        alvoOlharCamera = createVector(-50, 120, 10);
+        alvoPosCamera = createVector(-50, 120, 900);
     }
 }
 
@@ -18,13 +27,17 @@ function enterFittingRoom() {
 }
 
 function voltarVitrine() {
-    modoApp = 'boutique';
+    modoApp = 'vitrine';
     document.getElementById('painel-ecommerce').style.display = 'none';
-    document.getElementById('boutique-panel').style.display = 'flex';
+    document.getElementById('vitrine-panel').style.display = 'flex';
     
     // Reset camera to default storefront view
-    alvoOlharCamera = createVector(-100, 60, 0);
-    alvoPosCamera = createVector(-100, 150, 750);
+    alvoRaioOrbita = 900;
+    alvoAlturaFocoCamera = 120;
+    rotacaoOrbitaX = 0.0;
+    rotacaoOrbitaY = 0.0;
+    alvoOlharCamera = createVector(-50, 120, 10);
+    alvoPosCamera = createVector(-50, 120, 900);
 }
 
 function loadDropDaSemana(option) {
@@ -55,7 +68,7 @@ function loadDropDaSemana(option) {
 
     // Jump straight to cart overview
     modoApp = 'ecommerce';
-    document.getElementById('boutique-panel').style.display = 'none';
+    document.getElementById('vitrine-panel').style.display = 'none';
     document.getElementById('painel-ecommerce').style.display = 'flex';
     setStep('cart');
 }
@@ -91,6 +104,10 @@ function checkout() {
         document.getElementById('checkout-row-top').style.display = estadoLoja.blusa.equipado ? 'flex' : 'none';
         document.getElementById('checkout-row-pants').style.display = estadoLoja.calca.equipado ? 'flex' : 'none';
         document.getElementById('checkout-row-belt').style.display = estadoLoja.faixa.equipado ? 'flex' : 'none';
+        
+        // Exibir linha de bordado no checkout
+        let checkoutEmbRow = document.getElementById('checkout-row-embroidery');
+        if (checkoutEmbRow) checkoutEmbRow.style.display = estadoLoja.bordado ? 'flex' : 'none';
 
         // Show overlay
         document.getElementById('checkout-overlay').style.display = 'flex';
@@ -99,7 +116,7 @@ function checkout() {
 
 function closeCheckout() {
     document.getElementById('checkout-overlay').style.display = 'none';
-    alternarModoApp('boutique'); // Voltar para a loja
+    alternarModoApp('vitrine'); // Voltar para a loja
 }
 
 function setStep(stepName) {
@@ -110,6 +127,15 @@ function setStep(stepName) {
     let contentId = (stepName === 'cart') ? 'step-cart' : 'passo-' + stepName;
     let stepContent = document.getElementById(contentId);
     if (stepContent) stepContent.style.display = 'block';
+
+    // Reset wear slider whenever switching tabs
+    let slider = document.getElementById('wear-slider');
+    if (slider && slider.value !== "0") {
+        slider.value = 0;
+        if (typeof updateWearLevel === 'function') {
+            updateWearLevel(0);
+        }
+    }
 
     // Update tabs
     document.querySelectorAll('.step-tab, .btn-kimono').forEach(el => {
@@ -244,6 +270,11 @@ function selectItem(part, property, value) {
         }
         styleNode.innerHTML = css;
     }
+    
+    // Atualiza a cor do bordado automaticamente se a cor do kimono mudar
+    if ((estadoLoja.bordadoNome || estadoLoja.bordadoEquipe) && part === 'blusa' && property === 'color') {
+        if (typeof redrawEmbroidery === 'function') redrawEmbroidery();
+    }
 
     atualizarTotalCarrinho();
 }
@@ -270,8 +301,11 @@ function atualizarTotalCarrinho() {
     let topPrice = estadoLoja.blusa.equipado ? Math.round(topBase * getPriceMultiplier(estadoLoja.blusa.tamanho)) : 0;
     let pantsPrice = estadoLoja.calca.equipado ? Math.round(pantsBase * getPriceMultiplier(estadoLoja.calca.tamanho)) : 0;
     let beltPrice = estadoLoja.faixa.equipado ? Math.round(beltBase * getPriceMultiplier(estadoLoja.faixa.tamanho)) : 0;
+    
+    let embNamePrice = estadoLoja.bordadoNome ? 40 : 0;
+    let embTeamPrice = estadoLoja.bordadoEquipe ? 40 : 0;
 
-    let total = topPrice + pantsPrice + beltPrice;
+    let total = topPrice + pantsPrice + beltPrice + embNamePrice + embTeamPrice;
 
     if (estadoLoja.desconto > 0) {
         total -= estadoLoja.desconto;
@@ -308,6 +342,19 @@ function atualizarTotalCarrinho() {
     document.getElementById('cart-desc-belt').innerText = `${beltMap[estadoLoja.faixa.cor]} / ${estadoLoja.faixa.tamanho}`;
     document.getElementById('cart-price-belt').innerText = beltPrice;
     document.getElementById('cart-row-belt').style.display = estadoLoja.faixa.equipado ? 'block' : 'none';
+    
+    let embNameRow = document.getElementById('cart-row-emb-name');
+    if (embNameRow) embNameRow.style.display = estadoLoja.bordadoNome ? 'block' : 'none';
+    
+    let embTeamRow = document.getElementById('cart-row-emb-team');
+    if (embTeamRow) embTeamRow.style.display = estadoLoja.bordadoEquipe ? 'block' : 'none';
+    
+    // Atualizar checkout (Modal flutuante)
+    let ckNameRow = document.getElementById('checkout-row-emb-name');
+    if (ckNameRow) ckNameRow.style.display = estadoLoja.bordadoNome ? 'flex' : 'none';
+    
+    let ckTeamRow = document.getElementById('checkout-row-emb-team');
+    if (ckTeamRow) ckTeamRow.style.display = estadoLoja.bordadoEquipe ? 'flex' : 'none';
 
     document.getElementById('cart-price-total').innerText = total + ",00";
     document.getElementById('total-flutuante').innerText = "R$ " + total + ",00";

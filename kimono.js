@@ -381,7 +381,7 @@ function desenharTroncoKimono() {
 
     let col = [0.95, 0.95, 0.95]; // Branco Padrão
     let giColorStr = 'white';
-    if (window.modoApp === 'boutique') {
+    if (window.modoApp === 'vitrine') {
         giColorStr = window.corKimonoAtual || 'white';
     } else {
         giColorStr = (window.estadoLoja && window.estadoLoja.blusa) ? window.estadoLoja.blusa.cor : 'white';
@@ -413,6 +413,13 @@ function desenharTroncoKimono() {
     if (brand === 'Kingz') brandId = 2;
     meuShader.setUniform('uBrandId', brandId);
 
+    if (typeof estadoLoja !== 'undefined' && (estadoLoja.bordadoNome || estadoLoja.bordadoEquipe) && typeof imgBordadoCache !== 'undefined' && imgBordadoCache !== null) {
+        meuShader.setUniform('uHasBordado', 1);
+        meuShader.setUniform('texBordado', imgBordadoCache);
+    } else {
+        meuShader.setUniform('uHasBordado', 0);
+    }
+
     let isLightGi = false;
     if (giColorStr && (giColorStr.toLowerCase().includes('white') || giColorStr.toLowerCase().includes('branco') || giColorStr.toLowerCase().includes('fff'))) isLightGi = true;
     
@@ -424,9 +431,6 @@ function desenharTroncoKimono() {
 
     meuShader.setUniform('uKimonoPart', 0); // Reset
     pop();
-
-    // O peito interno (Rashguard) agora é resolvido via Fragment Shader,
-    // garantindo que NADA vaze ou trespasse a malha do kimono!
 
     // RESTAURAR Material e Cor do Kimono para as Mangas!
     meuShader.setUniform('uMaterialType', 1);
@@ -507,7 +511,7 @@ function desenharLapela() {
     // Tom sutilmente mais escuro (98%) para parecer o mesmo tecido
     let col = [0.95, 0.95, 0.95];
     let giColorStr = 'white';
-    if (window.modoApp === 'boutique') {
+    if (window.modoApp === 'vitrine') {
         giColorStr = window.corKimonoAtual || 'white';
     } else {
         giColorStr = (window.estadoLoja && window.estadoLoja.blusa) ? window.estadoLoja.blusa.cor : 'white';
@@ -550,7 +554,7 @@ function desenharCalca() {
     if (!malhaCalca) iniciarGeometriaKimono();
 
     let pColorStr = 'white';
-    if (window.modoApp === 'boutique') {
+    if (window.modoApp === 'vitrine') {
         // Usar a cor da blusa para a calça no modo clássico
         pColorStr = window.corKimonoAtual || 'white';
     } else {
@@ -617,12 +621,7 @@ function desenharCalca() {
     meuShader.setUniform('uKimonoPart', 0); // Reset
     pop();
 
-    // Preenchimento do Quadril/Virilha
-    push();
-    translate(0, 60, 0);
-    scale(24, 18, 20);
-    sphere(1, 16, 16);
-    pop();
+    // Preenchimento do Quadril/Virilha removido conforme solicitado
 }
 
 
