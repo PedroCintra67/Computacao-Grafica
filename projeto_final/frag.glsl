@@ -17,12 +17,15 @@ uniform vec3 uLightDir;         // View-space light direction
 uniform int uMaterialType;      // Material flag
 uniform vec3 uBaseColor;        // Base color for the active material
 uniform int uCelShading;        // 0=normal Blinn-Phong, 1=Cel/Toon shading
+uniform float uWearLevel;
 uniform float uKimonoPart;      // 0=None, 1=Chest, 2=LeftArm, 3=RightArm, 4=LeftPants, 5=RightPants
 uniform sampler2D texPeito;
-uniform sampler2D texOmbro;
-uniform sampler2D texCalca;
-uniform vec2 uPantsPatchSize;
-uniform int uBrandId;
+uniform sampler2D texOmbro;     // Textura do Patch de Ombro
+uniform sampler2D texCalca;     // Textura do Patch da Calca
+uniform vec2 uPantsPatchSize;   // Tamanho do patch da calça
+uniform sampler2D texBordado;   // Textura do Bordado Personalizado
+uniform int uHasBordado;        // Flag para habilitar o bordado
+uniform int uBrandId;           // 0=Atama, 1=Vouk, 2=Kingz
 
 void main() {
     // Vectors for lighting
@@ -91,6 +94,13 @@ void main() {
         shininess = 2.0;
     }
     
+    // Material 10: Environment Matte Solid (Immune to wear)
+    else if (uMaterialType == 10) {
+        diffuseColor = uBaseColor;
+        specularStrength = 0.05;
+        shininess = 2.0;
+    }
+    
     // --- GLOBAL DECAL PROJECTION MAPPING (Bordado Direto na Malha) ---
     // Apply to any fabric (Material 1, 4, etc.)
     if (uMaterialType == 1 || uMaterialType == 4 || uMaterialType == 5) {
@@ -125,6 +135,30 @@ void main() {
                     shadowAlpha = texture(texPeito, shadowUv).a * FADE_EDGE(shadowUv);
                 }
             }
+
+            // --- BORDADO NAS COSTAS ---
+            if (uHasBordado == 1) {
+                // Centraliza a projeção no Y=70 (meio do kimono)
+                vec3 pBack = vModelPosition - vec3(0.0, 70.0, -30.0); 
+                // Aumenta a caixa de projeção para 140x140, cobrindo da gola (140) até a barra da saia (0)
+                vec2 uvBack = vec2(pBack.x / 140.0 + 0.5, -pBack.y / 140.0 + 0.5);
+                
+                // Limite a projeção apenas nas costas (Z negativo) e dentro da caixa de projeção UV (0 a 1)
+                if (uvBack.x >= 0.0 && uvBack.x <= 1.0 && uvBack.y >= 0.0 && uvBack.y <= 1.0 && pBack.z < 30.0 && pBack.z > -40.0 && vModelPosition.z < 0.0) {
+                    vec4 embColor = texture(texBordado, uvBack);
+                    if (embColor.a > 0.1) { // Usa a textura do bordado
+                        decalColor = embColor;
+                        decalColor.a *= FADE_EDGE(uvBack);
+                        
+                        // Fake shadow
+                        vec2 shadowUv = uvBack + vec2(-0.01, 0.01);
+                        if (uBaseColor.r > 0.8 && shadowUv.x > 0.0 && shadowUv.x < 1.0 && shadowUv.y > 0.0 && shadowUv.y < 1.0) {
+                            shadowAlpha = texture(texBordado, shadowUv).a * FADE_EDGE(shadowUv);
+                        }
+                    }
+                }
+            }
+            
         } else if (abs(uKimonoPart - 2.0) < 0.1) {
             // Left Sleeve Patch Projection
             vec3 p = vModelPosition - vec3(-11.5, -24.0, 11.5);
@@ -298,6 +332,43 @@ void main() {
         diffuseColor = texColor.rgb;
         specularStrength = 0.1; // Slight reflection
         shininess = 10.0;
+    }
+
+    // -------------------------------------------------------------
+    // GLOBAL WEAR / FADING (Desbotamento e Amarelamento)
+    // -------------------------------------------------------------
+    // Aplica desgaste ao Kimono (1, 4), Patches (5) e Faixa (2)
+    if (uWearLevel > 0.0 && (uMaterialType == 1 || uMaterialType == 2 || uMaterialType == 4 || uMaterialType == 5)) {
+        // Verifica se a cor base é branca (Kimono branco, Faixa branca)
+        bool isWhite = (uBaseColor.r > 0.8 && uBaseColor.g > 0.8 && uBaseColor.b > 0.8);
+        
+        if (isWhite) {
+            // AMARELAMENTO: O suor e o tempo deixam o branco amarelado/bege
+            vec3 yellowedColor = vec3(0.88, 0.84, 0.72); 
+            // Adicionamos manchas no amarelamento também para maior realismo
+            float blotch = sin(vModelPosition.x * 0.02) * cos(vModelPosition.y * 0.015) * sin(vModelPosition.z * 0.02);
+            blotch = blotch * 0.5 + 0.5;
+            float yellowAmount = uWearLevel * (0.4 + 0.4 * blotch);
+            diffuseColor = mix(diffuseColor, yellowedColor * diffuseColor, yellowAmount);
+        } else {
+            // DESBOTAMENTO ESPALHADO: Clareia a própria cor original (como se perdesse a tinta)
+            // Ruído suave de baixa frequência para gerar "manchas" orgânicas pelo tecido
+            float blotch = sin(vModelPosition.x * 0.03) * cos(vModelPosition.y * 0.02) * sin(vModelPosition.z * 0.025);
+            blotch = blotch * 0.5 + 0.5; // mapeia para 0.0 a 1.0
+            
+            // A cor desbotada é a própria cor, porém um tom mais claro e lavado
+            vec3 lighterColor = diffuseColor + vec3(0.25); 
+            lighterColor = clamp(lighterColor, 0.0, 1.0);
+            
+            // Quantidade de desbotamento é afetada pelo desgaste geral e pelas manchas procedurais
+            float fadeAmount = uWearLevel * (0.4 + 0.5 * blotch);
+            
+            diffuseColor = mix(diffuseColor, lighterColor, fadeAmount);
+        }
+        
+        // Tecido velho perde a "goma" (brilho especular cai bastante)
+        specularStrength = mix(specularStrength, specularStrength * 0.2, uWearLevel);
+        shininess = mix(shininess, shininess * 0.4, uWearLevel);
     }
 
     // -------------------------------------------------------------

@@ -1,13 +1,15 @@
 let meuShader;
-let texturaPlacaBoutique;
+let texturaPlacavitrine;
 
-var modoApp = 'boutique';
+var modoApp = 'vitrine';
 
 var estadoLoja = {
     passoAtual: 'blusa',
     blusa: { marca: 'Vouk', cor: 'white', tamanho: 'A2', preco: 330, equipado: false },
     calca: { marca: 'Vouk', cor: 'white', tamanho: 'A2', preco: 170, equipado: false },
-    faixa: { cor: 'white', tamanho: 'A2', preco: 100, equipado: false }
+    faixa: { cor: 'white', tamanho: 'A2', preco: 100, equipado: false },
+    bordadoNome: false,
+    bordadoEquipe: false
 };
 
 let modoCameraAtiva = 'front';
@@ -18,24 +20,149 @@ let texturaPeitoAtamaClara, texturaPeitoAtamaEscura, texturaOmbroAtamaClara, tex
 let texturaCalcaVouk, texturaCalcaAtamaClara, texturaCalcaAtamaEscura, texturaCalcaKingz;
 let imgHelio, imgCarlos;
 let texturaTextoParede;
+let texturaPlacaAberto;
 let modoCelShading = 0;
 
-let alturaFocoCamera = 35;
-let alvoAlturaFocoCamera = 35;
+let raioOrbita = 900;
+let alvoRaioOrbita = 900;
+let alturaFocoCamera = 120;
+let alvoAlturaFocoCamera = 120;
 let posCamera, olharCamera;
 let alvoPosCamera, alvoOlharCamera;
-
-let raioOrbita = 700;
-let alvoRaioOrbita = 700;
-const ORBIT_MIN = 200;
-const ORBIT_MAX = 900;
-let rotacaoOrbitaX = 0.1;
+let rotacaoOrbitaX = 0.0;
 let rotacaoOrbitaY = 0.0;
 let estaArrastando = false;
 let ultimoMouseX = 0;
 let ultimoMouseY = 0;
 
+const ORBIT_MIN = 200;
+const ORBIT_MAX = 1200;
 
+let texturaBordado;
+let imgBordadoCache = null;
+let nivelDesgaste = 0.0;
+let atualizarBordadoFrame = false;
+let nomeBordadoStr = "";
+let equipeBordadoStr = "";
+
+function updateWearLevel(val) {
+    nivelDesgaste = val / 6.0;
+}
+
+function redrawEmbroidery() {
+    let nameStr = document.getElementById('embroidery-name') ? document.getElementById('embroidery-name').value : "";
+    let teamStr = document.getElementById('embroidery-team') ? document.getElementById('embroidery-team').value : "";
+
+    if (!estadoLoja.bordadoNome) nameStr = "";
+    if (!estadoLoja.bordadoEquipe) teamStr = "";
+
+    // fallback apenas se ativo e vazio
+    if (estadoLoja.bordadoNome && !nameStr) nameStr = "SEU NOME";
+    if (estadoLoja.bordadoEquipe && !teamStr) teamStr = "SUA EQUIPE";
+
+    texturaBordado.clear();
+    texturaBordado.background(0, 0, 0, 0); // Fundo transparente
+    
+    // Cor preta para kimono claro, branco para escuro
+    let giColorStr = 'white';
+    if (typeof modoApp !== 'undefined' && modoApp === 'ecommerce' && typeof estadoLoja !== 'undefined') {
+        giColorStr = estadoLoja.blusa.cor;
+    } else if (typeof corKimonoAtual !== 'undefined') {
+        giColorStr = corKimonoAtual;
+    }
+    
+    let isLightGi = (giColorStr === 'white' || giColorStr === 'branco');
+    if (isLightGi) {
+        texturaBordado.fill(20); // Preto escuro
+    } else {
+        texturaBordado.fill(255); // Branco puro
+    }
+    
+    // Função para diminuir a fonte se for muito longo
+    function printFitText(txt, y, startSize) {
+        let s = startSize;
+        texturaBordado.textSize(s);
+        while (texturaBordado.textWidth(txt) > 900 && s > 30) {
+            s -= 5;
+            texturaBordado.textSize(s);
+        }
+        texturaBordado.text(txt, 512, y);
+    }
+
+    if (nameStr) {
+        // Nome nas costas altas (Altura das escápulas)
+        printFitText(nameStr.toUpperCase(), 220, 100); // <-- AQUI! O '140' é a fonte máxima do Nome
+    }
+    
+    if (teamStr) {
+        // Equipe na extremidade inferior da saia do kimono (Abaixo da faixa)
+        printFitText(teamStr.toUpperCase(), 870, 80); // <-- AQUI! O '120' é a fonte máxima da Equipe
+    }
+    
+    imgBordadoCache = texturaBordado.get();
+}
+
+function applyEmbroideryName() {
+    estadoLoja.bordadoNome = !estadoLoja.bordadoNome;
+    redrawEmbroidery();
+    if (typeof atualizarTotalCarrinho === 'function') atualizarTotalCarrinho();
+    
+    let btn = document.getElementById('btn-apply-name');
+    if (btn) {
+        if (estadoLoja.bordadoNome) {
+            btn.innerText = "✓ Adicionado";
+            btn.style.background = "#4ade80";
+            btn.style.color = "#0f172a";
+        } else {
+            btn.innerText = "+R$ 40";
+            btn.style.background = "#d4af37";
+            btn.style.color = "black";
+        }
+    }
+}
+
+function resetEmbroideryState(type) {
+    if (type === 'name' && estadoLoja.bordadoNome) {
+        estadoLoja.bordadoNome = false;
+        let btn = document.getElementById('btn-apply-name');
+        if (btn) {
+            btn.innerText = "+R$ 40";
+            btn.style.background = "#d4af37";
+            btn.style.color = "black";
+        }
+        redrawEmbroidery();
+        if (typeof atualizarTotalCarrinho === 'function') atualizarTotalCarrinho();
+    } else if (type === 'team' && estadoLoja.bordadoEquipe) {
+        estadoLoja.bordadoEquipe = false;
+        let btn = document.getElementById('btn-apply-team');
+        if (btn) {
+            btn.innerText = "+R$ 40";
+            btn.style.background = "#d4af37";
+            btn.style.color = "black";
+        }
+        redrawEmbroidery();
+        if (typeof atualizarTotalCarrinho === 'function') atualizarTotalCarrinho();
+    }
+}
+
+function applyEmbroideryTeam() {
+    estadoLoja.bordadoEquipe = !estadoLoja.bordadoEquipe;
+    redrawEmbroidery();
+    if (typeof atualizarTotalCarrinho === 'function') atualizarTotalCarrinho();
+    
+    let btn = document.getElementById('btn-apply-team');
+    if (btn) {
+        if (estadoLoja.bordadoEquipe) {
+            btn.innerText = "✓ Adicionado";
+            btn.style.background = "#4ade80";
+            btn.style.color = "#0f172a";
+        } else {
+            btn.innerText = "+R$ 40";
+            btn.style.background = "#d4af37";
+            btn.style.color = "black";
+        }
+    }
+}
 
 function preload() {
     meuShader = loadShader('vert.glsl', 'frag.glsl');
@@ -58,6 +185,18 @@ function setup() {
     texturaRashguard.textStyle(BOLD);
     texturaRashguard.text("JIU\nJITSU", 256, 256);
 
+    texturaBordado = createGraphics(1024, 1024);
+    texturaBordado.textAlign(CENTER, CENTER);
+    texturaBordado.textStyle(BOLD);
+    
+    // DEBUG: Desenhar um texto estático na inicialização
+    texturaBordado.clear();
+    texturaBordado.background(0, 0, 0, 0); // Fundo transparente
+    texturaBordado.fill(255); // Texto Branco
+    texturaBordado.textSize(160); // Aumentado
+    texturaBordado.text("TESTE INICIAL", 512, 300);
+    imgBordadoCache = texturaBordado.get(); // Extrai imagem real para o WebGL
+    
     texturaTextoParede = createGraphics(800, 320);
     texturaTextoParede.clear();
     texturaTextoParede.fill(20, 15, 10);
@@ -67,17 +206,29 @@ function setup() {
     texturaTextoParede.textSize(120);
     texturaTextoParede.text('JIU - JITSU', 400, 80);
 
-    texturaPlacaBoutique = createGraphics(800, 320);
-    texturaPlacaBoutique.clear();
-    texturaPlacaBoutique.fill(212, 175, 55);
-    texturaPlacaBoutique.textAlign(CENTER, CENTER);
-    texturaPlacaBoutique.textStyle(BOLD);
-    texturaPlacaBoutique.textFont('sans-serif');
-    texturaPlacaBoutique.textSize(90);
-    texturaPlacaBoutique.text('ATACADO BJJ', 400, 100);
-    texturaPlacaBoutique.textSize(35);
-    texturaPlacaBoutique.fill(200);
-    texturaPlacaBoutique.text('KIMONOS EM ATACADO E VAREJO', 400, 200);
+    texturaPlacavitrine = createGraphics(800, 320);
+    texturaPlacavitrine.clear();
+    texturaPlacavitrine.fill(0);
+    texturaPlacavitrine.textAlign(CENTER, CENTER);
+    texturaPlacavitrine.textStyle(BOLD);
+    texturaPlacavitrine.textFont('sans-serif');
+    texturaPlacavitrine.textSize(90);
+    texturaPlacavitrine.text('ATACADO BJJ', 350, 100);
+    texturaPlacavitrine.textSize(35);
+    texturaPlacavitrine.fill(0);
+    texturaPlacavitrine.text('A performance começa no conforto', 350, 200);
+
+    texturaPlacaAberto = createGraphics(250, 80);
+    texturaPlacaAberto.clear();
+    texturaPlacaAberto.fill(255); // Fundo branco
+    texturaPlacaAberto.noStroke();
+    texturaPlacaAberto.rect(0, 0, 250, 80, 5); // Cantos bem menos arredondados
+    texturaPlacaAberto.fill(0); // Verde da placa
+    texturaPlacaAberto.textAlign(CENTER, CENTER);
+    texturaPlacaAberto.textStyle(BOLD);
+    texturaPlacaAberto.textFont('sans-serif');
+    texturaPlacaAberto.textSize(45);
+    texturaPlacaAberto.text('ABERTO', 128, 40);
 
     iniciarTexturas();
 
@@ -91,13 +242,11 @@ function setup() {
 }
 
 function draw() {
-    if (modoApp === 'boutique') {
+    if (modoApp === 'vitrine') {
         background(135, 206, 235);
     } else {
         background(230, 235, 240);
     }
-
-
 
     updateCameraPosition();
     camera(posCamera.x, posCamera.y, posCamera.z, olharCamera.x, olharCamera.y, olharCamera.z, 0, -1, 0);
@@ -106,16 +255,27 @@ function draw() {
 
     shader(meuShader);
     meuShader.setUniform('uLightDir', uLightDir);
-    meuShader.setUniform('uCelShading', modoCelShading);
+    meuShader.setUniform('uCelShading', 0);
+    meuShader.setUniform('uWearLevel', nivelDesgaste);
+    meuShader.setUniform('uInvitrine', modoApp === 'vitrine' ? 1 : 0);
+    meuShader.setUniform('uWireframe', 0);
 
-    if (modoApp === 'boutique') {
-        desenharAmbienteBoutique();
+    noStroke();
+
+    if (modoApp === 'vitrine') {
+        desenharAmbientevitrine();
     } else {
         drawEnvironment();
     }
 
     push();
     translate(0, 25, 0);
+    
+    // Gira a peça de roupa de acordo com o arrasto do mouse APENAS no Ecommerce
+    if (modoApp === 'ecommerce') {
+        rotateX(-rotacaoOrbitaX);
+        rotateY(-rotacaoOrbitaY);
+    }
 
     if (modoApp === 'ecommerce') {
         let viewportSub = document.getElementById('viewport-subtotal');
@@ -179,8 +339,14 @@ function draw() {
         let viewportSub = document.getElementById('viewport-subtotal');
         if (viewportSub) viewportSub.style.display = 'none';
 
-        drawBoutiqueMannequins();
+        drawvitrineMannequins();
     }
 
-    pop();
+    pop(); // Restaura matriz antes de desenhar coisas flutuantes que não giram com os objetos
+
+    // Desenha o vidro da vitrine POR ÚLTIMO na vitrine
+    // Isso é essencial no WebGL para que a transparência não esconda (Z-buffer) os kimonos que estão atrás!
+    if (modoApp === 'vitrine') {
+        desenharVidrovitrine();
+    }
 }
