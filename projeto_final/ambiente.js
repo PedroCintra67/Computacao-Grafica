@@ -1,7 +1,7 @@
 function drawEnvironment() {
     noStroke(); // Remove wireframes from background elements
     // TATAMI FLOOR
-    meuShader.setUniform('uMaterialType', 7); // Checkered Pattern Floor
+    meuShader.setUniform('uMaterialType', 11); // World-space Grid Floor
     meuShader.setUniform('uBaseColor', [0.65, 0.45, 0.25]); // Lighter Brown tatami
 
     // Main tatami floor (huge)
@@ -64,7 +64,7 @@ function drawEnvironment() {
 function desenharAmbientevitrine() {
     noStroke(); // Remove wireframes from storefront elements
     // 1. Street/Sidewalk Floor (Outside)
-    meuShader.setUniform('uMaterialType', 7); // Checkered Pattern Floor
+    meuShader.setUniform('uMaterialType', 11); // World-space Grid Floor (same tile size as interior)
     meuShader.setUniform('uBaseColor', [0.65, 0.45, 0.25]); // Lighter Brown tatami
     push();
     translate(0, -112, 100);
@@ -72,7 +72,7 @@ function desenharAmbientevitrine() {
     pop();
 
     // Store Interior Floor (Behind window)
-    meuShader.setUniform('uMaterialType', 7); // Checkered Pattern Floor
+    meuShader.setUniform('uMaterialType', 11); // World-space Grid Floor
     meuShader.setUniform('uBaseColor', [0.65, 0.45, 0.25]); // Lighter Brown tatami
     push();
     translate(0, -112, -400);
@@ -137,39 +137,70 @@ function desenharAmbientevitrine() {
     // 5. Parede ao lado do vidro (Preenche o espaço que sobrou até a borda 425)
     push(); translate(352.5, 63, 0); box(145, 350, 20); pop();
     
-    // Telhado / Teto (Literalmente um triângulo na parede da frente)
+    // Telhado 3D com inclinação (duas faces inclinadas se encontrando no cume)
+    meuShader.setUniform('uMaterialType', 11); // Grid igual ao chão
+    meuShader.setUniform('uBaseColor', [0.40, 0.25, 0.12]); // Mesma cor do chão
+    
+    // Geometria do telhado: duas faces inclinadas que se encontram no topo
+    // Largura total da loja: de -525 a 425 = 950 unidades
+    // A base começa em Y=388 e o bico está em Y=688 (300 de altura), X=-50
+    // Profundidade do telhado: 80 unidades para frente e 80 para trás da fachada
+    
+    let roofDepth = 80;       // Profundidade do telhado
+    let roofBaseY = 388;      // Y da base do telhado
+    let roofPeakY = 688;      // Y do bico (cume)
+    let roofPeakX = -50;      // X do bico (centro)
+    let roofLeftX = -525;     // X esquerda da base
+    let roofRightX = 425;     // X direita da base
+    let roofH = roofPeakY - roofBaseY; // 300 altura
+    let roofW = roofRightX - roofLeftX; // 950 largura total
+    
+    // Face Esquerda do Telhado (do bico até a borda esquerda)
+    // Centro no meio entre roofPeakX e roofLeftX, meio da altura
+    let leftFaceW = roofPeakX - roofLeftX; // -50 - (-525) = 475
+    let leftFaceCX = (roofPeakX + roofLeftX) / 2.0; // (-50 + -525)/2 = -287.5
+    let leftFaceCY = (roofPeakY + roofBaseY) / 2.0; // (688 + 388)/2 = 538
+    // Ângulo de inclinação da face esquerda
+    let leftAngle = atan2(roofH, abs(leftFaceW)); // atan(300/475)
+    
+    push();
+    translate(leftFaceCX, leftFaceCY, 0);
+    rotateZ(leftAngle); // Inclina para esquerda-para-baixo
+    box(sqrt(leftFaceW*leftFaceW + roofH*roofH), roofDepth * 2, 8); // comprimento inclinado x profundidade x espessura
+    pop();
+    
+    // Face Direita do Telhado (do bico até a borda direita)
+    let rightFaceW = roofRightX - roofPeakX; // 425 - (-50) = 475
+    let rightFaceCX = (roofPeakX + roofRightX) / 2.0; // (-50 + 425)/2 = 187.5
+    let rightFaceCY = leftFaceCY;
+    let rightAngle = atan2(roofH, abs(rightFaceW));
+    
+    push();
+    translate(rightFaceCX, rightFaceCY, 0);
+    rotateZ(-rightAngle); // Inclina para direita-para-baixo
+    box(sqrt(rightFaceW*rightFaceW + roofH*roofH), roofDepth * 2, 8);
+    pop();
+    
+    // Cume do Telhado (barra no topo)
     meuShader.setUniform('uMaterialType', 10);
-    // Escurecemos a cor base do telhado porque o chão tem linhas pretas e iluminação diferente que o deixam mais escuro. 
-    // Assim a cor visual final fica idêntica.
-    meuShader.setUniform('uBaseColor', [0.40, 0.25, 0.12]); 
-    push(); 
-    // Translada um pouco para frente para alinhar com a face da parede
-    translate(0, 0, 10); 
+    meuShader.setUniform('uBaseColor', [0.25, 0.15, 0.07]); // Mais escuro para contraste
+    push();
+    translate(roofPeakX, roofPeakY, 0);
+    box(30, 12, roofDepth * 2 + 20); // Barra horizontal no cume
+    pop();
     
-    // Desenha um triângulo 2D perfeito ancorado nos novos limites extremos da loja (-525 a 425)
-    // E o bico centralizado na câmera (X = -50)
+    // Tampa triangular traseira (fecha o telhado atrás)
+    meuShader.setUniform('uMaterialType', 10);
+    meuShader.setUniform('uBaseColor', [0.40, 0.25, 0.12]);
+    push();
+    translate(0, 0, roofDepth); // Face traseira do telhado
     triangle(-525, 388, 425, 388, -50, 688);
-
-    // Linhas pretas horizontais bem fininhas sobre o telhado inteiro
-    meuShader.setUniform('uBaseColor', [0.02, 0.02, 0.02]); // Preto
-    for(let y = 390; y <= 680; y += 18) { // Espaçamento bem menor para cobrir o triângulo todo
-        let frac = (y - 388) / 300.0; // 300 é a altura total do triângulo (688 - 388)
-        let w = 950 * (1.0 - frac) - 8; // Menos 8 para não vazar pelas bordas diagonais
-        if (w > 0) {
-            push();
-            translate(-50, y, 1); // Z=1 à frente do triângulo
-            box(w, 1.5, 2); // Caixa super fina (1.5 de altura)
-            pop();
-        }
-    }
-    
     pop();
     
-    pop();
+    pop(); // pop da fachada (Z=-50)
     
     // Plantas na calçada (Ambiente)
     drawVaseAndPlant(350, -20);
-    drawVaseAndPlant(-490, -20);
     // 6. Neon Store Sign
     if (texturaPlacavitrine) {
         meuShader.setUniform('uMaterialType', 6);

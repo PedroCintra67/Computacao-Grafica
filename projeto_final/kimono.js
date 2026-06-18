@@ -8,6 +8,7 @@ let malhaFaixa;
 let malhaLapelaEsquerda;
 let malhaLapelaDireita;
 let malhaCalca;
+let malhaCosPants;
 
 function iniciarGeometriaKimono() {
     // Usamos p5.Geometry para construir formas personalizadas com UVs e Normais uma vez, guardando em cache.
@@ -138,21 +139,23 @@ function iniciarGeometriaKimono() {
     malhaLapelaDireita.id = 'lapelRight_geom';
     malhaLapelaDireita.gid = 'lapelRight_geom';
 
-    // Criar geometria da calça (uma perna, reutilizada esquerda e direita)
+    // Criar geometria da calça — perna com deslocamento crescente para fora (+X)
     malhaCalca = new p5.Geometry(1, 1, function () {
         let linhas = 40;
         let colunas = 30;
+        let spreadX = 14; // deslocamento lateral que cresce conforme desce
         for (let r = 0; r <= linhas; r++) {
             let v = r / linhas;
             let y = lerp(68, -80, v);
-            let radiusX = lerp(28, 18, v);
-            let radiusZ = lerp(26, 16, v);
+            let radiusX = lerp(26, 16, v);
+            let radiusZ = lerp(24, 15, v);
+            let xCenter = lerp(0, spreadX, v); // deslocamento crescente para fora
 
             for (let c = 0; c <= colunas; c++) {
                 let u = c / colunas;
                 let a = u * TWO_PI;
-                let w = sin(u * TWO_PI * 4) * sin(v * PI * 8) * 1.5; // dobras
-                this.vertices.push(createVector(cos(a) * radiusX + w, y, sin(a) * radiusZ + w));
+                let w = sin(u * TWO_PI * 4) * sin(v * PI * 8) * 1.5;
+                this.vertices.push(createVector(xCenter + cos(a) * radiusX + w, y, sin(a) * radiusZ + w));
                 this.uvs.push([u, v]);
             }
         }
@@ -167,8 +170,6 @@ function iniciarGeometriaKimono() {
             }
         }
         this.computeNormals();
-
-        // Corrigir a costura (seam) da calça
         for (let r = 0; r <= linhas; r++) {
             let i0 = r * (colunas + 1) + 0;
             let i1 = r * (colunas + 1) + colunas;
@@ -181,6 +182,48 @@ function iniciarGeometriaKimono() {
     });
     malhaCalca.id = 'pants_geom';
     malhaCalca.gid = 'pants_geom';
+
+    // Cintura da calça — elipse larga que abrange as duas pernas
+    malhaCosPants = new p5.Geometry(1, 1, function () {
+        let colunas = 60;
+        let linhas = 4;
+        let yStart = 30;
+        let yEnd = 73;
+        let rX = 38.0; // abrange toda a cintura (16.5 + 26 de cada perna)
+        let rZ = 28.0;
+        for (let r = 0; r <= linhas; r++) {
+            let v = r / linhas;
+            let y = lerp(yStart, yEnd, v);
+            for (let c = 0; c <= colunas; c++) {
+                let u = c / colunas;
+                let angle = u * TWO_PI;
+                this.vertices.push(createVector(cos(angle) * rX, y, sin(angle) * rZ));
+                this.uvs.push([u, v]);
+            }
+        }
+        for (let r = 0; r < linhas; r++) {
+            for (let c = 0; c < colunas; c++) {
+                let i0 = r * (colunas + 1) + c;
+                let i1 = i0 + 1;
+                let i2 = (r + 1) * (colunas + 1) + c;
+                let i3 = i2 + 1;
+                this.faces.push([i0, i2, i1]);
+                this.faces.push([i1, i2, i3]);
+            }
+        }
+        this.computeNormals();
+        for (let j = 0; j <= linhas; j++) {
+            let i0 = j * (colunas + 1) + 0;
+            let i1 = j * (colunas + 1) + colunas;
+            let n0 = this.vertexNormals[i0];
+            let n1 = this.vertexNormals[i1];
+            let avgN = p5.Vector.add(n0, n1).normalize();
+            this.vertexNormals[i0] = avgN.copy();
+            this.vertexNormals[i1] = avgN.copy();
+        }
+    });
+    malhaCosPants.id = 'pants_waist_geom';
+    malhaCosPants.gid = 'pants_waist_geom';
 }
 
 function iniciarMalhaFaixa() {
@@ -551,11 +594,10 @@ function desenharLapela() {
 }
 
 function desenharCalca() {
-    if (!malhaCalca) iniciarGeometriaKimono();
+    if (!malhaCalca || !malhaCosPants) iniciarGeometriaKimono();
 
     let pColorStr = 'white';
     if (window.modoApp === 'vitrine') {
-        // Usar a cor da blusa para a calça no modo clássico
         pColorStr = window.corKimonoAtual || 'white';
     } else {
         pColorStr = (window.estadoLoja && window.estadoLoja.calca) ? window.estadoLoja.calca.cor : 'white';
@@ -565,63 +607,58 @@ function desenharCalca() {
     if (pColorStr === 'blue') pColor = [0.08, 0.22, 0.58];
     if (pColorStr === 'black') pColor = [0.12, 0.12, 0.14];
 
-    meuShader.setUniform('uMaterialType', 1);
-    meuShader.setUniform('uBaseColor', pColor);
-    noStroke();
-
-    // Desenhar perna esquerda
-    push();
-    translate(-16.5, 0, 0);
-    meuShader.setUniform('uKimonoPart', 4);
     let brand = (typeof modoApp !== 'undefined' && modoApp === 'ecommerce' && typeof estadoLoja !== 'undefined') ? estadoLoja.calca.marca : 'Atama';
-
-    let brandId = 0; // Atama
+    let brandId = 0;
     if (brand === 'Vouk') brandId = 1;
     if (brand === 'Kingz') brandId = 2;
+
+    let isLightPants = pColorStr && (pColorStr.toLowerCase().includes('white') || pColorStr.toLowerCase().includes('branco') || pColorStr.toLowerCase().includes('fff'));
+
+    meuShader.setUniform('uMaterialType', 1);
+    meuShader.setUniform('uBaseColor', pColor);
     meuShader.setUniform('uBrandId', brandId);
+    noStroke();
 
-    let isLightPants = false;
-    if (pColorStr && (pColorStr.toLowerCase().includes('white') || pColorStr.toLowerCase().includes('branco') || pColorStr.toLowerCase().includes('fff'))) isLightPants = true;
-
-    if (brand === 'Vouk' && typeof texturaCalcaVouk !== 'undefined') {
-        meuShader.setUniform('texCalca', texturaCalcaVouk);
-        meuShader.setUniform('uPantsPatchSize', [18.0, 18.0]);
-    } else if (brand === 'Atama' && typeof texturaCalcaAtamaClara !== 'undefined') {
-        meuShader.setUniform('texCalca', isLightPants ? texturaCalcaAtamaEscura : texturaCalcaAtamaClara);
-        meuShader.setUniform('uPantsPatchSize', [18.0, 18.0]);
-    } else if (brand === 'Kingz' && typeof texturaCalcaKingz !== 'undefined') {
-        meuShader.setUniform('texCalca', texturaCalcaKingz);
-        meuShader.setUniform('uPantsPatchSize', [18.0, 18.0]);
+    function setCalcaTex() {
+        if (brand === 'Vouk' && typeof texturaCalcaVouk !== 'undefined') {
+            meuShader.setUniform('texCalca', texturaCalcaVouk);
+            meuShader.setUniform('uPantsPatchSize', [18.0, 18.0]);
+        } else if (brand === 'Atama' && typeof texturaCalcaAtamaClara !== 'undefined') {
+            meuShader.setUniform('texCalca', isLightPants ? texturaCalcaAtamaEscura : texturaCalcaAtamaClara);
+            meuShader.setUniform('uPantsPatchSize', [18.0, 18.0]);
+        } else if (brand === 'Kingz' && typeof texturaCalcaKingz !== 'undefined') {
+            meuShader.setUniform('texCalca', texturaCalcaKingz);
+            meuShader.setUniform('uPantsPatchSize', [18.0, 18.0]);
+        }
     }
-    model(malhaCalca);
-    meuShader.setUniform('uKimonoPart', 0); // Reset
-    pop();
 
-    // Desenhar perna direita
+    // Perna direita — spread em +X (malhaCalca tem xCenter crescendo em +X)
     push();
     translate(16.5, 0, 0);
-    // Remove scale(-1, 1, 1) so text doesn't render backwards
-    meuShader.setUniform('uKimonoPart', 5); // Right leg
-
-    let isLightPantsR = false;
-    if (pColorStr && (pColorStr.toLowerCase().includes('white') || pColorStr.toLowerCase().includes('branco') || pColorStr.toLowerCase().includes('fff'))) isLightPantsR = true;
-
-    if (brand === 'Vouk' && typeof texturaCalcaVouk !== 'undefined') {
-        meuShader.setUniform('texCalca', texturaCalcaVouk);
-        meuShader.setUniform('uPantsPatchSize', [18.0, 18.0]);
-    } else if (brand === 'Atama' && typeof texturaCalcaAtamaClara !== 'undefined') {
-        meuShader.setUniform('texCalca', isLightPantsR ? texturaCalcaAtamaEscura : texturaCalcaAtamaClara);
-        meuShader.setUniform('uPantsPatchSize', [18.0, 18.0]);
-    } else if (brand === 'Kingz' && typeof texturaCalcaKingz !== 'undefined') {
-        meuShader.setUniform('texCalca', texturaCalcaKingz);
-        meuShader.setUniform('uPantsPatchSize', [18.0, 18.0]);
-    }
-
+    meuShader.setUniform('uKimonoPart', 5);
+    setCalcaTex();
     model(malhaCalca);
-    meuShader.setUniform('uKimonoPart', 0); // Reset
+    meuShader.setUniform('uKimonoPart', 0);
     pop();
 
-    // Preenchimento do Quadril/Virilha removido conforme solicitado
+    // Perna esquerda — espelhada em X para que o spread vá em -X
+    push();
+    translate(-16.5, 0, 0);
+    scale(-1, 1, 1);
+    meuShader.setUniform('uKimonoPart', 4);
+    setCalcaTex();
+    model(malhaCalca);
+    meuShader.setUniform('uKimonoPart', 0);
+    pop();
+
+    // Cintura — elipse larga que abrange as duas pernas
+    push();
+    let cosColor = [pColor[0] * 0.88, pColor[1] * 0.88, pColor[2] * 0.88];
+    meuShader.setUniform('uMaterialType', 4);
+    meuShader.setUniform('uBaseColor', cosColor);
+    meuShader.setUniform('uKimonoPart', 0);
+    model(malhaCosPants);
+    pop();
 }
 
 

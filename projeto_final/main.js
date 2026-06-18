@@ -67,11 +67,13 @@ function redrawEmbroidery() {
     let giColorStr = 'white';
     if (typeof modoApp !== 'undefined' && modoApp === 'ecommerce' && typeof estadoLoja !== 'undefined') {
         giColorStr = estadoLoja.blusa.cor;
-    } else if (typeof corKimonoAtual !== 'undefined') {
-        giColorStr = corKimonoAtual;
+    } else if (typeof window !== 'undefined' && window.corKimonoAtual) {
+        giColorStr = window.corKimonoAtual;
+    } else if (typeof estadoLoja !== 'undefined' && estadoLoja.blusa) {
+        giColorStr = estadoLoja.blusa.cor;
     }
     
-    let isLightGi = (giColorStr === 'white' || giColorStr === 'branco');
+    let isLightGi = (giColorStr === 'white' || giColorStr === 'branco' || giColorStr === '');
     if (isLightGi) {
         texturaBordado.fill(20); // Preto escuro
     } else {
@@ -90,13 +92,13 @@ function redrawEmbroidery() {
     }
 
     if (nameStr) {
-        // Nome nas costas altas (Altura das escápulas)
-        printFitText(nameStr.toUpperCase(), 220, 100); // <-- AQUI! O '140' é a fonte máxima do Nome
+        // Nome nas costas altas (Altura das escápulas) — sem forçar maiúsculas
+        printFitText(nameStr, 220, 100); // <-- O '100' é a fonte máxima do Nome
     }
     
     if (teamStr) {
-        // Equipe na extremidade inferior da saia do kimono (Abaixo da faixa)
-        printFitText(teamStr.toUpperCase(), 870, 80); // <-- AQUI! O '120' é a fonte máxima da Equipe
+        // Equipe na extremidade inferior da saia do kimono (Abaixo da faixa) — sem forçar maiúsculas
+        printFitText(teamStr, 870, 80); // <-- O '80' é a fonte máxima da Equipe
     }
     
     imgBordadoCache = texturaBordado.get();

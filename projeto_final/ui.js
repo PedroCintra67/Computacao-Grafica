@@ -10,15 +10,9 @@ function alternarModoApp(mode) {
         
         setStep('blusa'); // start e-commerce flow
     } else {
+        resetParaEstadoInicial(); // Reset completo ao voltar à vitrine
         document.getElementById('painel-ecommerce').style.display = 'none';
         document.getElementById('vitrine-panel').style.display = 'flex';
-        // Reset camera to default view
-        alvoRaioOrbita = 900;
-        alvoAlturaFocoCamera = 120;
-        rotacaoOrbitaX = 0.0;
-        rotacaoOrbitaY = 0.0;
-        alvoOlharCamera = createVector(-50, 120, 10);
-        alvoPosCamera = createVector(-50, 120, 900);
     }
 }
 
@@ -26,18 +20,67 @@ function enterFittingRoom() {
     alternarModoApp('ecommerce');
 }
 
-function voltarVitrine() {
+// =====================================================
+// RESET COMPLETO — volta ao estado inicial da loja
+// Chamado ao retornar à vitrine por qualquer caminho
+// =====================================================
+function resetParaEstadoInicial() {
     modoApp = 'vitrine';
-    document.getElementById('painel-ecommerce').style.display = 'none';
-    document.getElementById('vitrine-panel').style.display = 'flex';
-    
-    // Reset camera to default storefront view
+
+    // Camera
     alvoRaioOrbita = 900;
     alvoAlturaFocoCamera = 120;
     rotacaoOrbitaX = 0.0;
     rotacaoOrbitaY = 0.0;
     alvoOlharCamera = createVector(-50, 120, 10);
     alvoPosCamera = createVector(-50, 120, 900);
+
+    // Desgaste do kimono — reseta o valor JS e o slider visual
+    if (typeof nivelDesgaste !== 'undefined') nivelDesgaste = 0.0;
+    if (typeof updateWearLevel === 'function') updateWearLevel(0);
+    let slider = document.getElementById('wear-slider');
+    if (slider) slider.value = 0;
+
+    // Estado do carrinho
+    estadoLoja.blusa = { marca: 'Vouk', cor: 'white', tamanho: 'A2', preco: 330, equipado: false };
+    estadoLoja.calca = { marca: 'Vouk', cor: 'white', tamanho: 'A2', preco: 170, equipado: false };
+    estadoLoja.faixa = { cor: 'white', tamanho: 'A2', preco: 100, equipado: false };
+    estadoLoja.desconto = 0;
+    estadoLoja.passoAtual = 'blusa';
+
+    // Bordados
+    estadoLoja.bordadoNome = false;
+    estadoLoja.bordadoEquipe = false;
+    if (typeof imgBordadoCache !== 'undefined') imgBordadoCache = null;
+
+    // Limpar campos de texto dos bordados
+    let nameInput = document.getElementById('embroidery-name');
+    if (nameInput) nameInput.value = '';
+    let teamInput = document.getElementById('embroidery-team');
+    if (teamInput) teamInput.value = '';
+
+    // Resetar visual dos botões de bordado
+    let btnName = document.getElementById('btn-apply-name');
+    if (btnName) { btnName.innerText = '+R$ 40'; btnName.style.background = '#d4af37'; btnName.style.color = 'black'; }
+    let btnTeam = document.getElementById('btn-apply-team');
+    if (btnTeam) { btnTeam.innerText = '+R$ 40'; btnTeam.style.background = '#d4af37'; btnTeam.style.color = 'black'; }
+
+    // Resetar botões de carrinho
+    let btnTop = document.getElementById('btn-alternar-blusa');
+    if (btnTop) { btnTop.innerText = '🛒 Colocar no Carrinho'; btnTop.style.background = '#2b5b84'; btnTop.style.color = 'white'; }
+    let btnPants = document.getElementById('btn-alternar-calca');
+    if (btnPants) { btnPants.innerText = '🛒 Colocar no Carrinho'; btnPants.style.background = '#2b5b84'; btnPants.style.color = 'white'; }
+    let btnBelt = document.getElementById('btn-alternar-faixa');
+    if (btnBelt) { btnBelt.innerText = '🛒 Colocar no Carrinho'; btnBelt.style.background = '#2b5b84'; btnBelt.style.color = 'white'; }
+
+    if (typeof atualizarTotalCarrinho === 'function') atualizarTotalCarrinho();
+    if (typeof syncUI === 'function') syncUI();
+}
+
+function voltarVitrine() {
+    resetParaEstadoInicial();
+    document.getElementById('painel-ecommerce').style.display = 'none';
+    document.getElementById('vitrine-panel').style.display = 'flex';
 }
 
 function loadDropDaSemana(option) {
@@ -116,7 +159,10 @@ function checkout() {
 
 function closeCheckout() {
     document.getElementById('checkout-overlay').style.display = 'none';
-    alternarModoApp('vitrine'); // Voltar para a loja
+    // Reset completo ao finalizar compra
+    resetParaEstadoInicial();
+    document.getElementById('painel-ecommerce').style.display = 'none';
+    document.getElementById('vitrine-panel').style.display = 'flex';
 }
 
 function setStep(stepName) {
