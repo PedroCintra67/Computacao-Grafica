@@ -1,86 +1,88 @@
-function updateCameraPosition() {
-    // Smoothly approach target orbit radius and focus height
-    raioOrbita = lerp(raioOrbita, alvoRaioOrbita, 0.1);
-    alturaFocoCamera = lerp(alturaFocoCamera, alvoAlturaFocoCamera, 0.08);
+// ======================================================
+// CONTROLES DE CÂMERA E EVENTOS DE MOUSE
+// ======================================================
 
-    if (modoApp === 'vitrine') {
-        // Câmera Totalmente Fixa na vitrine
-        alvoPosCamera.x = -50;
-        alvoPosCamera.y = alturaFocoCamera;
-        alvoPosCamera.z = raioOrbita;
-        alvoOlharCamera.set(-50, alturaFocoCamera, 0);
-        
-        // Zera rotações para não dar problema se mudar pro ecommerce
-        rotacaoOrbitaX = 0;
-        rotacaoOrbitaY = 0;
+function AtualizarPosicaoCamera() {
+    raio_orbita = lerp(raio_orbita, alvo_raio_orbita, 0.1);
+    altura_foco_camera = lerp(altura_foco_camera, alvo_altura_foco_camera, 0.08);
+
+    if (modo_app === 'Vitrine') {
+        // Câmera totalmente fixa no modo Vitrine
+        alvo_pos_camera.x = -50;
+        alvo_pos_camera.y = altura_foco_camera;
+        alvo_pos_camera.z = raio_orbita;
+        alvo_olhar_camera.set(-50, altura_foco_camera, 0);
+
+        rotacao_orbita_x = 0;
+        rotacao_orbita_y = 0;
 
     } else {
-        // Lógica do Ecommerce
-        if (!estaArrastando) {
-            rotacaoOrbitaY = atan2(sin(rotacaoOrbitaY), cos(rotacaoOrbitaY)); // Normaliza
-            rotacaoOrbitaX = lerp(rotacaoOrbitaX, 0.0, 0.04);
-            rotacaoOrbitaY = lerp(rotacaoOrbitaY, 0.0, 0.04);
+        // Retorno suave ao centro quando o mouse é solto
+        if (!esta_arrastando) {
+            rotacao_orbita_y = atan2(sin(rotacao_orbita_y), cos(rotacao_orbita_y));
+            rotacao_orbita_x = lerp(rotacao_orbita_x, 0.0, 0.04);
+            rotacao_orbita_y = lerp(rotacao_orbita_y, 0.0, 0.04);
         }
-        
-        // Câmera Fixa (Nova): Câmera parada, gira só o objeto
-        alvoPosCamera.x = 0;
-        alvoPosCamera.y = alturaFocoCamera;
-        alvoPosCamera.z = raioOrbita;
-        alvoOlharCamera.set(0, alturaFocoCamera, 10);
+
+        // Câmera parada — apenas o objeto gira
+        alvo_pos_camera.x = 0;
+        alvo_pos_camera.y = altura_foco_camera;
+        alvo_pos_camera.z = raio_orbita;
+        alvo_olhar_camera.set(0, altura_foco_camera, 10);
     }
 
-    // Smoothly interpolate position vectors
-    posCamera.lerp(alvoPosCamera, 0.08);
-    olharCamera.lerp(alvoOlharCamera, 0.08);
+    pos_camera.lerp(alvo_pos_camera, 0.08);
+    olhar_camera.lerp(alvo_olhar_camera, 0.08);
 }
 
+// p5.js — não pode ser renomeado
 function mousePressed() {
-    // Check if mouse is inside the WebGL canvas viewport
     if (mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
-        estaArrastando = true;
-        ultimoMouseX = mouseX;
-        ultimoMouseY = mouseY;
+        esta_arrastando = true;
+        ultimo_mouse_x = mouseX;
+        ultimo_mouse_y = mouseY;
     }
 }
 
+// p5.js — não pode ser renomeado
 function mouseReleased() {
-    estaArrastando = false;
+    esta_arrastando = false;
 }
 
+// p5.js — não pode ser renomeado
 function mouseDragged() {
-    if (estaArrastando) {
-        let dx = mouseX - ultimoMouseX;
-        let dy = mouseY - ultimoMouseY;
+    if (esta_arrastando) {
+        let dx = mouseX - ultimo_mouse_x;
+        let dy = mouseY - ultimo_mouse_y;
 
-        // Permite girar o objeto apenas no modo ecommerce
-        if (modoApp !== 'vitrine') {
-            rotacaoOrbitaY += dx * 0.007;
-            rotacaoOrbitaX = constrain(rotacaoOrbitaX + dy * 0.007, -HALF_PI + 0.05, HALF_PI - 0.05);
+        // Rotação do objeto apenas no modo loja
+        if (modo_app !== 'Vitrine') {
+            rotacao_orbita_y += dx * 0.007; // Dá a volta (girar pros lados)
+            // Rotação cima/baixo removida
+            // rotacao_orbita_x = constrain(rotacao_orbita_x + dy * 0.007, -HALF_PI + 0.05, HALF_PI - 0.05);
         }
 
-        ultimoMouseX = mouseX;
-        ultimoMouseY = mouseY;
+        ultimo_mouse_x = mouseX;
+        ultimo_mouse_y = mouseY;
     }
 }
 
+// p5.js — não pode ser renomeado
 function mouseWheel(event) {
-    // Only zoom when mouse is over the canvas
     if (mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
-        alvoRaioOrbita += event.delta * 0.5;
+        alvo_raio_orbita += event.delta * 0.5;
 
-        if (modoApp === 'vitrine') {
-            // No modo vitrine, o limite de zoom out é 900 (não afasta mais que a rua)
-            alvoRaioOrbita = constrain(alvoRaioOrbita, ORBIT_MIN, 900);
+        if (modo_app === 'Vitrine') {
+            alvo_raio_orbita = constrain(alvo_raio_orbita, ORBITA_MINIMA, 900);
         } else {
-            // No ecommerce, o limite de zoom out é 800 para não perder o foco na peça
-            alvoRaioOrbita = constrain(alvoRaioOrbita, ORBIT_MIN, 600);
+            alvo_raio_orbita = constrain(alvo_raio_orbita, ORBITA_MINIMA, 600);
         }
 
-        return false; // prevent page scroll
+        return false;
     }
 }
 
-function onWindowResize() {
+function AoRedimensionarJanela() {
     let container = document.getElementById('container-canvas');
     let w = container.clientWidth;
     let h = container.clientHeight;
