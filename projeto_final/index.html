@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATACADO BJJ - Loja de Kimonos</title>
+    <title>Delariva BJJ - Loja de Kimonos</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -95,9 +95,10 @@
             <h2
                 style="color: #d4af37; font-size: 28px; margin-bottom: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">
                 Compra Finalizada!</h2>
-            <p style="color: #cbd5e0; font-size: 16px; margin-bottom: 30px; line-height: 1.5;">O seu <strong>Kimono
-                    Customizado</strong> já está sendo preparado pela nossa equipe. Obrigado por testar o BJJ
-                Customizer!</p>
+            <p style="color: #cbd5e0; font-size: 16px; margin-bottom: 30px; line-height: 1.5;">
+                O seu <strong>Kimono Customizado</strong> já está sendo preparado pela nossa equipe.
+                Obrigado por forjar sua armadura na Delariva BJJ! Oss!
+            </p>
 
             <div
                 style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 12px; border-left: 4px solid #d4af37; text-align: left; margin-bottom: 30px;">
@@ -139,7 +140,7 @@
                 </div>
             </div>
 
-            <button onclick="closeCheckout()"
+            <button onclick="FecharCheckout()"
                 style="background: #d4af37; color: black; font-weight: bold; font-size: 16px; padding: 15px 30px; border: none; border-radius: 8px; cursor: pointer; text-transform: uppercase; width: 100%; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4); transition: all 0.3s ease;">
                 Voltar ao Início
             </button>
@@ -169,17 +170,20 @@
         </main>
 
         <!-- RIGHT PANEL: Classic Trophy Controls -->
-        <!-- RIGHT PANEL: vitrine Landing Page -->
-        <aside class="painel-controle" id="vitrine-panel"
+        <!-- RIGHT PANEL: Vitrine Landing Page -->
+        <aside class="painel-controle" id="Vitrine-panel"
             style="display: flex; flex-direction: column; justify-content: center;">
             <div style="text-align: center; margin-bottom: 30px;">
                 <div style="font-size: 40px; margin-bottom: 10px;">🛡️</div>
                 <h1
-                    style="font-family: 'Outfit', sans-serif; font-size: 28px; color: #d4af37; letter-spacing: 2px; font-weight: 800; margin-bottom: 10px; text-transform: uppercase;">
-                    ATACADO BJJ</h1>
-                <p style="color: #cbd5e0; font-size: 14px; line-height: 1.6;">Bem-vindo à maior e mais exclusiva loja de
-                    equipamentos de Jiu-Jitsu do mundo. Construa sua armadura com precisão 3D e tecidos de alta
-                    performance.</p>
+                    style="font-family: 'Outfit', sans-serif; font-size: 28px; color: #d4af37; letter-spacing: 2px; font-weight: 800; margin-bottom: 10px; text-transform: none;">
+                    Delariva BJJ</h1>
+                <p style="color: #cbd5e0; font-size: 18px; line-height: 1.6;">
+                    Bem-vindo ao próximo nível de customização no Jiu-Jitsu. 
+                </p>
+                <p style="color: #cbd5e0; font-size: 14px; line-height: 1.6;">
+                    Misture as melhores marcas do mundo, 
+                    ajuste o tamanho e visualize seu novo equipamento com riqueza de detalhes antes de entrar no tatame.</p>
             </div>
 
             <div
@@ -187,9 +191,9 @@
                 <h3 style="color: white; font-size: 16px; margin-bottom: 12px; text-transform: uppercase;">Promoções da Semana</h3>
                 
                 <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <button class="btn-kimono vitrine-hover"
+                    <button class="btn-kimono Vitrine-hover"
                         style="width: 100%; background: linear-gradient(90deg, #1a202c, #2d3748); border: 1px solid #d4af37; color: #d4af37; font-weight: bold; padding: 12px; font-size: 13px; text-align: left; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-radius: 6px;"
-                        onclick="loadDropDaSemana(1)">
+                        onclick="CarregarDropDaSemana(1)">
                         <div style="display: flex; flex-direction: column;">
                             <span>Vouk Branco + Faixa Azul (A1)</span>
                             <span style="color: #4ade80; font-size: 14px; margin-top: 4px;">R$ 450</span>
@@ -197,9 +201,9 @@
                         <span style="background: #d4af37; color: black; padding: 5px 10px; border-radius: 4px; font-size: 11px; text-transform: none;">Comprar ➔</span>
                     </button>
                     
-                    <button class="btn-kimono vitrine-hover"
+                    <button class="btn-kimono Vitrine-hover"
                         style="width: 100%; background: linear-gradient(90deg, #1a202c, #2d3748); border: 1px solid #d4af37; color: #d4af37; font-weight: bold; padding: 12px; font-size: 13px; text-align: left; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-radius: 6px;"
-                        onclick="loadDropDaSemana(2)">
+                        onclick="CarregarDropDaSemana(2)">
                         <div style="display: flex; flex-direction: column;">
                             <span>Atama Azul + Faixa Roxa (A2)</span>
                             <span style="color: #4ade80; font-size: 14px; margin-top: 4px;">R$ 720</span>
@@ -207,9 +211,9 @@
                         <span style="background: #d4af37; color: black; padding: 5px 10px; border-radius: 4px; font-size: 11px; text-transform: none;">Comprar ➔</span>
                     </button>
                     
-                    <button class="btn-kimono vitrine-hover"
+                    <button class="btn-kimono Vitrine-hover"
                         style="width: 100%; background: linear-gradient(90deg, #1a202c, #2d3748); border: 1px solid #d4af37; color: #d4af37; font-weight: bold; padding: 12px; font-size: 13px; text-align: left; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-radius: 6px;"
-                        onclick="loadDropDaSemana(3)">
+                        onclick="CarregarDropDaSemana(3)">
                         <div style="display: flex; flex-direction: column;">
                             <span>Kingz Preto + Faixa Preta (A3)</span>
                             <span style="color: #4ade80; font-size: 14px; margin-top: 4px;">R$ 1080</span>
@@ -238,12 +242,12 @@
 
             <button class="btn-kimono"
                 style="width: 100%; background: #d4af37; color: black; font-weight: bold; padding: 16px; font-size: 16px; border: none; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4); text-transform: none; letter-spacing: 1px; cursor: pointer; border-radius: 8px;"
-                onclick="enterFittingRoom()">Selecionar Produtos</button>
+                onclick="EntrarNaLoja()">Selecionar Produtos</button>
         </aside>
 
         <!-- RIGHT PANEL: E-Commerce Controls -->
-        <aside class="painel-controle" id="painel-ecommerce" style="display: none; flex-direction: column;">
-            <button onclick="voltarVitrine()" class="btn-kimono vitrine-hover" style="flex: none; background: #2b5b84; border: 1px solid rgba(255,255,255,0.2); color: white; cursor: pointer; font-size: 12px; font-weight: 600; padding: 8px 14px; margin-bottom: 15px; border-radius: 6px; display: inline-flex; align-items: center; gap: 8px; width: fit-content; align-self: flex-start; text-transform: none; letter-spacing: 0.5px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">
+        <aside class="painel-controle" id="painel-loja" style="display: none; flex-direction: column;">
+            <button onclick="VoltarVitrine()" class="btn-kimono Vitrine-hover" style="flex: none; background: #2b5b84; border: 1px solid rgba(255,255,255,0.2); color: white; cursor: pointer; font-size: 12px; font-weight: 600; padding: 8px 14px; margin-bottom: 15px; border-radius: 6px; display: inline-flex; align-items: center; gap: 8px; width: fit-content; align-self: flex-start; text-transform: none; letter-spacing: 0.5px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">
                 <span style="font-size: 14px;">⬅</span> Voltar ao Menu
             </button>
             <h2 style="color: white; margin-bottom: 10px; margin-top: 0; font-family: 'Outfit'; font-size: 20px;">Customização do Kimono</h2>
@@ -252,13 +256,13 @@
             <div
                 style="display: flex; gap: 5px; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
                 <button id="tab-cart" class="btn-kimono active" style="flex:1; padding: 8px 4px; font-size:12px;"
-                    onclick="setStep('cart')">🛒 Carrinho</button>
+                    onclick="DefinirPasso('cart')">🛒 Carrinho</button>
                 <button id="aba-blusa" class="btn-kimono" style="flex:1; padding: 8px 4px; font-size:12px;"
-                    onclick="setStep('blusa')">🥋 Vagui</button>
+                    onclick="DefinirPasso('blusa')">🥋 Vagui</button>
                 <button id="aba-calca" class="btn-kimono" style="flex:1; padding: 8px 4px; font-size:12px;"
-                    onclick="setStep('calca')">👖 Calça</button>
+                    onclick="DefinirPasso('calca')">👖 Calça</button>
                 <button id="aba-faixa" class="btn-kimono" style="flex:1; padding: 8px 4px; font-size:12px;"
-                    onclick="setStep('faixa')">🎗️ Faixa</button>
+                    onclick="DefinirPasso('faixa')">🎗️ Faixa</button>
             </div>
 
             <!-- Dynamic Content Area -->
@@ -273,17 +277,17 @@
                         style="display:block; margin-bottom: 4px; color:#a0aec0; font-size:12px; text-transform:uppercase;">Marca</label>
                     <div class="gi-grid" style="margin-bottom: 15px;">
                         <button class="btn-kimono btn-brand-top active" data-brand="Vouk"
-                            onclick="selectItem('blusa', 'brand', 'Vouk')">
+                            onclick="SelecionarItem('blusa', 'brand', 'Vouk')">
                             <div style="font-weight:bold;">Vouk</div>
                             <div style="font-size:10px; color:#a0aec0;">R$ 330</div>
                         </button>
                         <button class="btn-kimono btn-brand-top" data-brand="Atama"
-                            onclick="selectItem('blusa', 'brand', 'Atama')">
+                            onclick="SelecionarItem('blusa', 'brand', 'Atama')">
                             <div style="font-weight:bold;">Atama</div>
                             <div style="font-size:10px; color:#a0aec0;">R$ 530</div>
                         </button>
                         <button class="btn-kimono btn-brand-top" data-brand="Kingz"
-                            onclick="selectItem('blusa', 'brand', 'Kingz')">
+                            onclick="SelecionarItem('blusa', 'brand', 'Kingz')">
                             <div style="font-weight:bold;">Kingz</div>
                             <div style="font-size:10px; color:#a0aec0;">R$ 800</div>
                         </button>
@@ -294,43 +298,43 @@
                     </label>
                     <div class="gi-grid" style="margin-bottom: 15px;">
                         <button class="btn-kimono btn-color-top active" data-color="white"
-                            onclick="selectItem('blusa', 'color', 'white')">Branco</button>
+                            onclick="SelecionarItem('blusa', 'color', 'white')">Branco</button>
                         <button class="btn-kimono btn-color-top" data-color="blue"
-                            onclick="selectItem('blusa', 'color', 'blue')">Azul</button>
+                            onclick="SelecionarItem('blusa', 'color', 'blue')">Azul</button>
                         <button class="btn-kimono btn-color-top" data-color="black"
-                            onclick="selectItem('blusa', 'color', 'black')">Preto</button>
+                            onclick="SelecionarItem('blusa', 'color', 'black')">Preto</button>
                     </div>
 
                     <label class="input-label"
                         style="display:block; margin-bottom: 4px; color:#a0aec0; font-size:12px; text-transform:uppercase;">Tamanho</label>
                     <div class="gi-grid" style="grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px;">
                         <button class="btn-kimono btn-size-top" data-size="A0"
-                            onclick="selectItem('blusa', 'size', 'A0')">
+                            onclick="SelecionarItem('blusa', 'size', 'A0')">
                             <div style="font-weight:bold;">A0</div>
                             <div style="font-size:10px; color:#4ade80;">-10%</div>
                         </button>
                         <button class="btn-kimono btn-size-top" data-size="A1"
-                            onclick="selectItem('blusa', 'size', 'A1')">
+                            onclick="SelecionarItem('blusa', 'size', 'A1')">
                             <div style="font-weight:bold;">A1</div>
                             <div style="font-size:10px; color:#4ade80;">-5%</div>
                         </button>
                         <button class="btn-kimono btn-size-top active" data-size="A2"
-                            onclick="selectItem('blusa', 'size', 'A2')">
+                            onclick="SelecionarItem('blusa', 'size', 'A2')">
                             <div style="font-weight:bold;">A2</div>
                             <div style="font-size:10px; color:#a0aec0;">Base</div>
                         </button>
                         <button class="btn-kimono btn-size-top" data-size="A3"
-                            onclick="selectItem('blusa', 'size', 'A3')">
+                            onclick="SelecionarItem('blusa', 'size', 'A3')">
                             <div style="font-weight:bold;">A3</div>
                             <div style="font-size:10px; color:#ef4444;">+5%</div>
                         </button>
                         <button class="btn-kimono btn-size-top" data-size="A4"
-                            onclick="selectItem('blusa', 'size', 'A4')">
+                            onclick="SelecionarItem('blusa', 'size', 'A4')">
                             <div style="font-weight:bold;">A4</div>
                             <div style="font-size:10px; color:#ef4444;">+10%</div>
                         </button>
                         <button class="btn-kimono btn-size-top" data-size="A5"
-                            onclick="selectItem('blusa', 'size', 'A5')">
+                            onclick="SelecionarItem('blusa', 'size', 'A5')">
                             <div style="font-weight:bold;">A5</div>
                             <div style="font-size:10px; color:#ef4444;">+15%</div>
                         </button>
@@ -338,7 +342,7 @@
 
                     <button id="btn-alternar-blusa" class="btn-kimono"
                         style="width: 100%; background: #2b5b84; font-size: 14px; padding: 12px; font-weight: bold; margin-top: 10px; border: none; color: white;"
-                        onclick="alternarItemBtn('blusa')"> Colocar no Carrinho</button>
+                        onclick="AlternarItemCarrinho('blusa')"> Colocar no Carrinho</button>
                 </div>
 
                 <!-- Step 2: Calça -->
@@ -352,17 +356,17 @@
                     </label>
                     <div class="gi-grid" style="margin-bottom: 15px;">
                         <button class="btn-kimono btn-brand-pants active" data-brand="Vouk"
-                            onclick="selectItem('calca', 'brand', 'Vouk')">
+                            onclick="SelecionarItem('calca', 'brand', 'Vouk')">
                             <div style="font-weight:bold;">Vouk</div>
                             <div style="font-size:10px; color:#a0aec0;">R$ 170</div>
                         </button>
                         <button class="btn-kimono btn-brand-pants" data-brand="Atama"
-                            onclick="selectItem('calca', 'brand', 'Atama')">
+                            onclick="SelecionarItem('calca', 'brand', 'Atama')">
                             <div style="font-weight:bold;">Atama</div>
                             <div style="font-size:10px; color:#a0aec0;">R$ 270</div>
                         </button>
                         <button class="btn-kimono btn-brand-pants" data-brand="Kingz"
-                            onclick="selectItem('calca', 'brand', 'Kingz')">
+                            onclick="SelecionarItem('calca', 'brand', 'Kingz')">
                             <div style="font-weight:bold;">Kingz</div>
                             <div style="font-size:10px; color:#a0aec0;">R$ 400</div>
                         </button>
@@ -372,43 +376,43 @@
                         style="display:block; margin-bottom: 4px; color:#a0aec0; font-size:12px; text-transform:uppercase;">Cor</label>
                     <div class="gi-grid" style="margin-bottom: 15px;">
                         <button class="btn-kimono btn-color-pants active" data-color="white"
-                            onclick="selectItem('calca', 'color', 'white')">Branco</button>
+                            onclick="SelecionarItem('calca', 'color', 'white')">Branco</button>
                         <button class="btn-kimono btn-color-pants" data-color="blue"
-                            onclick="selectItem('calca', 'color', 'blue')">Azul</button>
+                            onclick="SelecionarItem('calca', 'color', 'blue')">Azul</button>
                         <button class="btn-kimono btn-color-pants" data-color="black"
-                            onclick="selectItem('calca', 'color', 'black')">Preto</button>
+                            onclick="SelecionarItem('calca', 'color', 'black')">Preto</button>
                     </div>
 
                     <label class="input-label"
                         style="display:block; margin-bottom: 4px; color:#a0aec0; font-size:12px; text-transform:uppercase;">Tamanho</label>
                     <div class="gi-grid" style="grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px;">
                         <button class="btn-kimono btn-size-pants" data-size="A0"
-                            onclick="selectItem('calca', 'size', 'A0')">
+                            onclick="SelecionarItem('calca', 'size', 'A0')">
                             <div style="font-weight:bold;">A0</div>
                             <div style="font-size:10px; color:#4ade80;">-10%</div>
                         </button>
                         <button class="btn-kimono btn-size-pants" data-size="A1"
-                            onclick="selectItem('calca', 'size', 'A1')">
+                            onclick="SelecionarItem('calca', 'size', 'A1')">
                             <div style="font-weight:bold;">A1</div>
                             <div style="font-size:10px; color:#4ade80;">-5%</div>
                         </button>
                         <button class="btn-kimono btn-size-pants active" data-size="A2"
-                            onclick="selectItem('calca', 'size', 'A2')">
+                            onclick="SelecionarItem('calca', 'size', 'A2')">
                             <div style="font-weight:bold;">A2</div>
                             <div style="font-size:10px; color:#a0aec0;">Base</div>
                         </button>
                         <button class="btn-kimono btn-size-pants" data-size="A3"
-                            onclick="selectItem('calca', 'size', 'A3')">
+                            onclick="SelecionarItem('calca', 'size', 'A3')">
                             <div style="font-weight:bold;">A3</div>
                             <div style="font-size:10px; color:#ef4444;">+5%</div>
                         </button>
                         <button class="btn-kimono btn-size-pants" data-size="A4"
-                            onclick="selectItem('calca', 'size', 'A4')">
+                            onclick="SelecionarItem('calca', 'size', 'A4')">
                             <div style="font-weight:bold;">A4</div>
                             <div style="font-size:10px; color:#ef4444;">+10%</div>
                         </button>
                         <button class="btn-kimono btn-size-pants" data-size="A5"
-                            onclick="selectItem('calca', 'size', 'A5')">
+                            onclick="SelecionarItem('calca', 'size', 'A5')">
                             <div style="font-weight:bold;">A5</div>
                             <div style="font-size:10px; color:#ef4444;">+15%</div>
                         </button>
@@ -416,7 +420,7 @@
 
                     <button id="btn-alternar-calca" class="btn-kimono"
                         style="width: 100%; background: #2b5b84; font-size: 14px; padding: 12px; font-weight: bold; margin-top: 10px; border: none; color: white;"
-                        onclick="alternarItemBtn('calca')">🛒 Colocar no Carrinho</button>
+                        onclick="AlternarItemCarrinho('calca')">🛒 Colocar no Carrinho</button>
                 </div>
 
                 <!-- Step 3: Faixa -->
@@ -429,38 +433,38 @@
                         style="display:block; margin-bottom: 4px; color:#a0aec0; font-size:12px; text-transform:uppercase;">Graduação</label>
                     <div class="gi-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px;">
                         <button class="btn-faixa btn-color-belt active" data-belt="white"
-                            onclick="selectItem('faixa', 'color', 'white')">
+                            onclick="SelecionarItem('faixa', 'color', 'white')">
                             <div class="belt-color-circle" style="background: white; border: 1px solid #ccc;"></div>
                             Branca
                         </button>
                         <button class="btn-faixa btn-color-belt" data-belt="blue"
-                            onclick="selectItem('faixa', 'color', 'blue')">
+                            onclick="SelecionarItem('faixa', 'color', 'blue')">
                             <div class="belt-color-circle" style="background: #2b5b84;"></div> Azul
                         </button>
                         <button class="btn-faixa btn-color-belt" data-belt="purple"
-                            onclick="selectItem('faixa', 'color', 'purple')">
+                            onclick="SelecionarItem('faixa', 'color', 'purple')">
                             <div class="belt-color-circle" style="background: #5e35b1;"></div> Roxa
                         </button>
                         <button class="btn-faixa btn-color-belt" data-belt="brown"
-                            onclick="selectItem('faixa', 'color', 'brown')">
+                            onclick="SelecionarItem('faixa', 'color', 'brown')">
                             <div class="belt-color-circle" style="background: #5d4037;"></div> Marrom
                         </button>
                         <button class="btn-faixa btn-color-belt" data-belt="black"
-                            onclick="selectItem('faixa', 'color', 'black')">
+                            onclick="SelecionarItem('faixa', 'color', 'black')">
                             <div class="belt-color-circle" style="background: #212121;"></div> Preta
                         </button>
                         <button class="btn-faixa btn-color-belt" data-belt="coral"
-                            onclick="selectItem('faixa', 'color', 'coral')">
+                            onclick="SelecionarItem('faixa', 'color', 'coral')">
                             <div class="belt-color-circle"
                                 style="background: linear-gradient(90deg, red 50%, black 50%);"></div> Coral Vermelha/Preta
                         </button>
                         <button class="btn-faixa btn-color-belt" data-belt="coral-white"
-                            onclick="selectItem('faixa', 'color', 'coral-white')">
+                            onclick="SelecionarItem('faixa', 'color', 'coral-white')">
                             <div class="belt-color-circle"
                                 style="background: linear-gradient(90deg, red 50%, white 50%);"></div> Coral Vermelha/Branca
                         </button>
                         <button class="btn-faixa btn-color-belt" data-belt="red"
-                            onclick="selectItem('faixa', 'color', 'red')">
+                            onclick="SelecionarItem('faixa', 'color', 'red')">
                             <div class="belt-color-circle" style="background: #d32f2f;"></div> Vermelha
                         </button>
                     </div>
@@ -469,32 +473,32 @@
                         style="display:block; margin-bottom: 4px; color:#a0aec0; font-size:12px; text-transform:uppercase;">Tamanho</label>
                     <div class="gi-grid" style="grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px;">
                         <button class="btn-kimono btn-size-belt" data-size="A0"
-                            onclick="selectItem('faixa', 'size', 'A0')">
+                            onclick="SelecionarItem('faixa', 'size', 'A0')">
                             <div style="font-weight:bold;">A0</div>
                             <div style="font-size:10px; color:#4ade80;">-10%</div>
                         </button>
                         <button class="btn-kimono btn-size-belt" data-size="A1"
-                            onclick="selectItem('faixa', 'size', 'A1')">
+                            onclick="SelecionarItem('faixa', 'size', 'A1')">
                             <div style="font-weight:bold;">A1</div>
                             <div style="font-size:10px; color:#4ade80;">-5%</div>
                         </button>
                         <button class="btn-kimono btn-size-belt active" data-size="A2"
-                            onclick="selectItem('faixa', 'size', 'A2')">
+                            onclick="SelecionarItem('faixa', 'size', 'A2')">
                             <div style="font-weight:bold;">A2</div>
                             <div style="font-size:10px; color:#a0aec0;">Base</div>
                         </button>
                         <button class="btn-kimono btn-size-belt" data-size="A3"
-                            onclick="selectItem('faixa', 'size', 'A3')">
+                            onclick="SelecionarItem('faixa', 'size', 'A3')">
                             <div style="font-weight:bold;">A3</div>
                             <div style="font-size:10px; color:#ef4444;">+5%</div>
                         </button>
                         <button class="btn-kimono btn-size-belt" data-size="A4"
-                            onclick="selectItem('faixa', 'size', 'A4')">
+                            onclick="SelecionarItem('faixa', 'size', 'A4')">
                             <div style="font-weight:bold;">A4</div>
                             <div style="font-size:10px; color:#ef4444;">+10%</div>
                         </button>
                         <button class="btn-kimono btn-size-belt" data-size="A5"
-                            onclick="selectItem('faixa', 'size', 'A5')">
+                            onclick="SelecionarItem('faixa', 'size', 'A5')">
                             <div style="font-weight:bold;">A5</div>
                             <div style="font-size:10px; color:#ef4444;">+15%</div>
                         </button>
@@ -502,7 +506,7 @@
 
                     <button id="btn-alternar-faixa" class="btn-kimono"
                         style="width: 100%; background: #2b5b84; font-size: 14px; padding: 12px; font-weight: bold; margin-top: 10px; border: none; color: white;"
-                        onclick="alternarItemBtn('faixa')">🛒 Colocar no Carrinho</button>
+                        onclick="AlternarItemCarrinho('faixa')">🛒 Colocar no Carrinho</button>
                 </div>
 
                 <!-- Checkout / Cart -->
@@ -550,15 +554,15 @@
                         <!-- Nome -->
                         <label class="input-label" style="display:block; margin-bottom: 4px; color:#a0aec0; font-size:12px; text-transform:uppercase;">Bordado: Nome (Costas)</label>
                         <div style="display: flex; gap: 8px; margin-bottom: 15px;">
-                            <input type="text" id="embroidery-name" oninput="resetEmbroideryState('name')" placeholder="Seu Nome" style="flex:1; padding: 8px; border-radius: 4px; border: none; background: #2d3748; color: white;">
-                            <button id="btn-apply-name" onclick="applyEmbroideryName()" class="btn-kimono" style="background: #d4af37; color: black; font-weight: bold; padding: 10px; border: none; cursor: pointer; transition: all 0.3s ease;">+R$ 40</button>
+                            <input type="text" id="embroidery-name" oninput="ResetarEstadoBordado('name')" placeholder="Seu Nome" style="flex:1; padding: 8px; border-radius: 4px; border: none; background: #2d3748; color: white;">
+                            <button id="btn-apply-name" onclick="AplicarBordadoNome()" class="btn-kimono" style="background: #d4af37; color: black; font-weight: bold; padding: 10px; border: none; cursor: pointer; transition: all 0.3s ease;">+R$ 40</button>
                         </div>
 
                         <!-- Equipe -->
                         <label class="input-label" style="display:block; margin-bottom: 4px; color:#a0aec0; font-size:12px; text-transform:uppercase;">Bordado: Equipe (Saia)</label>
                         <div style="display: flex; gap: 8px;">
-                            <input type="text" id="embroidery-team" oninput="resetEmbroideryState('team')" placeholder="Nome da Equipe" style="flex:1; padding: 8px; border-radius: 4px; border: none; background: #2d3748; color: white;">
-                            <button id="btn-apply-team" onclick="applyEmbroideryTeam()" class="btn-kimono" style="background: #d4af37; color: black; font-weight: bold; padding: 10px; border: none; cursor: pointer; transition: all 0.3s ease;">+R$ 40</button>
+                            <input type="text" id="embroidery-team" oninput="ResetarEstadoBordado('team')" placeholder="Nome da Equipe" style="flex:1; padding: 8px; border-radius: 4px; border: none; background: #2d3748; color: white;">
+                            <button id="btn-apply-team" onclick="AplicarBordadoEquipe()" class="btn-kimono" style="background: #d4af37; color: black; font-weight: bold; padding: 10px; border: none; cursor: pointer; transition: all 0.3s ease;">+R$ 40</button>
                         </div>
                     </div>
 
@@ -566,7 +570,7 @@
                     <h3 class="section-title" style="margin-top: 20px;">Previsão de Desgaste</h3>
                     <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border-left: 3px solid #ef4444; margin-bottom: 15px;">
                         <label class="input-label" style="display:block; margin-bottom: 4px; color:#a0aec0; font-size:12px; text-transform:uppercase;">Tempo de Uso</label>
-                        <input type="range" id="wear-slider" class="custom-range" min="0" max="6" step="1" value="0" oninput="updateWearLevel(this.value)" style="width: 100%;">
+                        <input type="range" id="wear-slider" class="custom-range" min="0" max="6" step="1" value="0" oninput="AtualizarNivelDesgaste(this.value)" style="width: 100%;">
                         <div style="display: flex; justify-content: space-between; font-size: 10px; color: #a0aec0; margin-top: 5px;">
                             <span>Novo</span>
                             <span>6m</span>
@@ -590,7 +594,7 @@
                 </div>
                 <button id="btn-checkout" class="btn-kimono"
                     style="width: 100%; background: #d4af37; color: black; font-weight: bold; padding: 12px; border: none; font-size: 14px;"
-                    onclick="checkout()">Finalizar Montagem</button>
+                    onclick="FinalizarCompra()">Finalizar Montagem</button>
             </div>
         </aside>
     </div>

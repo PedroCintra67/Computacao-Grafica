@@ -166,8 +166,8 @@ body {
     letter-spacing: 0.5px;
 }
 
-/* Premium vitrine Styles */
-.vitrine-hover:hover {
+/* Premium Vitrine Styles */
+.Vitrine-hover:hover {
     background: linear-gradient(90deg, #2d3748, #4a5568) !important;
     color: white !important;
     box-shadow: 0 0 15px rgba(212, 175, 55, 0.6);

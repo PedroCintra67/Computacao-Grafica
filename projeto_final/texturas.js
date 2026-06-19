@@ -1,59 +1,92 @@
-function iniciarTexturas() {
-    texturaVouk = createGraphics(256, 128);
-    texturaPeitoKingzClara = createGraphics(256, 128); // White text
-    texturaPeitoKingzEscura = createGraphics(256, 128); // Black text
-    texturaOmbroKingz = createGraphics(256, 256); // Square for plane
-    texturaPeitoAtamaClara = createGraphics(256, 128); // White text
-    texturaPeitoAtamaEscura = createGraphics(256, 128); // Black text
-    texturaOmbroAtamaClara = createGraphics(256, 256);
-    texturaOmbroAtamaEscura = createGraphics(256, 256);
-    texturaOmbroVouk = createGraphics(256, 256);
-    texturaCalcaVouk = createGraphics(256, 256);
-    texturaCalcaAtamaClara = createGraphics(256, 256);
-    texturaCalcaAtamaEscura = createGraphics(256, 256);
-    texturaCalcaKingz = createGraphics(256, 256);
-    atualizarCorTexturas();
-}
+// ======================================================
+// TEXTURAS — GERAÇÃO DE SÍMBOLOS E PATCHES DAS MARCAS
+// ======================================================
 
-function drawAtamaSymbol(g, x, y, s, txtColor, fullLogo = true) {
-    g.push(); g.translate(x, y); g.scale(s);
-    if (fullLogo) {
-        g.noFill(); g.stroke(txtColor); g.strokeWeight(12); g.circle(0, 0, 110);
+// ======================================================
+// FUNÇÕES DE DESENHO DE SÍMBOLO POR MARCA
+// ======================================================
+
+function DesenharSimboloAtama(g, x, y, s, cor_texto, logo_completo = true) {
+    g.push();
+    g.translate(x, y);
+    g.scale(s);
+
+    if (logo_completo) {
+        g.noFill();
+        g.stroke(cor_texto);
+        g.strokeWeight(12);
+        g.circle(0, 0, 110);
     }
-    g.fill(txtColor); g.noStroke(); g.textAlign(CENTER, CENTER); g.textSize(70); g.textStyle(NORMAL); g.text("頭", 0, 0);
-    if (fullLogo) {
-        g.fill(220, 50, 30); g.noStroke();
+
+    g.fill(cor_texto);
+    g.noStroke();
+    g.textAlign(CENTER, CENTER);
+    g.textSize(70);
+    g.textStyle(NORMAL);
+    g.text("頭", 0, 0);
+
+    if (logo_completo) {
+        // Ornamentos laterais vermelhos (estilo clã)
+        g.fill(220, 50, 30);
+        g.noStroke();
         g.beginShape(); g.vertex(-68, 50); g.bezierVertex(-83, 30, -93, 0, -83, -30); g.bezierVertex(-88, -10, -78, 10, -68, 30); g.bezierVertex(-73, 10, -63, -10, -58, -20); g.bezierVertex(-63, 10, -68, 30, -58, 50); g.endShape(CLOSE);
         g.beginShape(); g.vertex(68, 50); g.bezierVertex(83, 30, 93, 0, 83, -30); g.bezierVertex(88, -10, 78, 10, 68, 30); g.bezierVertex(73, 10, 63, -10, 58, -20); g.bezierVertex(63, 10, 68, 30, 58, 50); g.endShape(CLOSE);
     }
+
     g.pop();
 }
 
-function drawVoukSymbol(g, x, y, s) {
-    let tealColor = color(69, 181, 170); let darkTeal = color(40, 140, 130); let lightTeal = color(100, 210, 200);
-    g.push(); g.translate(x, y); g.scale(s); g.stroke(20, 100, 90); g.strokeWeight(3);
-    g.fill(tealColor); g.triangle(-30, -50, -15, -20, -45, -10); g.fill(darkTeal); g.triangle(-30, -50, -10, -40, -15, -20); g.fill(tealColor); g.triangle(30, -50, 15, -20, 45, -10); g.fill(darkTeal); g.triangle(30, -50, 10, -40, 15, -20); g.fill(lightTeal); g.triangle(-15, -20, 15, -20, 0, 0); g.fill(darkTeal); g.triangle(-15, -20, -45, -10, -30, 20); g.fill(tealColor); g.triangle(-15, -20, -30, 20, 0, 0); g.fill(darkTeal); g.triangle(15, -20, 45, -10, 30, 20); g.fill(tealColor); g.triangle(15, -20, 30, 20, 0, 0); g.fill(lightTeal); g.triangle(-30, 20, 0, 0, 0, 40); g.fill(tealColor); g.triangle(30, 20, 0, 0, 0, 40); g.fill(darkTeal); g.triangle(-30, 20, 0, 40, -15, 50); g.fill(tealColor); g.triangle(30, 20, 0, 40, 15, 50); g.fill(lightTeal); g.triangle(-15, 50, 15, 50, 0, 40);
-    g.pop();
-}
+function DesenharSimboloVouk(g, x, y, s) {
+    let verde_agua = color(69, 181, 170);
+    let verde_escuro = color(40, 140, 130);
+    let verde_claro = color(100, 210, 200);
 
-function drawKingzSymbol(g, x, y, s) {
     g.push();
-    g.translate(x, y); // Center in square
-    g.scale(s); // Make it slightly larger
-    g.stroke(40, 160, 80); // Green edge
+    g.translate(x, y);
+    g.scale(s);
+    g.stroke(20, 100, 90);
+    g.strokeWeight(3);
+
+    // Geometria do lobo (pirâmide abstrata)
+    g.fill(verde_agua);    g.triangle(-30, -50, -15, -20, -45, -10);
+    g.fill(verde_escuro);  g.triangle(-30, -50, -10, -40, -15, -20);
+    g.fill(verde_agua);    g.triangle(30, -50, 15, -20, 45, -10);
+    g.fill(verde_escuro);  g.triangle(30, -50, 10, -40, 15, -20);
+    g.fill(verde_claro);   g.triangle(-15, -20, 15, -20, 0, 0);
+    g.fill(verde_escuro);  g.triangle(-15, -20, -45, -10, -30, 20);
+    g.fill(verde_agua);    g.triangle(-15, -20, -30, 20, 0, 0);
+    g.fill(verde_escuro);  g.triangle(15, -20, 45, -10, 30, 20);
+    g.fill(verde_agua);    g.triangle(15, -20, 30, 20, 0, 0);
+    g.fill(verde_claro);   g.triangle(-30, 20, 0, 0, 0, 40);
+    g.fill(verde_agua);    g.triangle(30, 20, 0, 0, 0, 40);
+    g.fill(verde_escuro);  g.triangle(-30, 20, 0, 40, -15, 50);
+    g.fill(verde_agua);    g.triangle(30, 20, 0, 40, 15, 50);
+    g.fill(verde_claro);   g.triangle(-15, 50, 15, 50, 0, 40);
+
+    g.pop();
+}
+
+function DesenharSimboloKingz(g, x, y, s) {
+    g.push();
+    g.translate(x, y);
+    g.scale(s);
+    g.stroke(40, 160, 80);
     g.strokeWeight(8);
-    g.fill(220, 200, 50); // Yellow/Gold
+    g.fill(220, 200, 50); // Dourado
+
+    // Coroa
     g.beginShape();
-    g.vertex(-40, -30); // Top left point
-    g.vertex(-25, 10);  // inner left
-    g.vertex(0, -20);   // top center point
-    g.vertex(25, 10);   // inner right
-    g.vertex(40, -30);  // top right point
-    g.vertex(30, 40);   // bottom right
-    g.vertex(0, 55);    // bottom center (chevron)
-    g.vertex(-30, 40);  // bottom left
+    g.vertex(-40, -30);
+    g.vertex(-25, 10);
+    g.vertex(0, -20);
+    g.vertex(25, 10);
+    g.vertex(40, -30);
+    g.vertex(30, 40);
+    g.vertex(0, 55);
+    g.vertex(-30, 40);
     g.endShape(CLOSE);
-    // Draw an inner line at the bottom chevron
+
+    // Linha interna do chevron
     g.noFill();
     g.stroke(220, 220, 220);
     g.strokeWeight(4);
@@ -62,79 +95,110 @@ function drawKingzSymbol(g, x, y, s) {
     g.vertex(0, 45);
     g.vertex(22, 30);
     g.endShape();
+
     g.pop();
 }
 
-function atualizarCorTexturas() {
-    let whiteText = color(240);
-    let blackText = color(20);
+// ======================================================
+// INICIALIZAÇÃO E ATUALIZAÇÃO DE TEXTURAS
+// ======================================================
 
-    // Vouk Chest (Symbol + Text lower on chest)
-    texturaVouk.clear();
-    drawVoukSymbol(texturaVouk, 45, 90, 0.6); // Movido para a esquerda para o texto caber
-    texturaVouk.fill(69, 181, 170); // Verde igual do símbolo
-    texturaVouk.noStroke(); texturaVouk.textAlign(LEFT, CENTER); texturaVouk.textSize(55); texturaVouk.textStyle(BOLD);
-    texturaVouk.text("VOUK", 85, 90);
+function IniciarTexturas() {
+    textura_vouk               = createGraphics(256, 128);
+    textura_peito_kingz_clara  = createGraphics(256, 128);
+    textura_peito_kingz_escura = createGraphics(256, 128);
+    textura_ombro_kingz        = createGraphics(256, 256);
+    textura_peito_atama_clara  = createGraphics(256, 128);
+    textura_peito_atama_escura = createGraphics(256, 128);
+    textura_ombro_atama_clara  = createGraphics(256, 256);
+    textura_ombro_atama_escura = createGraphics(256, 256);
+    textura_ombro_vouk         = createGraphics(256, 256);
+    textura_calca_vouk         = createGraphics(256, 256);
+    textura_calca_atama_clara  = createGraphics(256, 256);
+    textura_calca_atama_escura = createGraphics(256, 256);
+    textura_calca_kingz        = createGraphics(256, 256);
+    AtualizarCorTexturas();
+}
 
-    // Atama Chest (Symbol + Text) - Clara
-    texturaPeitoAtamaClara.clear();
-    drawAtamaSymbol(texturaPeitoAtamaClara, 35, 64, 0.75, whiteText, false);
-    texturaPeitoAtamaClara.fill(whiteText);
-    texturaPeitoAtamaClara.noStroke(); texturaPeitoAtamaClara.textAlign(LEFT, CENTER); texturaPeitoAtamaClara.textSize(50); texturaPeitoAtamaClara.textStyle(BOLD);
-    texturaPeitoAtamaClara.text("ATAMA", 65, 64);
+function AtualizarCorTexturas() {
+    let cor_clara = color(240);
+    let cor_escura = color(20);
 
-    // Atama Chest (Symbol + Text) - Escura
-    texturaPeitoAtamaEscura.clear();
-    drawAtamaSymbol(texturaPeitoAtamaEscura, 35, 64, 0.75, blackText, false);
-    texturaPeitoAtamaEscura.fill(blackText);
-    texturaPeitoAtamaEscura.noStroke(); texturaPeitoAtamaEscura.textAlign(LEFT, CENTER); texturaPeitoAtamaEscura.textSize(50); texturaPeitoAtamaEscura.textStyle(BOLD);
-    texturaPeitoAtamaEscura.text("ATAMA", 65, 64);
+    // --- Peito Vouk (símbolo + texto) ---
+    textura_vouk.clear();
+    DesenharSimboloVouk(textura_vouk, 45, 90, 0.6);
+    textura_vouk.fill(69, 181, 170);
+    textura_vouk.noStroke();
+    textura_vouk.textAlign(LEFT, CENTER);
+    textura_vouk.textSize(55);
+    textura_vouk.textStyle(BOLD);
+    textura_vouk.text("VOUK", 85, 90);
 
-    // Atama Shoulder (Only Symbol)
-    texturaOmbroAtamaClara.clear();
-    drawAtamaSymbol(texturaOmbroAtamaClara, 128, 128, 1.05, whiteText);
+    // --- Peito Atama — fundo claro (símbolo + texto branco) ---
+    textura_peito_atama_clara.clear();
+    DesenharSimboloAtama(textura_peito_atama_clara, 35, 64, 0.75, cor_clara, false);
+    textura_peito_atama_clara.fill(cor_clara);
+    textura_peito_atama_clara.noStroke();
+    textura_peito_atama_clara.textAlign(LEFT, CENTER);
+    textura_peito_atama_clara.textSize(50);
+    textura_peito_atama_clara.textStyle(BOLD);
+    textura_peito_atama_clara.text("ATAMA", 65, 64);
 
-    texturaOmbroAtamaEscura.clear();
-    drawAtamaSymbol(texturaOmbroAtamaEscura, 128, 128, 1.05, blackText);
+    // --- Peito Atama — fundo escuro (símbolo + texto preto) ---
+    textura_peito_atama_escura.clear();
+    DesenharSimboloAtama(textura_peito_atama_escura, 35, 64, 0.75, cor_escura, false);
+    textura_peito_atama_escura.fill(cor_escura);
+    textura_peito_atama_escura.noStroke();
+    textura_peito_atama_escura.textAlign(LEFT, CENTER);
+    textura_peito_atama_escura.textSize(50);
+    textura_peito_atama_escura.textStyle(BOLD);
+    textura_peito_atama_escura.text("ATAMA", 65, 64);
 
-    // Kingz Shoulder (Crown)
-    texturaOmbroKingz.clear();
-    drawKingzSymbol(texturaOmbroKingz, 128, 128, 1.35);
+    // --- Ombro Atama ---
+    textura_ombro_atama_clara.clear();
+    DesenharSimboloAtama(textura_ombro_atama_clara, 128, 128, 1.05, cor_clara);
 
-    // Vouk Shoulder (Only Geometric Wolf)
-    texturaOmbroVouk.clear();
-    drawVoukSymbol(texturaOmbroVouk, 128, 128, 1.2);
+    textura_ombro_atama_escura.clear();
+    DesenharSimboloAtama(textura_ombro_atama_escura, 128, 128, 1.05, cor_escura);
 
-    // Kingz Chest/Lapel (KINGZ) - Clara
-    texturaPeitoKingzClara.clear();
-    texturaPeitoKingzClara.fill(whiteText);
-    texturaPeitoKingzClara.noStroke();
-    texturaPeitoKingzClara.textAlign(CENTER, CENTER);
-    texturaPeitoKingzClara.textSize(55); 
-    texturaPeitoKingzClara.textStyle(ITALIC);
-    texturaPeitoKingzClara.textFont('sans-serif');
-    texturaPeitoKingzClara.text("KINGZ", 128, 64);
+    // --- Ombro Kingz (coroa) ---
+    textura_ombro_kingz.clear();
+    DesenharSimboloKingz(textura_ombro_kingz, 128, 128, 1.35);
 
-    // Kingz Chest/Lapel (KINGZ) - Escura
-    texturaPeitoKingzEscura.clear();
-    texturaPeitoKingzEscura.fill(blackText);
-    texturaPeitoKingzEscura.noStroke();
-    texturaPeitoKingzEscura.textAlign(CENTER, CENTER);
-    texturaPeitoKingzEscura.textSize(55); 
-    texturaPeitoKingzEscura.textStyle(ITALIC);
-    texturaPeitoKingzEscura.textFont('sans-serif');
-    texturaPeitoKingzEscura.text("KINGZ", 128, 64);
+    // --- Ombro Vouk ---
+    textura_ombro_vouk.clear();
+    DesenharSimboloVouk(textura_ombro_vouk, 128, 128, 1.2);
 
-    // --- TEXTURAS EXCLUSIVAS PARA AS CALÇAS ---
-    texturaCalcaVouk.clear();
-    drawVoukSymbol(texturaCalcaVouk, 128, 128, 1.2);
+    // --- Peito Kingz — texto claro ---
+    textura_peito_kingz_clara.clear();
+    textura_peito_kingz_clara.fill(cor_clara);
+    textura_peito_kingz_clara.noStroke();
+    textura_peito_kingz_clara.textAlign(CENTER, CENTER);
+    textura_peito_kingz_clara.textSize(55);
+    textura_peito_kingz_clara.textStyle(ITALIC);
+    textura_peito_kingz_clara.textFont('sans-serif');
+    textura_peito_kingz_clara.text("KINGZ", 128, 64);
 
-    texturaCalcaAtamaClara.clear();
-    drawAtamaSymbol(texturaCalcaAtamaClara, 128, 128, 1.05, whiteText);
+    // --- Peito Kingz — texto escuro ---
+    textura_peito_kingz_escura.clear();
+    textura_peito_kingz_escura.fill(cor_escura);
+    textura_peito_kingz_escura.noStroke();
+    textura_peito_kingz_escura.textAlign(CENTER, CENTER);
+    textura_peito_kingz_escura.textSize(55);
+    textura_peito_kingz_escura.textStyle(ITALIC);
+    textura_peito_kingz_escura.textFont('sans-serif');
+    textura_peito_kingz_escura.text("KINGZ", 128, 64);
 
-    texturaCalcaAtamaEscura.clear();
-    drawAtamaSymbol(texturaCalcaAtamaEscura, 128, 128, 1.05, blackText);
+    // --- Calças ---
+    textura_calca_vouk.clear();
+    DesenharSimboloVouk(textura_calca_vouk, 128, 128, 1.2);
 
-    texturaCalcaKingz.clear();
-    drawKingzSymbol(texturaCalcaKingz, 128, 128, 1.35);
+    textura_calca_atama_clara.clear();
+    DesenharSimboloAtama(textura_calca_atama_clara, 128, 128, 1.05, cor_clara);
+
+    textura_calca_atama_escura.clear();
+    DesenharSimboloAtama(textura_calca_atama_escura, 128, 128, 1.05, cor_escura);
+
+    textura_calca_kingz.clear();
+    DesenharSimboloKingz(textura_calca_kingz, 128, 128, 1.35);
 }
