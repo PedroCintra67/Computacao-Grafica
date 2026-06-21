@@ -10,7 +10,7 @@ in vec3 vModelPosition;
 // Saída final do pixel
 out vec4 fragColor;
 
-// Uniforms — interface com o JavaScript via p5.js
+// Uniforms interface com o JavaScript via p5.js
 uniform sampler2D tex;          // Textura dinâmica (placas, texto)
 uniform int uBeltStyle;         // Estilo da faixa (0=sólido, 1=coral, 2=coral-branca)
 uniform vec3 uLightDir;         // Direção da luz no espaço de visão
@@ -26,9 +26,6 @@ uniform vec2 uPantsPatchSize;   // Tamanho do patch da calça em unidades de mod
 uniform sampler2D texBordado;   // Textura do bordado personalizado
 uniform int uHasBordado;        // Flag para habilitar o bordado nas costas
 uniform int uBrandId;           // Identificador da marca: 0=Atama, 1=Vouk, 2=Kingz
-uniform int uInVitrine;         // Flag de modo vitrine (não utilizado atualmente no shader)
-uniform int uWireframe;         // Flag de wireframe (não utilizado atualmente)
-uniform float uSqueezePantsTop; // Compressão lateral do topo da calça
 
 void main() {
     // Vetores para iluminação Blinn-Phong
@@ -43,20 +40,16 @@ void main() {
     float brilho           = 32.0;
     vec3  cor_especular    = vec3(1.0);
 
-    // =====================================================================
-    // DEFINIÇÕES DE MATERIAL
-    // =====================================================================
-
-    // Material 0: Pedestal — Plástico/Mármore Preto Polido
+    // DEFINIÇÕES DE MATERIAL EM ORDEM NUMÉRICA
+    // Material 0: Pedestal (Plástico/Mármore Preto Polido)
     if (uMaterialType == 0) {
         cor_difusa      = vec3(0.05, 0.06, 0.08);
         forca_especular = 1.3;
         brilho          = 64.0;
         cor_especular   = vec3(0.9, 0.95, 1.0);
     }
-
-    // Material 1: Tecido do Kimono — Pearl Weave Fosco Procedural
-    if (uMaterialType == 1) {
+    // Material 1: Tecido do Kimono (Pearl Weave Fosco)
+    else if (uMaterialType == 1) {
         cor_difusa = uBaseColor;
 
         float dist_frente = abs(vTexCoord.x - 0.25);
@@ -65,7 +58,7 @@ void main() {
         float ruido     = fract(sin(dot(vModelPosition.xyz, vec3(12.9898, 78.233, 45.164))) * 43758.5453);
         vec3  bump_tela = vec3(ruido * 0.05);
 
-        // Decote em V, rashguard interno e lapela — todos procedurais
+        // Decote em V, rashguard interno e lapela todos procedurais
         float borda_v      = (vTexCoord.y - 1.25) * 0.10;
         float borda_lapela = (vTexCoord.y - 1.25) * 0.10 + 0.028;
 
@@ -76,38 +69,108 @@ void main() {
             forca_especular = 0.02;
             brilho          = 2.0;
         } else if (borda_lapela > 0.0 && dist_frente < borda_lapela) {
-            // Faixa da lapela — tom levemente escurecido, mantém textura do kimono
+            // Faixa da lapela tom levemente escurecido, mantém textura do kimono
             cor_difusa      = uBaseColor * 0.85;
             N               = normalize(N + bump_tela);
             forca_especular = 0.08;
             brilho          = 6.0;
         } else {
-            // Tecido principal — Pearl Weave
+            // Tecido principal Pearl Weave
             cor_difusa      = uBaseColor;
             N               = normalize(N + bump_tela);
             forca_especular = 0.08;
             brilho          = 6.0;
         }
     }
+    // Material 2: Tecido da Faixa (Fita Fosca com Relevo)
+    else if (uMaterialType == 2) {
+        vec3 cor_faixa = uBaseColor;
 
-    // Material 4: Tecido Fosco Sólido — Lapelas, Esferas, Gola
+        // Listras procedurais para faixas coral e coral-branca
+        if (uBeltStyle == 1 || uBeltStyle == 2) {
+            float segmento = floor(vTexCoord.x * 14.0);
+            if (mod(segmento, 2.0) == 0.0) {
+                cor_faixa = vec3(0.78, 0.08, 0.08); // Vermelho
+            } else {
+                // Coral: preto alternado; coral-branca: branco-creme alternado
+                cor_faixa = (uBeltStyle == 1) ? vec3(0.12, 0.12, 0.12) : vec3(0.95, 0.92, 0.78);
+            }
+        }
+
+        cor_difusa      = cor_faixa;
+        forca_especular = 0.02;
+        brilho          = 2.0;
+    }
+    // Material 3: Placa Dourada com Texto Gravado (Alto Brilho)
+    else if (uMaterialType == 3) {
+        vec4  cor_tex  = texture(tex, vTexCoord);
+        cor_difusa     = cor_tex.rgb;
+
+        float brilho_tex = dot(cor_tex.rgb, vec3(0.299, 0.587, 0.114));
+        float mascara    = smoothstep(0.25, 0.55, brilho_tex);
+
+        cor_especular   = vec3(1.0, 0.85, 0.5);   // Ouro quente
+        forca_especular = 2.2 * mascara;
+        brilho          = 80.0;
+    }
+    // Material 4: Tecido Fosco Sólido (Lapelas, Esferas Base)
     else if (uMaterialType == 4) {
         cor_difusa      = uBaseColor;
         forca_especular = 0.05;
         brilho          = 2.0;
     }
+    // Material 5: Textura Direta Sólida (Rashguard e Interior)
+    else if (uMaterialType == 5) {
+        vec4 cor_tex    = texture(tex, vTexCoord);
+        cor_difusa      = cor_tex.rgb;
+        forca_especular = 0.02;
+        brilho          = 2.0;
+    }
+    // Material 6: Textura Não-iluminada (Quadros e Posteres na Parede)
+    else if (uMaterialType == 6) {
+        // vTexCoord é espelhado verticalmente pelo p5.js para planos
+        vec2 st = vec2(vTexCoord.x, 1.0 - vTexCoord.y);
+        vec4 cor_tex = texture(tex, st);
 
-    // Material 10: Ambiente Fosco Sólido — Imune ao desgaste
+        if (cor_tex.a < 0.1) discard; // Suporta texturas transparentes
+
+        cor_difusa      = cor_tex.rgb;
+        forca_especular = 0.1;
+        brilho          = 10.0;
+    }
+    // Material 7: Chão Quadriculado (Grade Procedural com UV)
+    else if (uMaterialType == 7) {
+        vec2 uv        = vTexCoord * 16.0;
+        vec2 grade     = fract(uv);
+        vec2 espessura = min(fwidth(uv) * 2.0, 0.5);
+        vec2 borda     = smoothstep(1.0 - espessura, 1.0 - espessura * 0.5, grade);
+        float e_linha  = max(borda.x, borda.y);
+
+        cor_difusa      = mix(uBaseColor, vec3(0.05), e_linha);
+        forca_especular = 0.0;
+        brilho          = 1.0;
+    }
+    // Material 10: Ambiente Fosco Sólido (Paredes, Fundo)
     else if (uMaterialType == 10) {
         cor_difusa      = uBaseColor;
         forca_especular = 0.05;
         brilho          = 2.0;
     }
+    // Material 11: Chão Fixo no Mundo (Grade com UV de Mundo)
+    else if (uMaterialType == 11) {
+        float tam_azulejo = 125.0;
+        vec2 uv_mundo     = vModelPosition.xz / tam_azulejo;
+        vec2 grade_ws     = fract(uv_mundo);
+        vec2 esp_ws       = min(fwidth(uv_mundo) * 2.0, 0.5);
+        vec2 borda_ws     = smoothstep(1.0 - esp_ws, 1.0 - esp_ws * 0.5, grade_ws);
+        float e_linha_ws  = max(borda_ws.x, borda_ws.y);
+        cor_difusa        = mix(uBaseColor, vec3(0.05), e_linha_ws);
+        forca_especular   = 0.0;
+        brilho            = 1.0;
+    }
 
-    // =====================================================================
     // PROJEÇÃO DE DECALQUES (Patches de Marca e Bordado)
     // Aplicado aos materiais 1, 4 e 5
-    // =====================================================================
     if (uMaterialType == 1 || uMaterialType == 4 || uMaterialType == 5) {
         vec4  cor_decal   = vec4(0.0);
         float alpha_sombra = 0.0;
@@ -163,31 +226,15 @@ void main() {
                 }
             }
 
-        // --- PATCH DE OMBRO ESQUERDO (parte 2) ---
-        } else if (abs(uKimonoPart - 2.0) < 0.1) {
-            vec3 p  = vModelPosition - vec3(-11.5, -24.0, 11.5);
-            float cx = cos(0.069);  float sx = sin(0.069);   // Inverso rotX(-4 graus)
+        // --- PATCH DE OMBRO (partes 2 e 3) ---
+        } else if (abs(uKimonoPart - 2.0) < 0.1 || abs(uKimonoPart - 3.0) < 0.1) {
+            float sinal = (abs(uKimonoPart - 2.0) < 0.1) ? 1.0 : -1.0;
+            vec3 p  = vModelPosition - vec3(-11.5 * sinal, -24.0, 11.5);
+            
+            // Rotação inversa do ombro (x: 4 graus, y: 45 graus)
+            float cx = cos(0.069 * sinal);  float sx = sin(0.069 * sinal);
             vec3 p1  = vec3(p.x, p.y * cx - p.z * sx, p.y * sx + p.z * cx);
-            float cy = cos(0.785);  float sy = sin(0.785);   // Inverso rotY(45 graus)
-            vec3 p2  = vec3(p1.x * cy + p1.z * sy, p1.y, -p1.x * sy + p1.z * cy);
-
-            vec2 uv = vec2(1.0 - (p2.x / 18.0 + 0.5), -p2.y / 18.0 + 0.5);
-            if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0 && abs(p2.z) < 10.0) {
-                cor_decal    = texture(texOmbro, uv);
-                cor_decal.a *= FADE_BORDA(uv);
-
-                vec2 uv_sombra = uv + vec2(-0.015, 0.015);
-                if (uBaseColor.r > 0.8 && uv_sombra.x > 0.0 && uv_sombra.x < 1.0 && uv_sombra.y > 0.0 && uv_sombra.y < 1.0) {
-                    alpha_sombra = texture(texOmbro, uv_sombra).a * FADE_BORDA(uv_sombra);
-                }
-            }
-
-        // --- PATCH DE OMBRO DIREITO (parte 3) ---
-        } else if (abs(uKimonoPart - 3.0) < 0.1) {
-            vec3 p  = vModelPosition - vec3(11.5, -24.0, 11.5);
-            float cx = cos(-0.069); float sx = sin(-0.069);  // Inverso rotX(4 graus)
-            vec3 p1  = vec3(p.x, p.y * cx - p.z * sx, p.y * sx + p.z * cx);
-            float cy = cos(-0.785); float sy = sin(-0.785);  // Inverso rotY(-45 graus)
+            float cy = cos(0.785 * sinal);  float sy = sin(0.785 * sinal);
             vec3 p2  = vec3(p1.x * cy + p1.z * sy, p1.y, -p1.x * sy + p1.z * cy);
 
             vec2 uv = vec2(1.0 - (p2.x / 18.0 + 0.5), -p2.y / 18.0 + 0.5);
@@ -206,11 +253,11 @@ void main() {
             vec3 centro_proj = vec3(9999.0); // Oculto por padrão
 
             if (uBrandId == 2 && abs(uKimonoPart - 4.0) < 0.1) {
-                centro_proj = vec3(5.0, -5.0, 30.0);   // Kingz — perna esquerda
+                centro_proj = vec3(5.0, -5.0, 30.0);   // Kingz perna esquerda
             } else if (uBrandId == 1 && abs(uKimonoPart - 5.0) < 0.1) {
-                centro_proj = vec3(5.0, -10.0, 20.0);  // Vouk  — perna direita
+                centro_proj = vec3(5.0, -10.0, 20.0);  // Vouk  perna direita
             } else if (uBrandId == 0 && abs(uKimonoPart - 5.0) < 0.1) {
-                centro_proj = vec3(5.0, -30.0, 20.0);  // Atama — perna direita
+                centro_proj = vec3(5.0, -30.0, 20.0);  // Atama perna direita
             }
 
             vec3 p  = vModelPosition - centro_proj;
@@ -249,90 +296,8 @@ void main() {
         }
     }
 
-    // Material 5: Textura Direta (Rashguard, interior)
-    else if (uMaterialType == 5) {
-        vec4 cor_tex    = texture(tex, vTexCoord);
-        cor_difusa      = cor_tex.rgb;
-        forca_especular = 0.02;
-        brilho          = 2.0;
-    }
-
-    // Material 2: Tecido da Faixa — Fita Fosca
-    else if (uMaterialType == 2) {
-        vec3 cor_faixa = uBaseColor;
-
-        // Listras procedurais para faixas coral e coral-branca
-        if (uBeltStyle == 1 || uBeltStyle == 2) {
-            float segmento = floor(vTexCoord.x * 14.0);
-            if (mod(segmento, 2.0) == 0.0) {
-                cor_faixa = vec3(0.78, 0.08, 0.08); // Vermelho
-            } else {
-                // Coral: preto alternado; coral-branca: branco-creme alternado
-                cor_faixa = (uBeltStyle == 1) ? vec3(0.12, 0.12, 0.12) : vec3(0.95, 0.92, 0.78);
-            }
-        }
-
-        cor_difusa      = cor_faixa;
-        forca_especular = 0.02;
-        brilho          = 2.0;
-    }
-
-    // Material 3: Placa Dourada com Texto Gravado
-    else if (uMaterialType == 3) {
-        vec4  cor_tex  = texture(tex, vTexCoord);
-        cor_difusa     = cor_tex.rgb;
-
-        float brilho_tex = dot(cor_tex.rgb, vec3(0.299, 0.587, 0.114));
-        float mascara    = smoothstep(0.25, 0.55, brilho_tex);
-
-        cor_especular   = vec3(1.0, 0.85, 0.5);   // Ouro quente
-        forca_especular = 2.2 * mascara;
-        brilho          = 80.0;
-    }
-
-    // Material 7: Chão Quadriculado — Grade com UV
-    else if (uMaterialType == 7) {
-        vec2 uv        = vTexCoord * 16.0;
-        vec2 grade     = fract(uv);
-        vec2 espessura = min(fwidth(uv) * 2.0, 0.5);
-        vec2 borda     = smoothstep(1.0 - espessura, 1.0 - espessura * 0.5, grade);
-        float e_linha  = max(borda.x, borda.y);
-
-        cor_difusa      = mix(uBaseColor, vec3(0.05), e_linha);
-        forca_especular = 0.0;
-        brilho          = 1.0;
-    }
-
-    // Material 11: Chão em Coordenadas de Mundo — Mesmo tamanho físico de azulejo em qualquer zoom
-    else if (uMaterialType == 11) {
-        float tam_azulejo = 125.0;
-        vec2 uv_mundo     = vModelPosition.xz / tam_azulejo;
-        vec2 grade_ws     = fract(uv_mundo);
-        vec2 esp_ws       = min(fwidth(uv_mundo) * 2.0, 0.5);
-        vec2 borda_ws     = smoothstep(1.0 - esp_ws, 1.0 - esp_ws * 0.5, grade_ws);
-        float e_linha_ws  = max(borda_ws.x, borda_ws.y);
-        cor_difusa        = mix(uBaseColor, vec3(0.05), e_linha_ws);
-        forca_especular   = 0.0;
-        brilho            = 1.0;
-    }
-
-    // Material 6: Textura Não-iluminada — Quadros e Texto na Parede
-    else if (uMaterialType == 6) {
-        // vTexCoord é espelhado verticalmente pelo p5.js para planos
-        vec2 st = vec2(vTexCoord.x, 1.0 - vTexCoord.y);
-        vec4 cor_tex = texture(tex, st);
-
-        if (cor_tex.a < 0.1) discard; // Suporta texturas transparentes
-
-        cor_difusa      = cor_tex.rgb;
-        forca_especular = 0.1;
-        brilho          = 10.0;
-    }
-
-    // =====================================================================
     // DESGASTE DO TECIDO (Amarelamento e Desbotamento)
     // Aplicado apenas aos materiais de tecido: 1, 2, 4, 5
-    // =====================================================================
     if (uWearLevel > 0.0 && (uMaterialType == 1 || uMaterialType == 2 || uMaterialType == 4 || uMaterialType == 5)) {
         bool branco = (uBaseColor.r > 0.8 && uBaseColor.g > 0.8 && uBaseColor.b > 0.8);
 
@@ -357,9 +322,7 @@ void main() {
         brilho          = mix(brilho, brilho * 0.4, uWearLevel);
     }
 
-    // =====================================================================
     // MODELO DE ILUMINAÇÃO BLINN-PHONG
-    // =====================================================================
 
     // Luz ambiente
     vec3 ambiente = vec3(0.32, 0.33, 0.38) * cor_difusa;
@@ -372,7 +335,7 @@ void main() {
     float fator_spec = pow(max(dot(N, H), 0.0), brilho);
     vec3  especular  = fator_spec * forca_especular * cor_especular;
 
-    // Rim light traseiro (efeito Fresnel — "peach fuzz" do tecido)
+    // Rim light traseiro (efeito Fresnel "peach fuzz" do tecido)
     float potencia_rim  = (uMaterialType == 1) ? 2.5 : 4.0;
     float fresnel       = pow(1.0 - max(dot(N, V), 0.0), potencia_rim);
     float intensidade_rim = (uMaterialType == 1) ? 0.45 : 0.25;

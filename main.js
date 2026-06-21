@@ -1,17 +1,6 @@
-// ======================================================
 // PRINCIPAL — CONFIGURAÇÃO, LOOP DE RENDERIZAÇÃO E BORDADOS
-// ======================================================
-
-// ======================================================
-// VARIÁVEIS GLOBAIS — SHADER E TEXTURAS
-// ======================================================
-
 let meu_shader;
 let textura_placa_vitrine;
-
-// ======================================================
-// ESTADO GLOBAL DA APLICAÇÃO
-// ======================================================
 
 var modo_app = 'Vitrine';
 
@@ -24,9 +13,8 @@ var estado_loja = {
     bordadoEquipe: false
 };
 
-// ======================================================
-// VARIÁVEIS GLOBAIS — CÂMERA E ÓRBITA
-// ======================================================
+
+// Câmera
 
 let raio_orbita = 900;
 let alvo_raio_orbita = 900;
@@ -43,9 +31,7 @@ let ultimo_mouse_y = 0;
 const ORBITA_MINIMA = 200;
 const ORBITA_MAXIMA = 1200;
 
-// ======================================================
-// VARIÁVEIS GLOBAIS — TEXTURAS
-// ======================================================
+// Texturas
 
 let textura_rashguard;
 let textura_vouk, textura_peito_kingz_clara, textura_peito_kingz_escura, textura_ombro_kingz;
@@ -55,30 +41,24 @@ let imagem_helio, imagem_carlos;
 let textura_texto_parede;
 let textura_placa_aberto;
 
-// ======================================================
-// VARIÁVEIS GLOBAIS — BORDADO E DESGASTE
-// ======================================================
+// Bordado e desgaste
 
 let textura_bordado;
 let imagem_bordado_cache = null;
 let nivel_desgaste = 0.0;
-
-// ======================================================
-// BORDADO — DESGASTE E PERSONALIZAÇÃO
-// ======================================================
 
 function AtualizarNivelDesgaste(val) {
     nivel_desgaste = val / 6.0;
 }
 
 function RedesenharBordado() {
-    let nome_str = document.getElementById('embroidery-name') ? document.getElementById('embroidery-name').value : "";
-    let equipe_str = document.getElementById('embroidery-team') ? document.getElementById('embroidery-team').value : "";
+    // Busca os valores digitados no painel. Se a caixa de texto não existir, usa vazio ("")
+    let nome_str = document.getElementById('embroidery-name')?.value || "";
+    let equipe_str = document.getElementById('embroidery-team')?.value || "";
 
     if (!estado_loja.bordadoNome) nome_str = "";
     if (!estado_loja.bordadoEquipe) equipe_str = "";
 
-    // Fallback para placeholder quando ativo e vazio
     if (estado_loja.bordadoNome && !nome_str) nome_str = "SEU NOME";
     if (estado_loja.bordadoEquipe && !equipe_str) equipe_str = "SUA EQUIPE";
 
@@ -86,15 +66,7 @@ function RedesenharBordado() {
     textura_bordado.background(0, 0, 0, 0);
 
     // Cor do texto: preto para kimono claro, branco para escuro
-    let cor_gi = 'white';
-    if (typeof modo_app !== 'undefined' && modo_app === 'loja' && typeof estado_loja !== 'undefined') {
-        cor_gi = estado_loja.blusa.cor;
-    } else if (typeof window !== 'undefined' && window.corKimonoAtual) {
-        cor_gi = window.corKimonoAtual;
-    } else if (typeof estado_loja !== 'undefined' && estado_loja.blusa) {
-        cor_gi = estado_loja.blusa.cor;
-    }
-
+    let cor_gi = estado_loja.blusa.cor;
     let gi_claro = (cor_gi === 'white' || cor_gi === 'branco' || cor_gi === '');
     textura_bordado.fill(gi_claro ? 20 : 255);
 
@@ -115,14 +87,16 @@ function RedesenharBordado() {
     imagem_bordado_cache = textura_bordado.get();
 }
 
-function AplicarBordadoNome() {
-    estado_loja.bordadoNome = !estado_loja.bordadoNome;
+
+function AlternarBordado(tipo) {
+    let prop = tipo === 'name' ? 'bordadoNome' : 'bordadoEquipe';
+    estado_loja[prop] = !estado_loja[prop];
     RedesenharBordado();
     if (typeof AtualizarTotalCarrinho === 'function') AtualizarTotalCarrinho();
 
-    let btn = document.getElementById('btn-apply-name');
+    let btn = document.getElementById(`btn-apply-${tipo}`);
     if (btn) {
-        if (estado_loja.bordadoNome) {
+        if (estado_loja[prop]) {
             btn.innerText = "✓ Adicionado"; btn.style.background = "#4ade80"; btn.style.color = "#0f172a";
         } else {
             btn.innerText = "+R$ 40"; btn.style.background = "#d4af37"; btn.style.color = "black";
@@ -131,39 +105,18 @@ function AplicarBordadoNome() {
 }
 
 function ResetarEstadoBordado(tipo) {
-    if (tipo === 'name' && estado_loja.bordadoNome) {
-        estado_loja.bordadoNome = false;
-        let btn = document.getElementById('btn-apply-name');
-        if (btn) { btn.innerText = "+R$ 40"; btn.style.background = "#d4af37"; btn.style.color = "black"; }
-        RedesenharBordado();
-        if (typeof AtualizarTotalCarrinho === 'function') AtualizarTotalCarrinho();
-    } else if (tipo === 'team' && estado_loja.bordadoEquipe) {
-        estado_loja.bordadoEquipe = false;
-        let btn = document.getElementById('btn-apply-team');
+    let prop = tipo === 'name' ? 'bordadoNome' : 'bordadoEquipe';
+    if (estado_loja[prop]) {
+        estado_loja[prop] = false;
+        let btn = document.getElementById(`btn-apply-${tipo}`);
         if (btn) { btn.innerText = "+R$ 40"; btn.style.background = "#d4af37"; btn.style.color = "black"; }
         RedesenharBordado();
         if (typeof AtualizarTotalCarrinho === 'function') AtualizarTotalCarrinho();
     }
 }
 
-function AplicarBordadoEquipe() {
-    estado_loja.bordadoEquipe = !estado_loja.bordadoEquipe;
-    RedesenharBordado();
-    if (typeof AtualizarTotalCarrinho === 'function') AtualizarTotalCarrinho();
-
-    let btn = document.getElementById('btn-apply-team');
-    if (btn) {
-        if (estado_loja.bordadoEquipe) {
-            btn.innerText = "✓ Adicionado"; btn.style.background = "#4ade80"; btn.style.color = "#0f172a";
-        } else {
-            btn.innerText = "+R$ 40"; btn.style.background = "#d4af37"; btn.style.color = "black";
-        }
-    }
-}
-
-// ======================================================
-// p5.js — CICLO DE VIDA
-// ======================================================
+function AplicarBordadoNome() { AlternarBordado('name'); }
+function AplicarBordadoEquipe() { AlternarBordado('team'); }
 
 function preload() {
     meu_shader = loadShader('shader.vert', 'shader.frag');
@@ -172,7 +125,7 @@ function preload() {
 }
 
 function setup() {
-    setAttributes({ version: 2 }); // WebGL2 — necessário para GLSL ES 3.0 (#version 300 es)
+    setAttributes({ version: 2 });
     let container = document.getElementById('container-canvas');
     let w = container.clientWidth || 700;
     let h = container.clientHeight || 550;
@@ -182,11 +135,6 @@ function setup() {
     // Rashguard (textura interna da abertura do kimono)
     textura_rashguard = createGraphics(1024, 1024);
     textura_rashguard.background(20);
-    textura_rashguard.fill(255);
-    textura_rashguard.textAlign(CENTER, CENTER);
-    textura_rashguard.textSize(60);
-    textura_rashguard.textStyle(BOLD);
-    textura_rashguard.text("JIU\nJITSU", 256, 256);
 
     // Textura de bordado (transparente por padrão)
     textura_bordado = createGraphics(1024, 1024);
@@ -216,7 +164,6 @@ function setup() {
     textura_placa_vitrine.textSize(100);
     textura_placa_vitrine.text('Delariva BJJ', 400, 2600);
     textura_placa_vitrine.textSize(30);
-    textura_placa_vitrine.fill(0);
     textura_placa_vitrine.text('A performance começa no conforto', 410, 2700);
 
     // Placa "ABERTO" na porta
@@ -267,29 +214,17 @@ function draw() {
     push();
     translate(0, 25, 0);
 
-    // Rotação do objeto apenas no modo loja
+    // Rotação do objeto e lógica das peças no modo loja
     if (modo_app === 'loja') {
         rotateX(-rotacao_orbita_x);
         rotateY(-rotacao_orbita_y);
-    }
 
-    if (modo_app === 'loja') {
         let viewport_sub = document.getElementById('viewport-subtotal');
         if (viewport_sub) viewport_sub.style.display = 'block';
 
-        let desenhar_blusa = false;
-        let desenhar_calca = false;
-        let desenhar_faixa = false;
-
-        if (estado_loja.passoAtual === 'blusa') desenhar_blusa = true;
-        if (estado_loja.passoAtual === 'calca') desenhar_calca = true;
-        if (estado_loja.passoAtual === 'faixa') desenhar_faixa = true;
-
-        if (estado_loja.passoAtual === 'cart') {
-            desenhar_blusa = estado_loja.blusa.equipado;
-            desenhar_calca = estado_loja.calca.equipado;
-            desenhar_faixa = estado_loja.faixa.equipado;
-        }
+        let desenhar_blusa = (estado_loja.passoAtual === 'blusa') || (estado_loja.passoAtual === 'cart' && estado_loja.blusa.equipado);
+        let desenhar_calca = (estado_loja.passoAtual === 'calca') || (estado_loja.passoAtual === 'cart' && estado_loja.calca.equipado);
+        let desenhar_faixa = (estado_loja.passoAtual === 'faixa') || (estado_loja.passoAtual === 'cart' && estado_loja.faixa.equipado);
 
         if (desenhar_blusa) {
             push();
@@ -334,7 +269,7 @@ function draw() {
 
     pop();
 
-    // Vidro da vitrine sempre desenhado por último para não bugar o Z-buffer
+    // Vidro da vitrine sempre desenhado por último
     if (modo_app === 'Vitrine') {
         DesenharVidroVitrine();
     }

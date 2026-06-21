@@ -1,10 +1,4 @@
-// ======================================================
-// TEXTURAS — GERAÇÃO DE SÍMBOLOS E PATCHES DAS MARCAS
-// ======================================================
-
-// ======================================================
-// FUNÇÕES DE DESENHO DE SÍMBOLO POR MARCA
-// ======================================================
+// Funções de desenho de símbolo por marca
 
 function DesenharSimboloAtama(g, x, y, s, cor_texto, logo_completo = true) {
     g.push();
@@ -48,20 +42,20 @@ function DesenharSimboloVouk(g, x, y, s) {
     g.strokeWeight(3);
 
     // Geometria do lobo (pirâmide abstrata)
-    g.fill(verde_agua);    g.triangle(-30, -50, -15, -20, -45, -10);
-    g.fill(verde_escuro);  g.triangle(-30, -50, -10, -40, -15, -20);
-    g.fill(verde_agua);    g.triangle(30, -50, 15, -20, 45, -10);
-    g.fill(verde_escuro);  g.triangle(30, -50, 10, -40, 15, -20);
-    g.fill(verde_claro);   g.triangle(-15, -20, 15, -20, 0, 0);
-    g.fill(verde_escuro);  g.triangle(-15, -20, -45, -10, -30, 20);
-    g.fill(verde_agua);    g.triangle(-15, -20, -30, 20, 0, 0);
-    g.fill(verde_escuro);  g.triangle(15, -20, 45, -10, 30, 20);
-    g.fill(verde_agua);    g.triangle(15, -20, 30, 20, 0, 0);
-    g.fill(verde_claro);   g.triangle(-30, 20, 0, 0, 0, 40);
-    g.fill(verde_agua);    g.triangle(30, 20, 0, 0, 0, 40);
-    g.fill(verde_escuro);  g.triangle(-30, 20, 0, 40, -15, 50);
-    g.fill(verde_agua);    g.triangle(30, 20, 0, 40, 15, 50);
-    g.fill(verde_claro);   g.triangle(-15, 50, 15, 50, 0, 40);
+    g.fill(verde_agua); g.triangle(-30, -50, -15, -20, -45, -10);
+    g.fill(verde_escuro); g.triangle(-30, -50, -10, -40, -15, -20);
+    g.fill(verde_agua); g.triangle(30, -50, 15, -20, 45, -10);
+    g.fill(verde_escuro); g.triangle(30, -50, 10, -40, 15, -20);
+    g.fill(verde_claro); g.triangle(-15, -20, 15, -20, 0, 0);
+    g.fill(verde_escuro); g.triangle(-15, -20, -45, -10, -30, 20);
+    g.fill(verde_agua); g.triangle(-15, -20, -30, 20, 0, 0);
+    g.fill(verde_escuro); g.triangle(15, -20, 45, -10, 30, 20);
+    g.fill(verde_agua); g.triangle(15, -20, 30, 20, 0, 0);
+    g.fill(verde_claro); g.triangle(-30, 20, 0, 0, 0, 40);
+    g.fill(verde_agua); g.triangle(30, 20, 0, 0, 0, 40);
+    g.fill(verde_escuro); g.triangle(-30, 20, 0, 40, -15, 50);
+    g.fill(verde_agua); g.triangle(30, 20, 0, 40, 15, 50);
+    g.fill(verde_claro); g.triangle(-15, 50, 15, 50, 0, 40);
 
     g.pop();
 }
@@ -99,24 +93,22 @@ function DesenharSimboloKingz(g, x, y, s) {
     g.pop();
 }
 
-// ======================================================
-// INICIALIZAÇÃO E ATUALIZAÇÃO DE TEXTURAS
-// ======================================================
+// Inicialização e atualização de texturas
 
 function IniciarTexturas() {
-    textura_vouk               = createGraphics(256, 128);
-    textura_peito_kingz_clara  = createGraphics(256, 128);
+    textura_vouk = createGraphics(256, 128);
+    textura_peito_kingz_clara = createGraphics(256, 128);
     textura_peito_kingz_escura = createGraphics(256, 128);
-    textura_ombro_kingz        = createGraphics(256, 256);
-    textura_peito_atama_clara  = createGraphics(256, 128);
+    textura_ombro_kingz = createGraphics(256, 256);
+    textura_peito_atama_clara = createGraphics(256, 128);
     textura_peito_atama_escura = createGraphics(256, 128);
-    textura_ombro_atama_clara  = createGraphics(256, 256);
+    textura_ombro_atama_clara = createGraphics(256, 256);
     textura_ombro_atama_escura = createGraphics(256, 256);
-    textura_ombro_vouk         = createGraphics(256, 256);
-    textura_calca_vouk         = createGraphics(256, 256);
-    textura_calca_atama_clara  = createGraphics(256, 256);
+    textura_ombro_vouk = createGraphics(256, 256);
+    textura_calca_vouk = createGraphics(256, 256);
+    textura_calca_atama_clara = createGraphics(256, 256);
     textura_calca_atama_escura = createGraphics(256, 256);
-    textura_calca_kingz        = createGraphics(256, 256);
+    textura_calca_kingz = createGraphics(256, 256);
     AtualizarCorTexturas();
 }
 
@@ -124,7 +116,30 @@ function AtualizarCorTexturas() {
     let cor_clara = color(240);
     let cor_escura = color(20);
 
-    // --- Peito Vouk (símbolo + texto) ---
+    // Funções auxiliares para evitar repetição de código
+    const gerarPeitoAtama = (tex, cor) => {
+        tex.clear();
+        DesenharSimboloAtama(tex, 35, 64, 0.75, cor, false);
+        tex.fill(cor);
+        tex.noStroke();
+        tex.textAlign(LEFT, CENTER);
+        tex.textSize(50);
+        tex.textStyle(BOLD);
+        tex.text("ATAMA", 65, 64);
+    };
+
+    const gerarPeitoKingz = (tex, cor) => {
+        tex.clear();
+        tex.fill(cor);
+        tex.noStroke();
+        tex.textAlign(CENTER, CENTER);
+        tex.textSize(55);
+        tex.textStyle(ITALIC);
+        tex.textFont('sans-serif');
+        tex.text("KINGZ", 128, 64);
+    };
+
+    // Peito Vouk
     textura_vouk.clear();
     DesenharSimboloVouk(textura_vouk, 45, 90, 0.6);
     textura_vouk.fill(69, 181, 170);
@@ -134,62 +149,28 @@ function AtualizarCorTexturas() {
     textura_vouk.textStyle(BOLD);
     textura_vouk.text("VOUK", 85, 90);
 
-    // --- Peito Atama — fundo claro (símbolo + texto branco) ---
-    textura_peito_atama_clara.clear();
-    DesenharSimboloAtama(textura_peito_atama_clara, 35, 64, 0.75, cor_clara, false);
-    textura_peito_atama_clara.fill(cor_clara);
-    textura_peito_atama_clara.noStroke();
-    textura_peito_atama_clara.textAlign(LEFT, CENTER);
-    textura_peito_atama_clara.textSize(50);
-    textura_peito_atama_clara.textStyle(BOLD);
-    textura_peito_atama_clara.text("ATAMA", 65, 64);
+    // Peito Atama
+    gerarPeitoAtama(textura_peito_atama_clara, cor_clara);
+    gerarPeitoAtama(textura_peito_atama_escura, cor_escura);
 
-    // --- Peito Atama — fundo escuro (símbolo + texto preto) ---
-    textura_peito_atama_escura.clear();
-    DesenharSimboloAtama(textura_peito_atama_escura, 35, 64, 0.75, cor_escura, false);
-    textura_peito_atama_escura.fill(cor_escura);
-    textura_peito_atama_escura.noStroke();
-    textura_peito_atama_escura.textAlign(LEFT, CENTER);
-    textura_peito_atama_escura.textSize(50);
-    textura_peito_atama_escura.textStyle(BOLD);
-    textura_peito_atama_escura.text("ATAMA", 65, 64);
+    // Peito Kingz
+    gerarPeitoKingz(textura_peito_kingz_clara, cor_clara);
+    gerarPeitoKingz(textura_peito_kingz_escura, cor_escura);
 
-    // --- Ombro Atama ---
+    // Ombros das marcas
     textura_ombro_atama_clara.clear();
     DesenharSimboloAtama(textura_ombro_atama_clara, 128, 128, 1.05, cor_clara);
 
     textura_ombro_atama_escura.clear();
     DesenharSimboloAtama(textura_ombro_atama_escura, 128, 128, 1.05, cor_escura);
 
-    // --- Ombro Kingz (coroa) ---
     textura_ombro_kingz.clear();
     DesenharSimboloKingz(textura_ombro_kingz, 128, 128, 1.35);
 
-    // --- Ombro Vouk ---
     textura_ombro_vouk.clear();
     DesenharSimboloVouk(textura_ombro_vouk, 128, 128, 1.2);
 
-    // --- Peito Kingz — texto claro ---
-    textura_peito_kingz_clara.clear();
-    textura_peito_kingz_clara.fill(cor_clara);
-    textura_peito_kingz_clara.noStroke();
-    textura_peito_kingz_clara.textAlign(CENTER, CENTER);
-    textura_peito_kingz_clara.textSize(55);
-    textura_peito_kingz_clara.textStyle(ITALIC);
-    textura_peito_kingz_clara.textFont('sans-serif');
-    textura_peito_kingz_clara.text("KINGZ", 128, 64);
-
-    // --- Peito Kingz — texto escuro ---
-    textura_peito_kingz_escura.clear();
-    textura_peito_kingz_escura.fill(cor_escura);
-    textura_peito_kingz_escura.noStroke();
-    textura_peito_kingz_escura.textAlign(CENTER, CENTER);
-    textura_peito_kingz_escura.textSize(55);
-    textura_peito_kingz_escura.textStyle(ITALIC);
-    textura_peito_kingz_escura.textFont('sans-serif');
-    textura_peito_kingz_escura.text("KINGZ", 128, 64);
-
-    // --- Calças ---
+    // Calças das marcas
     textura_calca_vouk.clear();
     DesenharSimboloVouk(textura_calca_vouk, 128, 128, 1.2);
 

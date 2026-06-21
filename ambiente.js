@@ -1,15 +1,9 @@
-// ======================================================
-// CENÁRIO — AMBIENTE 3D DA LOJA E DA VITRINE
-// ======================================================
-
-// ======================================================
-// MODO LOJA — AMBIENTE INTERNO (TATAMI + PAREDES + QUADROS)
-// ======================================================
+// Ambiente interno da loja
 
 function DesenharAmbienteLoja() {
     noStroke();
 
-    // Tatami (chão principal)
+    // Tatame (chao principal)
     meu_shader.setUniform('uMaterialType', 11);
     meu_shader.setUniform('uBaseColor', [0.65, 0.45, 0.25]);
     push(); translate(0, -112, 0); box(2000, 10, 2000); pop();
@@ -35,7 +29,7 @@ function DesenharAmbienteLoja() {
     };
 
     DesenharQuadro(imagem_carlos, -320, -335);
-    DesenharQuadro(imagem_helio,   320, -335);
+    DesenharQuadro(imagem_helio, 320, -335);
 
     // Texto na parede (JIU JITSU)
     meu_shader.setUniform('uMaterialType', 6);
@@ -51,9 +45,7 @@ function DesenharAmbienteLoja() {
     DesenharVasoEPlanta(280, -310);
 }
 
-// ======================================================
-// MODO VITRINE — FACHADA DA LOJA + MANEQUEINS
-// ======================================================
+// Ambiente externo da vitrine
 
 function DesenharAmbienteVitrine() {
     noStroke();
@@ -68,25 +60,25 @@ function DesenharAmbienteVitrine() {
     meu_shader.setUniform('uBaseColor', [0.65, 0.45, 0.25]);
     push(); translate(0, -112, -400); box(5000, 10, 800); pop();
 
-    // Parede dos fundos da loja — fundo em Y=-112, cresce para cima
+    // Parede dos fundos da loja
     meu_shader.setUniform('uMaterialType', 10);
     meu_shader.setUniform('uBaseColor', [0.55, 0.65, 0.50]);
     push(); translate(-50, 1444, -300); box(950, 3112, 20); pop();
 
     // Paredes laterais da loja — fundo em Y=-112, crescem para cima
     push(); translate(-525, 1444, -175); box(20, 3112, 250); pop();
-    push(); translate(425,  1444, -175); box(20, 3112, 250); pop();
+    push(); translate(425, 1444, -175); box(20, 3112, 250); pop();
 
-    // ===== FACHADA =====
+    // Fachada da loja
     meu_shader.setUniform('uMaterialType', 10);
     meu_shader.setUniform('uBaseColor', [0.55, 0.65, 0.50]);
     push();
     translate(0, 0, -50);
 
-    // Parede superior (lintel) — fundo em Y=238 (topo da vitrine), cresce para cima
+    // Parede superior (lintel)
     push(); translate(-50, 1619, 0); box(950, 2762, 20); pop();
 
-    // Parede lateral esquerda da fachada — fundo em Y=-112, cresce para cima
+    // Parede lateral esquerda da fachada
     push(); translate(-505, 1444, 0); box(40, 3112, 20); pop();
 
     // Porta fechada (vidro escuro)
@@ -113,7 +105,7 @@ function DesenharAmbienteVitrine() {
     // Pilar entre porta e vitrine
     push(); translate(-300, 63, 0); box(70, 350, 20); pop();
 
-    // Parede lateral direita da fachada — fundo em Y=-112, cresce para cima
+    // Parede lateral direita da fachada
     push(); translate(352.5, 1444, 0); box(145, 3112, 20); pop();
 
     pop(); // Fecha bloco da fachada (Z=-50)
@@ -131,33 +123,31 @@ function DesenharAmbienteVitrine() {
     // Pedestais internos
     meu_shader.setUniform('uMaterialType', 0);
     meu_shader.setUniform('uBaseColor', [0.15, 0.15, 0.15]);
-    push(); translate(0,    -95, -200); box(120, 15, 120); pop();
-    push(); translate(0,    -50, -200); box(100, 80, 100); pop();
-    push(); translate(-190, -95, -200); box(120, 15, 120); pop();
-    push(); translate(-190, -50, -200); box(100, 80, 100); pop();
-    push(); translate(200,  -95, -200); box(120, 15, 120); pop();
-    push(); translate(200,  -50, -200); box(100, 80, 100); pop();
+    [0, -190, 200].forEach(x => {
+        push(); translate(x, -95, -200); box(120, 15, 120); pop(); // Base
+        push(); translate(x, -50, -200); box(100, 80, 100); pop(); // Corpo
+    });
 }
 
 function DesenharManequeinsVitrine() {
     // Salvar estado atual da loja para restaurar após renderizar os manequeins
-    let marca_blusa_orig   = estado_loja.blusa.marca;
-    let marca_calca_orig   = estado_loja.calca.marca;
-    let cor_blusa_orig     = estado_loja.blusa.cor;
-    let cor_calca_orig     = estado_loja.calca.cor;
-    let cor_faixa_orig     = estado_loja.faixa.cor;
-    let tam_blusa_orig     = estado_loja.blusa.tamanho;
-    let tam_calca_orig     = estado_loja.calca.tamanho;
-    let tam_faixa_orig     = estado_loja.faixa.tamanho;
-    let modo_antigo        = window.modo_app;
+    let marca_blusa_orig = estado_loja.blusa.marca;
+    let marca_calca_orig = estado_loja.calca.marca;
+    let cor_blusa_orig = estado_loja.blusa.cor;
+    let cor_calca_orig = estado_loja.calca.cor;
+    let cor_faixa_orig = estado_loja.faixa.cor;
+    let tam_blusa_orig = estado_loja.blusa.tamanho;
+    let tam_calca_orig = estado_loja.calca.tamanho;
+    let tam_faixa_orig = estado_loja.faixa.tamanho;
+    let modo_antigo = window.modo_app;
 
     window.modo_app = 'loja'; // Força o shader a exibir as marcas
 
     // Função local para renderizar um manequim completo
     const DesenharManequim = () => {
-        let s_blusa  = ObterEscalaTamanho(estado_loja.blusa.tamanho);
-        let s_calca  = ObterEscalaTamanho(estado_loja.calca.tamanho, 'calca');
-        let s_faixa  = ObterEscalaTamanho(estado_loja.faixa.tamanho);
+        let s_blusa = ObterEscalaTamanho(estado_loja.blusa.tamanho);
+        let s_calca = ObterEscalaTamanho(estado_loja.calca.tamanho, 'calca');
+        let s_faixa = ObterEscalaTamanho(estado_loja.faixa.tamanho);
 
         push(); scale(s_blusa[0], s_blusa[1], s_blusa[2]); DesenharTroncoKimono(); pop();
 
@@ -176,42 +166,31 @@ function DesenharManequeinsVitrine() {
         pop();
     };
 
-    // Manequim 1 — Vouk Branco + Faixa Azul (A1)
-    push();
-    translate(-190, 0, -200);
-    rotateY(radians(10));
-    estado_loja.blusa.cor = 'white'; estado_loja.calca.cor = 'white'; estado_loja.faixa.cor = 'blue';
-    estado_loja.blusa.marca = 'Vouk'; estado_loja.calca.marca = 'Vouk';
-    estado_loja.blusa.tamanho = 'A1'; estado_loja.calca.tamanho = 'A1'; estado_loja.faixa.tamanho = 'A1';
-    DesenharManequim();
-    pop();
+    // Função para montar um manequim inteiro em 1 linha
+    const MontarManequim = (x, rotZ, marca, corGi, corFaixa, tamanho) => {
+        push();
+        translate(x, 0, -200);
+        if (rotZ !== 0) rotateY(radians(rotZ));
 
-    // Manequim 2 — Atama Azul + Faixa Roxa (A2)
-    push();
-    translate(0, 0, -200);
-    estado_loja.blusa.cor = 'blue'; estado_loja.calca.cor = 'blue'; estado_loja.faixa.cor = 'purple';
-    estado_loja.blusa.marca = 'Atama'; estado_loja.calca.marca = 'Atama';
-    estado_loja.blusa.tamanho = 'A2'; estado_loja.calca.tamanho = 'A2'; estado_loja.faixa.tamanho = 'A2';
-    DesenharManequim();
-    pop();
+        estado_loja.blusa.cor = corGi; estado_loja.calca.cor = corGi; estado_loja.faixa.cor = corFaixa;
+        estado_loja.blusa.marca = marca; estado_loja.calca.marca = marca;
+        estado_loja.blusa.tamanho = tamanho; estado_loja.calca.tamanho = tamanho; estado_loja.faixa.tamanho = tamanho;
 
-    // Manequim 3 — Kingz Preto + Faixa Preta (A3)
-    push();
-    translate(200, 0, -200);
-    rotateY(radians(-10));
-    estado_loja.blusa.cor = 'black'; estado_loja.calca.cor = 'black'; estado_loja.faixa.cor = 'black';
-    estado_loja.blusa.marca = 'Kingz'; estado_loja.calca.marca = 'Kingz';
-    estado_loja.blusa.tamanho = 'A3'; estado_loja.calca.tamanho = 'A3'; estado_loja.faixa.tamanho = 'A3';
-    DesenharManequim();
-    pop();
+        DesenharManequim();
+        pop();
+    };
+
+    MontarManequim(-190, 10, 'Vouk', 'white', 'blue', 'A1');   // Manequim 1
+    MontarManequim(0, 0, 'Atama', 'blue', 'purple', 'A2');     // Manequim 2
+    MontarManequim(200, -10, 'Kingz', 'black', 'black', 'A3'); // Manequim 3
 
     // Restaurar estado original
-    window.modo_app          = modo_antigo;
-    estado_loja.blusa.marca  = marca_blusa_orig;
-    estado_loja.calca.marca  = marca_calca_orig;
-    estado_loja.blusa.cor    = cor_blusa_orig;
-    estado_loja.calca.cor    = cor_calca_orig;
-    estado_loja.faixa.cor    = cor_faixa_orig;
+    window.modo_app = modo_antigo;
+    estado_loja.blusa.marca = marca_blusa_orig;
+    estado_loja.calca.marca = marca_calca_orig;
+    estado_loja.blusa.cor = cor_blusa_orig;
+    estado_loja.calca.cor = cor_calca_orig;
+    estado_loja.faixa.cor = cor_faixa_orig;
     estado_loja.blusa.tamanho = tam_blusa_orig;
     estado_loja.calca.tamanho = tam_calca_orig;
     estado_loja.faixa.tamanho = tam_faixa_orig;
@@ -228,9 +207,7 @@ function DesenharVidroVitrine() {
     shader(meu_shader); // Religa o shader para o próximo frame
 }
 
-// ======================================================
-// AUXILIAR — VASO COM PLANTA
-// ======================================================
+// Renderizacao do vaso com planta decorativa
 
 function DesenharVasoEPlanta(x, z) {
     // Vaso cerâmico fosco
@@ -241,9 +218,9 @@ function DesenharVasoEPlanta(x, z) {
     // Planta (cluster de esferas sobrepostas para simular folhagem)
     meu_shader.setUniform('uMaterialType', 10);
     meu_shader.setUniform('uBaseColor', [0.15, 0.35, 0.15]);
-    push(); translate(x,       -15, z);      sphere(35); pop();
-    push(); translate(x,        15, z);      sphere(25); pop();
-    push(); translate(x - 25,    0, z + 15); sphere(30); pop();
-    push(); translate(x + 25,    0, z - 15); sphere(30); pop();
-    push(); translate(x,          0, z + 20); sphere(30); pop();
+    push(); translate(x, -15, z); sphere(35); pop();
+    push(); translate(x, 15, z); sphere(25); pop();
+    push(); translate(x - 25, 0, z + 15); sphere(30); pop();
+    push(); translate(x + 25, 0, z - 15); sphere(30); pop();
+    push(); translate(x, 0, z + 20); sphere(30); pop();
 }
