@@ -1,10 +1,4 @@
-// ======================================================
-// INTERFACE — LÓGICA DA UI DA LOJA E VITRINE
-// ======================================================
-
-// ======================================================
-// NAVEGAÇÃO ENTRE MODOS (VITRINE ↔ LOJA)
-// ======================================================
+// Navegação entre modos (vitrine ↔ loja)
 
 function AlternarModoApp(modo) {
     modo_app = modo;
@@ -24,11 +18,6 @@ function AlternarModoApp(modo) {
 function EntrarNaLoja() {
     AlternarModoApp('loja');
 }
-
-// ======================================================
-// RESET COMPLETO — volta ao estado inicial da loja
-// Chamado ao retornar à Vitrine por qualquer caminho
-// ======================================================
 
 function ResetarEstadoInicial() {
     modo_app = 'Vitrine';
@@ -65,18 +54,16 @@ function ResetarEstadoInicial() {
     if (campo_equipe) campo_equipe.value = '';
 
     // Resetar visual dos botões de bordado
-    let btn_nome  = document.getElementById('btn-apply-name');
-    if (btn_nome)  { btn_nome.innerText = '+R$ 40';  btn_nome.style.background  = '#d4af37'; btn_nome.style.color  = 'black'; }
-    let btn_equipe = document.getElementById('btn-apply-team');
-    if (btn_equipe) { btn_equipe.innerText = '+R$ 40'; btn_equipe.style.background = '#d4af37'; btn_equipe.style.color = 'black'; }
+    ['name', 'team'].forEach(id => {
+        let btn = document.getElementById('btn-apply-' + id);
+        if (btn) { btn.innerText = '+R$ 40'; btn.style.background = '#d4af37'; btn.style.color = 'black'; }
+    });
 
     // Resetar botões do carrinho
-    let btn_blusa = document.getElementById('btn-alternar-blusa');
-    if (btn_blusa)  { btn_blusa.innerText  = '🛒 Colocar no Carrinho'; btn_blusa.style.background  = '#2b5b84'; btn_blusa.style.color  = 'white'; }
-    let btn_calca = document.getElementById('btn-alternar-calca');
-    if (btn_calca)  { btn_calca.innerText  = '🛒 Colocar no Carrinho'; btn_calca.style.background  = '#2b5b84'; btn_calca.style.color  = 'white'; }
-    let btn_faixa = document.getElementById('btn-alternar-faixa');
-    if (btn_faixa)  { btn_faixa.innerText  = '🛒 Colocar no Carrinho'; btn_faixa.style.background  = '#2b5b84'; btn_faixa.style.color  = 'white'; }
+    ['blusa', 'calca', 'faixa'].forEach(id => {
+        let btn = document.getElementById('btn-alternar-' + id);
+        if (btn) { btn.innerText = '🛒 Colocar no Carrinho'; btn.style.background = '#2b5b84'; btn.style.color = 'white'; }
+    });
 
     if (typeof AtualizarTotalCarrinho === 'function') AtualizarTotalCarrinho();
     if (typeof SincronizarInterface   === 'function') SincronizarInterface();
@@ -88,9 +75,7 @@ function VoltarVitrine() {
     document.getElementById('Vitrine-panel').style.display = 'flex';
 }
 
-// ======================================================
-// DROPS E PROMOÇÕES
-// ======================================================
+// Drops e promoções
 
 function CarregarDropDaSemana(opcao) {
     estado_loja.blusa.equipado  = true;
@@ -123,9 +108,7 @@ function CarregarDropDaSemana(opcao) {
     DefinirPasso('cart');
 }
 
-// ======================================================
-// CHECKOUT
-// ======================================================
+// Checkout
 
 function FinalizarCompra() {
     if (estado_loja.passoAtual !== 'cart') {
@@ -171,9 +154,7 @@ function FecharCheckout() {
     document.getElementById('Vitrine-panel').style.display = 'flex';
 }
 
-// ======================================================
-// NAVEGAÇÃO POR PASSOS
-// ======================================================
+// Navegação por passos
 
 function DefinirPasso(nome_passo) {
     estado_loja.passoAtual = nome_passo;
@@ -214,9 +195,7 @@ function DefinirPasso(nome_passo) {
     }
 }
 
-// ======================================================
-// CARRINHO — SELEÇÃO E ALTERNÂNCIA DE ITENS
-// ======================================================
+// Carrinho — seleção e alternância de itens
 
 function AlternarItemCarrinho(parte) {
     estado_loja[parte].equipado = !estado_loja[parte].equipado;
@@ -284,12 +263,8 @@ function SelecionarItem(parte, propriedade, valor) {
 
     // Atualizar cor do círculo de tamanho da faixa dinamicamente
     if (parte === 'faixa' && propriedade === 'color') {
-        let hex = '#ffffff';
-        if (valor === 'blue')   hex = '#2b5b84';
-        if (valor === 'purple') hex = '#5e35b1';
-        if (valor === 'brown')  hex = '#5d4037';
-        if (valor === 'black')  hex = '#212121';
-        if (valor === 'coral' || valor === 'coral-white' || valor === 'red') hex = '#d32f2f';
+        let mapa_cores = { 'blue': '#2b5b84', 'purple': '#5e35b1', 'brown': '#5d4037', 'black': '#212121', 'coral': '#d32f2f', 'coral-white': '#d32f2f', 'red': '#d32f2f' };
+        let hex = mapa_cores[valor] || '#ffffff';
 
         let css = `.btn-size-belt.active .circulo-tamanho { background-color: ${hex} !important; border-color: ${(valor === 'white') ? '#ccc' : hex} !important; }`;
         let estilo = document.getElementById('estilo-dinamico-faixa');
@@ -309,9 +284,7 @@ function SelecionarItem(parte, propriedade, valor) {
     AtualizarTotalCarrinho();
 }
 
-// ======================================================
-// PREÇOS E TOTAIS
-// ======================================================
+// Preços e totais
 
 function ObterMultiplicadorPreco(tamanho_str) {
     let mapa = { 'A0': 0.90, 'A1': 0.95, 'A2': 1.0, 'A3': 1.05, 'A4': 1.10, 'A5': 1.15 };
@@ -319,15 +292,11 @@ function ObterMultiplicadorPreco(tamanho_str) {
 }
 
 function AtualizarTotalCarrinho() {
-    let base_blusa  = 0;
-    if      (estado_loja.blusa.marca === 'Vouk')  base_blusa = 330;
-    else if (estado_loja.blusa.marca === 'Atama') base_blusa = 530;
-    else if (estado_loja.blusa.marca === 'Kingz') base_blusa = 800;
+    let precos_blusa = { 'Vouk': 330, 'Atama': 530, 'Kingz': 800 };
+    let precos_calca = { 'Vouk': 170, 'Atama': 270, 'Kingz': 400 };
 
-    let base_calca  = 0;
-    if      (estado_loja.calca.marca === 'Vouk')  base_calca = 170;
-    else if (estado_loja.calca.marca === 'Atama') base_calca = 270;
-    else if (estado_loja.calca.marca === 'Kingz') base_calca = 400;
+    let base_blusa = precos_blusa[estado_loja.blusa.marca] || 0;
+    let base_calca = precos_calca[estado_loja.calca.marca] || 0;
 
     let base_faixa  = 100;
 
@@ -386,9 +355,7 @@ function AtualizarTotalCarrinho() {
     if (subtotal_viewport) subtotal_viewport.innerText = `R$ ${total},00`;
 }
 
-// ======================================================
-// UTILITÁRIOS
-// ======================================================
+// Utilitários
 
 function ObterEscalaTamanho(tamanho_str, tipo = 'blusa') {
     if (tipo === 'calca') {

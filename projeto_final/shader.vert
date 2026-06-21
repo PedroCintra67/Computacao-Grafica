@@ -23,13 +23,10 @@ uniform float uSqueezePantsTop;
 void main() {
     vec3 pos = aPosition;
 
-    // Compressão lateral da calça (partes 4.0 e 5.0) quando usada junto com o kimono
-    if ((abs(uKimonoPart - 4.0) < 0.1 || abs(uKimonoPart - 5.0) < 0.1) && uSqueezePantsTop > 0.0) {
-        // Afinar progressivamente da barra (Y=0) até a cintura (Y=68)
-        float fator_compressao = smoothstep(0.0, 68.0, pos.y);
-        float escala_atual     = mix(1.0, uSqueezePantsTop, fator_compressao);
-        pos.x *= escala_atual;
-        pos.z *= escala_atual;
+    // Compressão da cintura da calça (evita atravessar o tecido da blusa)
+    if (uKimonoPart >= 3.9 && uKimonoPart <= 5.1 && uSqueezePantsTop > 0.0) {
+        float escala = mix(1.0, uSqueezePantsTop, smoothstep(0.0, 68.0, pos.y));
+        pos.xz *= escala;
     }
 
     // Transformar vértice para o espaço de visão

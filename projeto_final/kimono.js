@@ -1,10 +1,4 @@
-// ======================================================
-// KIMONO — GEOMETRIA PROCEDURAL DO GI DE JIU-JITSU
-// ======================================================
-
-// ======================================================
-// VARIÁVEIS GLOBAIS — MALHAS GEOMÉTRICAS
-// ======================================================
+// Variáveis globais malhas geométricas
 
 let malha_tronco_kimono;
 let malha_braco_superior;
@@ -14,9 +8,35 @@ let malha_lapela_esquerda;
 let malha_lapela_direita;
 let malha_calca;
 
-// ======================================================
-// INICIALIZAÇÃO DA GEOMETRIA
-// ======================================================
+// Inicialização da geometria
+
+function SuavizarCosturaCilindro(geom, linhas, colunas) {
+    for (let r = 0; r <= linhas; r++) {
+        let i0   = r * (colunas + 1) + 0;
+        let i1   = r * (colunas + 1) + colunas;
+        let avg_n = p5.Vector.add(geom.vertexNormals[i0], geom.vertexNormals[i1]).normalize();
+        geom.vertexNormals[i0] = avg_n.copy();
+        geom.vertexNormals[i1] = avg_n.copy();
+    }
+}
+
+function ObterCorKimono(parte) {
+    let cor_str = 'white';
+    if (window.modo_app === 'Vitrine') cor_str = window.corKimonoAtual || 'white';
+    else if (window.estado_loja && window.estado_loja[parte]) cor_str = window.estado_loja[parte].cor;
+
+    let rgb = [0.95, 0.95, 0.95];
+    if (cor_str === 'blue') rgb = [0.08, 0.22, 0.58];
+    if (cor_str === 'black') rgb = [0.12, 0.12, 0.14];
+
+    return { rgb: rgb, is_claro: (cor_str.toLowerCase().includes('white') || cor_str.toLowerCase().includes('branco')) };
+}
+
+function AplicarTexturaPeito(marca, gi_claro) {
+    if (marca === 'Vouk'  && typeof textura_vouk !== 'undefined') meu_shader.setUniform('texPeito', textura_vouk);
+    if (marca === 'Atama' && typeof textura_peito_atama_clara !== 'undefined') meu_shader.setUniform('texPeito', gi_claro ? textura_peito_atama_escura : textura_peito_atama_clara);
+    if (marca === 'Kingz' && typeof textura_peito_kingz_clara !== 'undefined') meu_shader.setUniform('texPeito', gi_claro ? textura_peito_kingz_escura : textura_peito_kingz_clara);
+}
 
 function IniciarGeometriaKimono() {
     // p5.Geometry constrói e armazena em cache as malhas personalizadas com UVs e normais.
@@ -39,7 +59,7 @@ function IniciarGeometriaKimono() {
                 let y = y_base;
 
                 if (y_base < 68) {
-                    // Saia abaixo da faixa — abre progressivamente para baixo
+          // Saia abaixo da faixa abre progressivamente para baixo
                     let t = map(y_base, 0, 68, 0, 1);
                     rX = lerp(66, 52.5, t);
                     rZ = lerp(45, 30, t);
@@ -107,16 +127,10 @@ function IniciarGeometriaKimono() {
         this.computeNormals();
 
         // Fundir normais na costura (u=0 e u=1) para eliminar a linha de junção
-        for (let r = 0; r <= linhas; r++) {
-            let i0   = r * (colunas + 1) + 0;
-            let i1   = r * (colunas + 1) + colunas;
-            let avg_n = p5.Vector.add(this.vertexNormals[i0], this.vertexNormals[i1]).normalize();
-            this.vertexNormals[i0] = avg_n.copy();
-            this.vertexNormals[i1] = avg_n.copy();
-        }
+        SuavizarCosturaCilindro(this, linhas, colunas);
     });
 
-    // Mangas — segmentos cilíndricos com dobras suaves
+  // Mangas segmentos cilíndricos com dobras suaves
     malha_braco_superior = CriarMalhaSegmentoBraco(48, 16, 13);
     malha_antebraco      = CriarMalhaSegmentoBraco(48, 13, 9.5);
     malha_braco_superior.id  = 'upperArm_geom';
@@ -137,7 +151,7 @@ function IniciarGeometriaKimono() {
     malha_lapela_direita.id   = 'lapelRight_geom';
     malha_lapela_direita.gid  = 'lapelRight_geom';
 
-    // Calça — perna única com deslocamento lateral crescente (+X), espelhada para a perna esquerda
+  // Calça perna única com deslocamento lateral crescente (+X), espelhada para a perna esquerda
     malha_calca = new p5.Geometry(1, 1, function () {
         let linhas   = 40;
         let colunas  = 30;
@@ -171,21 +185,13 @@ function IniciarGeometriaKimono() {
         }
         this.computeNormals();
 
-        for (let r = 0; r <= linhas; r++) {
-            let i0   = r * (colunas + 1) + 0;
-            let i1   = r * (colunas + 1) + colunas;
-            let avg_n = p5.Vector.add(this.vertexNormals[i0], this.vertexNormals[i1]).normalize();
-            this.vertexNormals[i0] = avg_n.copy();
-            this.vertexNormals[i1] = avg_n.copy();
-        }
+        SuavizarCosturaCilindro(this, linhas, colunas);
     });
     malha_calca.id  = 'pants_geom';
     malha_calca.gid = 'pants_geom';
 }
 
-// ======================================================
-// GEOMETRIA AUXILIAR — FAIXA E SEGMENTOS DE BRAÇO
-// ======================================================
+// Geometria auxiliar faixa e segmentos de braço
 
 function IniciarMalhaFaixa() {
     malha_faixa = new p5.Geometry(1, 1, function () {
@@ -219,13 +225,7 @@ function IniciarMalhaFaixa() {
         }
         this.computeNormals();
 
-        for (let j = 0; j <= linhas; j++) {
-            let i0   = j * (colunas + 1) + 0;
-            let i1   = j * (colunas + 1) + colunas;
-            let avg_n = p5.Vector.add(this.vertexNormals[i0], this.vertexNormals[i1]).normalize();
-            this.vertexNormals[i0] = avg_n.copy();
-            this.vertexNormals[i1] = avg_n.copy();
-        }
+        SuavizarCosturaCilindro(this, linhas, colunas);
     });
 }
 
@@ -269,13 +269,7 @@ function CriarMalhaSegmentoBraco(comprimento, raio_inicio, raio_fim) {
         }
         this.computeNormals();
 
-        for (let r = 0; r <= linhas; r++) {
-            let i0   = r * (colunas + 1) + 0;
-            let i1   = r * (colunas + 1) + colunas;
-            let avg_n = p5.Vector.add(this.vertexNormals[i0], this.vertexNormals[i1]).normalize();
-            this.vertexNormals[i0] = avg_n.copy();
-            this.vertexNormals[i1] = avg_n.copy();
-        }
+        SuavizarCosturaCilindro(this, linhas, colunas);
     });
 }
 
@@ -331,9 +325,7 @@ function CriarMalhaLapela(eh_esquerdo) {
     });
 }
 
-// ======================================================
-// RENDERIZAÇÃO — TRONCO, MANGAS E LAPELAS
-// ======================================================
+// Renderização tronco, mangas e lapelas
 
 function DesenharTroncoKimono() {
     if (!malha_tronco_kimono) IniciarGeometriaKimono();
@@ -342,17 +334,9 @@ function DesenharTroncoKimono() {
     meu_shader.setUniform('uMaterialType', 1);
 
     // Determinar a cor base do kimono conforme o modo atual
-    let cor = [0.95, 0.95, 0.95];
-    let cor_str = 'white';
-    if (window.modo_app === 'Vitrine') {
-        cor_str = window.corKimonoAtual || 'white';
-    } else {
-        cor_str = (window.estado_loja && window.estado_loja.blusa) ? window.estado_loja.blusa.cor : 'white';
-    }
-    if (cor_str === 'blue')  cor = [0.08, 0.22, 0.58];
-    else if (cor_str === 'black') cor = [0.12, 0.12, 0.14];
-
-    let gi_claro = cor_str && (cor_str.toLowerCase().includes('white') || cor_str.toLowerCase().includes('branco') || cor_str.toLowerCase().includes('fff'));
+    let corObj = ObterCorKimono('blusa');
+    let cor = corObj.rgb;
+    let gi_claro = corObj.is_claro;
 
     // Identificar a marca selecionada
     let marca   = (typeof modo_app !== 'undefined' && modo_app === 'loja' && typeof estado_loja !== 'undefined') ? estado_loja.blusa.marca : 'Atama';
@@ -377,9 +361,7 @@ function DesenharTroncoKimono() {
     }
 
     // Textura de peito da marca
-    if (marca === 'Vouk'  && typeof textura_vouk              !== 'undefined') meu_shader.setUniform('texPeito', textura_vouk);
-    if (marca === 'Atama' && typeof textura_peito_atama_clara !== 'undefined') meu_shader.setUniform('texPeito', gi_claro ? textura_peito_atama_escura : textura_peito_atama_clara);
-    if (marca === 'Kingz' && typeof textura_peito_kingz_clara !== 'undefined') meu_shader.setUniform('texPeito', gi_claro ? textura_peito_kingz_escura : textura_peito_kingz_clara);
+    AplicarTexturaPeito(marca, gi_claro);
 
     model(malha_tronco_kimono);
     meu_shader.setUniform('uKimonoPart', 0);
@@ -440,17 +422,9 @@ function DesenharTroncoKimono() {
 function DesenharLapela() {
     meu_shader.setUniform('uMaterialType', 4);
 
-    let cor = [0.95, 0.95, 0.95];
-    let cor_str = 'white';
-    if (window.modo_app === 'Vitrine') {
-        cor_str = window.corKimonoAtual || 'white';
-    } else {
-        cor_str = (window.estado_loja && window.estado_loja.blusa) ? window.estado_loja.blusa.cor : 'white';
-    }
-    if (cor_str === 'blue')  cor = [0.08, 0.22, 0.58];
-    else if (cor_str === 'black') cor = [0.12, 0.12, 0.14];
-
-    let gi_claro = cor_str && (cor_str.toLowerCase().includes('white') || cor_str.toLowerCase().includes('branco') || cor_str.toLowerCase().includes('fff'));
+    let corObj = ObterCorKimono('blusa');
+    let cor = corObj.rgb;
+    let gi_claro = corObj.is_claro;
     let marca    = (typeof modo_app !== 'undefined' && modo_app === 'loja' && typeof estado_loja !== 'undefined') ? estado_loja.blusa.marca : 'Atama';
 
     meu_shader.setUniform('uBaseColor', [cor[0] * 0.98, cor[1] * 0.98, cor[2] * 0.98]);
@@ -458,9 +432,7 @@ function DesenharLapela() {
     push();
     meu_shader.setUniform('uKimonoPart', 1);
 
-    if (marca === 'Vouk'  && typeof textura_vouk              !== 'undefined') meu_shader.setUniform('texPeito', textura_vouk);
-    if (marca === 'Atama' && typeof textura_peito_atama_clara !== 'undefined') meu_shader.setUniform('texPeito', gi_claro ? textura_peito_atama_escura : textura_peito_atama_clara);
-    if (marca === 'Kingz' && typeof textura_peito_kingz_clara !== 'undefined') meu_shader.setUniform('texPeito', gi_claro ? textura_peito_kingz_escura : textura_peito_kingz_clara);
+    AplicarTexturaPeito(marca, gi_claro);
 
     model(malha_lapela_direita);   // Baixo (por baixo da esquerda)
     model(malha_lapela_esquerda);  // Cima (passa por cima)
@@ -475,30 +447,20 @@ function DesenharLapela() {
     pop();
 }
 
-// ======================================================
-// RENDERIZAÇÃO — CALÇA
-// ======================================================
+// Renderização calça
 
 function DesenharCalca() {
     if (!malha_calca) IniciarGeometriaKimono();
 
-    let cor_str = 'white';
-    if (window.modo_app === 'Vitrine') {
-        cor_str = window.corKimonoAtual || 'white';
-    } else {
-        cor_str = (window.estado_loja && window.estado_loja.calca) ? window.estado_loja.calca.cor : 'white';
-    }
-
-    let cor = [0.95, 0.95, 0.95];
-    if (cor_str === 'blue')  cor = [0.08, 0.22, 0.58];
-    if (cor_str === 'black') cor = [0.12, 0.12, 0.14];
+    let corObj = ObterCorKimono('calca');
+    let cor = corObj.rgb;
+    let calca_clara = corObj.is_claro;
 
     let marca    = (typeof modo_app !== 'undefined' && modo_app === 'loja' && typeof estado_loja !== 'undefined') ? estado_loja.calca.marca : 'Atama';
     let id_marca = 0;
     if (marca === 'Vouk')  id_marca = 1;
     if (marca === 'Kingz') id_marca = 2;
 
-    let calca_clara = cor_str && (cor_str.toLowerCase().includes('white') || cor_str.toLowerCase().includes('branco') || cor_str.toLowerCase().includes('fff'));
 
     meu_shader.setUniform('uMaterialType', 1);
     meu_shader.setUniform('uBaseColor', cor);
@@ -519,7 +481,7 @@ function DesenharCalca() {
         }
     }
 
-    // Perna direita — spread em +X
+  // Perna direita spread em +X
     push();
     translate(16.5, 0, 0);
     meu_shader.setUniform('uKimonoPart', 5);
@@ -528,7 +490,7 @@ function DesenharCalca() {
     meu_shader.setUniform('uKimonoPart', 0);
     pop();
 
-    // Perna esquerda — espelhada para spread em -X
+  // Perna esquerda espelhada para spread em -X
     push();
     translate(-16.5, 0, 0);
     scale(-1, 1, 1);

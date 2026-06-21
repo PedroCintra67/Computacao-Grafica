@@ -1,92 +1,22 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Delariva BJJ - Loja de Kimonos</title>
-
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Outfit:wght@300;400;500;600;800&display=swap"
         rel="stylesheet">
-
-    <!-- Custom Stylesheet -->
     <link rel="stylesheet" href="style.css">
-
-    <!-- JavaScript Error Debugger -->
-    <script>
-        window.addEventListener('error', function (e) {
-            showError('Erro JS: ' + e.message + '\nArquivo: ' + e.filename + ' L:' + e.lineno);
-        });
-        window.addEventListener('unhandledrejection', function (e) {
-            showError('Promise Rejeitada: ' + e.reason);
-        });
-
-        const orgConsoleError = console.error;
-        console.error = function () {
-            const msg = Array.from(arguments).map(x => typeof x === 'object' ? String(x) : x).join(' ');
-            showError(msg);
-            orgConsoleError.apply(console, arguments);
-        };
-
-        function showError(text) {
-            let errDiv = document.getElementById('debug-err-div');
-            if (!errDiv) {
-                errDiv = document.createElement('pre');
-                errDiv.id = 'debug-err-div';
-                errDiv.style.position = 'fixed';
-                errDiv.style.bottom = '20px';
-                errDiv.style.left = '20px';
-                errDiv.style.background = 'rgba(239, 68, 68, 0.95)';
-                errDiv.style.cor = '#fff';
-                errDiv.style.padding = '15px';
-                errDiv.style.borderRadius = '8px';
-                errDiv.style.fontSize = '12px';
-                errDiv.style.fontFamily = 'monospace';
-                errDiv.style.zIndex = '99999';
-                errDiv.style.maxHeight = '300px';
-                errDiv.style.maxWidth = '90vw';
-                errDiv.style.overflow = 'auto';
-                errDiv.style.border = '2px solid #ef4444';
-                errDiv.style.boxShadow = '0 10px 25px rgba(0,0,0,0.5)';
-                errDiv.style.whiteSpace = 'pre-wrap';
-
-                const closeBtn = document.createElement('button');
-                closeBtn.innerText = 'Fechar';
-                closeBtn.style.display = 'block';
-                closeBtn.style.marginBottom = '10px';
-                closeBtn.style.background = '#000';
-                closeBtn.style.cor = '#fff';
-                closeBtn.style.border = 'none';
-                closeBtn.style.padding = '4px 8px';
-                closeBtn.style.cursor = 'pointer';
-                closeBtn.style.borderRadius = '4px';
-                closeBtn.onclick = () => errDiv.remove();
-                errDiv.appendChild(closeBtn);
-
-                const textSpan = document.createElement('div');
-                textSpan.id = 'debug-err-text';
-                errDiv.appendChild(textSpan);
-
-                document.body.appendChild(errDiv);
-            }
-            document.getElementById('debug-err-text').innerText += '\n' + text;
-        }
-    </script>
-
-    <!-- p5.js Library (Integrada Localmente) -->
     <script src="p5.min.js"></script>
 </head>
 
 <body>
-    <!-- Premium Showroom Background -->
     <div id="showroom-bg"></div>
     <div id="showroom-spotlight"></div>
-
-    <!-- Checkout Success Overlay -->
     <div id="checkout-overlay"
         style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 9999; justify-content: center; align-items: center;">
         <div
@@ -148,7 +78,6 @@
     </div>
 
     <div class="app-container">
-        <!-- LEFT PANEL: 3D Viewport -->
         <main class="viewport-panel">
             <header class="viewport-header">
                 <div class="logo">
@@ -162,15 +91,9 @@
                     <span id="fps-counter" style="font-size: 13px; color: #a0aec0;">FPS: --</span>
                 </div>
             </header>
-
-            <!-- Where p5.js Canvas will be mounted -->
             <div class="container-canvas" id="container-canvas" style="position: relative;">
-                <!-- Mounted Canvas -->
             </div>
         </main>
-
-        <!-- RIGHT PANEL: Classic Trophy Controls -->
-        <!-- RIGHT PANEL: Vitrine Landing Page -->
         <aside class="painel-controle" id="Vitrine-panel"
             style="display: flex; flex-direction: column; justify-content: center;">
             <div style="text-align: center; margin-bottom: 30px;">
@@ -244,15 +167,11 @@
                 style="width: 100%; background: #d4af37; color: black; font-weight: bold; padding: 16px; font-size: 16px; border: none; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4); text-transform: none; letter-spacing: 1px; cursor: pointer; border-radius: 8px;"
                 onclick="EntrarNaLoja()">Selecionar Produtos</button>
         </aside>
-
-        <!-- RIGHT PANEL: E-Commerce Controls -->
         <aside class="painel-controle" id="painel-loja" style="display: none; flex-direction: column;">
             <button onclick="VoltarVitrine()" class="btn-kimono Vitrine-hover" style="flex: none; background: #2b5b84; border: 1px solid rgba(255,255,255,0.2); color: white; cursor: pointer; font-size: 12px; font-weight: 600; padding: 8px 14px; margin-bottom: 15px; border-radius: 6px; display: inline-flex; align-items: center; gap: 8px; width: fit-content; align-self: flex-start; text-transform: none; letter-spacing: 0.5px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">
                 <span style="font-size: 14px;">⬅</span> Voltar ao Menu
             </button>
             <h2 style="color: white; margin-bottom: 10px; margin-top: 0; font-family: 'Outfit'; font-size: 20px;">Customização do Kimono</h2>
-
-            <!-- Step Navigation -->
             <div
                 style="display: flex; gap: 5px; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
                 <button id="tab-cart" class="btn-kimono active" style="flex:1; padding: 8px 4px; font-size:12px;"
@@ -264,10 +183,7 @@
                 <button id="aba-faixa" class="btn-kimono" style="flex:1; padding: 8px 4px; font-size:12px;"
                     onclick="DefinirPasso('faixa')">🎗️ Faixa</button>
             </div>
-
-            <!-- Dynamic Content Area -->
             <div id="step-content" style="flex-grow: 1; overflow-y: auto; padding-right: 5px;">
-                <!-- Step 1: Casaco (Top) -->
                 <div id="passo-blusa" class="step-section" style="display: none;">
                     <div style="margin-bottom: 10px;">
                         <h3 class="section-title" style="margin-bottom: 0;">Casaco do Kimono (Vagui)</h3>
@@ -344,8 +260,6 @@
                         style="width: 100%; background: #2b5b84; font-size: 14px; padding: 12px; font-weight: bold; margin-top: 10px; border: none; color: white;"
                         onclick="AlternarItemCarrinho('blusa')"> Colocar no Carrinho</button>
                 </div>
-
-                <!-- Step 2: Calça -->
                 <div id="passo-calca" class="step-section" style="display: none;">
                     <div style="margin-bottom: 10px;">
                         <h3 class="section-title" style="margin-bottom: 0;">Calça do Kimono</h3>
@@ -422,8 +336,6 @@
                         style="width: 100%; background: #2b5b84; font-size: 14px; padding: 12px; font-weight: bold; margin-top: 10px; border: none; color: white;"
                         onclick="AlternarItemCarrinho('calca')">🛒 Colocar no Carrinho</button>
                 </div>
-
-                <!-- Step 3: Faixa -->
                 <div id="passo-faixa" class="step-section" style="display: none;">
                     <div style="margin-bottom: 10px;">
                         <h3 class="section-title" style="margin-bottom: 0;">Faixa (R$ 100)</h3>
@@ -508,8 +420,6 @@
                         style="width: 100%; background: #2b5b84; font-size: 14px; padding: 12px; font-weight: bold; margin-top: 10px; border: none; color: white;"
                         onclick="AlternarItemCarrinho('faixa')">🛒 Colocar no Carrinho</button>
                 </div>
-
-                <!-- Checkout / Cart -->
                 <div id="step-cart" class="step-section">
                     <h3 class="section-title">Seu Carrinho</h3>
                     <div
@@ -545,28 +455,20 @@
                             Total: R$ <span id="cart-price-total">590,00</span>
                         </div>
                     </div>
-
-
-                    <!-- Personalização -->
                     <h3 class="section-title" style="margin-top: 20px;">Personalização</h3>
                     
                     <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border-left: 3px solid #d4af37; margin-bottom: 15px;">
-                        <!-- Nome -->
                         <label class="input-label" style="display:block; margin-bottom: 4px; color:#a0aec0; font-size:12px; text-transform:uppercase;">Bordado: Nome (Costas)</label>
                         <div style="display: flex; gap: 8px; margin-bottom: 15px;">
                             <input type="text" id="embroidery-name" oninput="ResetarEstadoBordado('name')" placeholder="Seu Nome" style="flex:1; padding: 8px; border-radius: 4px; border: none; background: #2d3748; color: white;">
                             <button id="btn-apply-name" onclick="AplicarBordadoNome()" class="btn-kimono" style="background: #d4af37; color: black; font-weight: bold; padding: 10px; border: none; cursor: pointer; transition: all 0.3s ease;">+R$ 40</button>
                         </div>
-
-                        <!-- Equipe -->
                         <label class="input-label" style="display:block; margin-bottom: 4px; color:#a0aec0; font-size:12px; text-transform:uppercase;">Bordado: Equipe (Saia)</label>
                         <div style="display: flex; gap: 8px;">
                             <input type="text" id="embroidery-team" oninput="ResetarEstadoBordado('team')" placeholder="Nome da Equipe" style="flex:1; padding: 8px; border-radius: 4px; border: none; background: #2d3748; color: white;">
                             <button id="btn-apply-team" onclick="AplicarBordadoEquipe()" class="btn-kimono" style="background: #d4af37; color: black; font-weight: bold; padding: 10px; border: none; cursor: pointer; transition: all 0.3s ease;">+R$ 40</button>
                         </div>
                     </div>
-
-                    <!-- Simulador 3D -->
                     <h3 class="section-title" style="margin-top: 20px;">Previsão de Desgaste</h3>
                     <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border-left: 3px solid #ef4444; margin-bottom: 15px;">
                         <label class="input-label" style="display:block; margin-bottom: 4px; color:#a0aec0; font-size:12px; text-transform:uppercase;">Tempo de Uso</label>
@@ -583,8 +485,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Cart Summary fixed at bottom -->
             <div
                 style="margin-top: 15px; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; border-top: 2px solid #d4af37;">
                 <div style="display: flex; justify-content: space-between; color: white; margin-bottom: 10px;">
@@ -598,8 +498,6 @@
             </div>
         </aside>
     </div>
-
-    <!-- Custom Scripts -->
     <script src="texturas.js?v=2"></script>
     <script src="ui.js?v=2"></script>
     <script src="camera_eventos.js?v=2"></script>
@@ -610,3 +508,4 @@
 </body>
 
 </html>
+
