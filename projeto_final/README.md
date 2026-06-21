@@ -1,26 +1,32 @@
 # Loja 3D de Kimonos
 
-## Sobre o Projeto
-Uma aplicação interativa de e-commerce 3D dedicada a kimonos de Jiu-Jitsu. O projeto simula um ambiente virtual onde o usuário pode visualizar modelos em uma vitrine realista, inspecioná-los em 360 graus e personalizar cada parte do traje. Tudo é renderizado em tempo real diretamente no navegador, unindo usabilidade e computação gráfica de alta fidelidade técnica.
+**Acesse o projeto online:** [https://pedrocintra67.github.io/Computacao-Grafica/](https://pedrocintra67.github.io/Computacao-Grafica/)
 
-## Conceitos de Computação Gráfica Aplicados
-Este software foi desenvolvido aplicando na prática diversos fundamentos teóricos da área de Computação Gráfica:
-* **Modelagem Procedural:** Geração matemática da malha 3D (costuras, dobras e mangas da calça/blusa) em tempo real, calculando centenas de vértices através de funções senoidais, curvas de Bezier e interpolação.
-* **Pipelines de Renderização (Shaders GLSL):** Substituição do material padrão do p5.js por um Fragment Shader construído do zero, otimizado para lidar com diferentes materiais numa única passagem (Uber Shader).
-* **Modelos de Iluminação Clássicos:** Implementação nativa do algoritmo de **Blinn-Phong** para tratar luz ambiente, difusa e reflexos especulares reluzentes (como os dos pedestais e placa dourada), além de cálculo de **Fresnel** para simular o comportamento de tecidos macios (peach fuzz).
-* **Renderização Não-Fotorrealista (NPR):** Alternativa implementada via Shader do modo visual **Cel Shading** (Toon Shading), quantizando as sombras para criar um efeito flat 2D estilo anime.
-* **Texturização Mapeada (UV Mapping):** Projeção de decalques (logos), estampas de patrocínio, "Pearl Weave" do tecido e bordados customizados via cálculo procedural de coordenadas UV, lidando com fusão de opacidade e projeção frontal.
-* **Transformações Geométricas Espaciais:** Uso constante das matrizes de Transformação (Translação, Rotação e Escala) para controle de Câmera Orbital, movimentação do mouse (Arcball) e hierarquia de objetos (nós da faixa relativos à cintura).
+**Disciplina:** EEL882 - Computação Gráfica  
+**Aluno:** Pedro Cintra  
+**DRE:** [COLOQUE SEU DRE AQUI]  
 
-## Como Instalar e Rodar
-1. Baixe os arquivos do projeto.
-2. Como se trata de arquivos locais carregando texturas, é obrigatório rodar através de um Servidor Local por questões de CORS do navegador. 
-3. Recomenda-se utilizar a extensão **Live Server** (do VS Code) no arquivo `index.html`. Alternativamente, você pode rodar `npx http-server` ou `python -m http.server` no diretório principal.
-4. O projeto rodará na sua porta padrão (ex: `http://localhost:5500/`).
+---
 
-## Como Interagir na Loja
-* **Modo Vitrine:** A página inicial inicia com um passeio panorâmico em três pedestais exibindo os modelos clássicos (Atama, Vouk e Kingz). Clique em "Entrar na Loja" na marca desejada.
-* **Câmera 3D:** Quando estiver customizando o Kimono, **Clique e Arraste** o mouse na tela para girar a câmera em 360 graus. Use o **Scroll (rodinha do mouse)** para dar Zoom e ver os detalhes de costura.
-* **Customização de Peças:** No painel lateral, você tem total liberdade. Misture a cor de sua calça com a da sua blusa, mude o tipo de tecido e até adicione faixas tricolores (Corais).
-* **Bordado Personalizado:** Habilite e escreva seu próprio nome no painel de Patch; a engine irá gerar uma textura com efeito de linha de seda diretamente na malha 3D das costas do kimono.
-* **Desgaste (Idade):** Aumente a Idade do Kimono no painel lateral esquerdo. As texturas vão amarelar, sujar procedualmente e o tecido perderá gradualmente o brilho reluzente, simulando uso intenso.
+## 🥋 Sobre o Projeto
+Uma aplicação interativa de e-commerce 3D dedicada a kimonos de Jiu-Jitsu. O projeto simula um ambiente virtual onde o usuário pode visualizar modelos em uma vitrine realista, inspecioná-los em 360 graus e personalizar cada parte do traje. Tudo é renderizado em tempo real diretamente no navegador utilizando p5.js e WebGL.
+
+Decidi focar nos conceitos apresentados nas aulas de computação gráfica que mais me interessei:
+* **Modelagem Procedural:** Geração matemática da malha 3D em tempo real (costuras, dobras e mangas) através de funções senoidais, curvas de Bezier e interpolação.
+* **Pipelines de Renderização (Shaders GLSL):** Criação de um Fragment Shader otimizado do zero para lidar com diferentes materiais numa única passagem (*Uber Shader*).
+* **Modelos de Iluminação (Blinn-Phong e NPR):** Implementação nativa do algoritmo de **Blinn-Phong** para reflexos reluzentes e cálculo de **Fresnel** simulando tecidos. Também criei uma alternativa de modo visual **Cel Shading** (Toon Shading).
+* **Texturização Mapeada (UV Mapping):** Projeção procedural de decalques (logos) e estampas de patrocínio no tecido, fundindo a imagem perfeitamente com a malha 3D.
+* **Transformações Geométricas:** Uso das matrizes de Transformação (Translação, Rotação e Escala) para controle de Câmera Orbital interativa e posicionamento hierárquico das partes do corpo.
+
+## 🛒 Como Usar a Loja
+A página inicia no "Modo Vitrine" com um passeio panorâmico automático por três pedestais exibindo os modelos clássicos (Atama, Vouk e Kingz).
+
+Para explorar o e-commerce:
+1. Clique no botão **"Entrar na Loja"** localizado embaixo do modelo desejado na vitrine.
+2. Utilize o painel lateral para misturar cores das peças (top, calça e faixa), mudar o tipo de tecido ou ativar o modo desenho 2D.
+3. Habilite o painel de *Patch* e digite seu nome para gerar um bordado customizado dinâmico nas costas do kimono!
+4. Use o slider de **Idade do Kimono** para simular desgaste e sujeira orgânica na textura do tecido.
+
+### Controles Principais
+* **Clique e Arraste (Mouse):** Gira a câmera livremente em 360 graus em torno do modelo para visualizar os detalhes das costas e mangas.
+* **Scroll do Mouse:** Controla o Zoom (aproxima e afasta) para inspecionar de perto as costuras ou a iluminação dos materiais.
