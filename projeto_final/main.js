@@ -198,10 +198,7 @@ function draw() {
 
     shader(meu_shader);
     meu_shader.setUniform('uLightDir', [0.45, 0.55, 0.7]);
-    meu_shader.setUniform('uCelShading', 0);
     meu_shader.setUniform('uWearLevel', nivel_desgaste);
-    meu_shader.setUniform('uInVitrine', modo_app === 'Vitrine' ? 1 : 0);
-    meu_shader.setUniform('uWireframe', 0);
 
     noStroke();
 

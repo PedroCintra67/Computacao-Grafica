@@ -16,7 +16,6 @@ uniform int uBeltStyle;         // Estilo da faixa (0=sólido, 1=coral, 2=coral-
 uniform vec3 uLightDir;         // Direção da luz no espaço de visão
 uniform int uMaterialType;      // Tipo de material do fragmento atual
 uniform vec3 uBaseColor;        // Cor base do material ativo
-uniform int uCelShading;        // 0=Blinn-Phong normal, 1=Cel/Toon shading
 uniform float uWearLevel;       // Nível de desgaste do tecido (0.0 a 1.0)
 uniform float uKimonoPart;      // 0=Nenhum, 1=Peito, 2=BraçoEsq, 3=BraçoDir, 4=PernEsq, 5=PernDir
 uniform sampler2D texPeito;     // Textura do patch de peito/marca
@@ -342,20 +341,7 @@ void main() {
     vec3  rim_light     = vec3(0.5, 0.55, 0.6) * fresnel * intensidade_rim * (0.3 + 0.7 * fator_difuso);
 
     // Composição final
-    vec3 cor_final;
-    if (uCelShading == 1 && uMaterialType == 1) {
-        // Cel/Toon Shading: difuso quantizado em 4 faixas
-        float cel_difuso   = floor(fator_difuso * 4.0) / 4.0;
-        vec3  cel_difusa   = cel_difuso * cor_difusa;
-        float contorno     = step(0.35, max(dot(N, V), 0.0));
-        float cel_spec     = (fator_spec > 0.7) ? 1.0 : 0.0;
-        vec3  cel_especular = cel_spec * forca_especular * 0.5 * cor_especular;
-        vec3  cel_ambiente  = vec3(0.28, 0.28, 0.35) * cor_difusa;
-        cor_final = (cel_ambiente + cel_difusa + cel_especular) * contorno;
-    } else {
-        // Blinn-Phong padrão
-        cor_final = ambiente + difuso + especular + rim_light;
-    }
+    vec3 cor_final = ambiente + difuso + especular + rim_light;
 
     fragColor = vec4(cor_final, 1.0);
 }
