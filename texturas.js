@@ -1,96 +1,96 @@
 // Funções de desenho de símbolo por marca
 
-function DesenharSimboloAtama(g, x, y, s, cor_texto, logo_completo = true) {
-    g.push();
-    g.translate(x, y);
-    g.scale(s);
+function DesenharSimboloAtama(contexto_grafico, pos_x, pos_y, escala, cor_texto, logo_completo = true) {
+    contexto_grafico.push();
+    contexto_grafico.translate(pos_x, pos_y);
+    contexto_grafico.scale(escala);
 
     if (logo_completo) {
-        g.noFill();
-        g.stroke(cor_texto);
-        g.strokeWeight(12);
-        g.circle(0, 0, 110);
+        contexto_grafico.noFill();
+        contexto_grafico.stroke(cor_texto);
+        contexto_grafico.strokeWeight(12);
+        contexto_grafico.circle(0, 0, 110);
     }
 
-    g.fill(cor_texto);
-    g.noStroke();
-    g.textAlign(CENTER, CENTER);
-    g.textSize(70);
-    g.textStyle(NORMAL);
-    g.text("頭", 0, 0);
+    contexto_grafico.fill(cor_texto);
+    contexto_grafico.noStroke();
+    contexto_grafico.textAlign(CENTER, CENTER);
+    contexto_grafico.textSize(70);
+    contexto_grafico.textStyle(NORMAL);
+    contexto_grafico.text("頭", 0, 0);
 
     if (logo_completo) {
         // Ornamentos laterais vermelhos (estilo clã)
-        g.fill(220, 50, 30);
-        g.noStroke();
-        g.beginShape(); g.vertex(-68, 50); g.bezierVertex(-83, 30, -93, 0, -83, -30); g.bezierVertex(-88, -10, -78, 10, -68, 30); g.bezierVertex(-73, 10, -63, -10, -58, -20); g.bezierVertex(-63, 10, -68, 30, -58, 50); g.endShape(CLOSE);
-        g.beginShape(); g.vertex(68, 50); g.bezierVertex(83, 30, 93, 0, 83, -30); g.bezierVertex(88, -10, 78, 10, 68, 30); g.bezierVertex(73, 10, 63, -10, 58, -20); g.bezierVertex(63, 10, 68, 30, 58, 50); g.endShape(CLOSE);
+        contexto_grafico.fill(220, 50, 30);
+        contexto_grafico.noStroke();
+        contexto_grafico.beginShape(); contexto_grafico.vertex(-68, 50); contexto_grafico.bezierVertex(-83, 30, -93, 0, -83, -30); contexto_grafico.bezierVertex(-88, -10, -78, 10, -68, 30); contexto_grafico.bezierVertex(-73, 10, -63, -10, -58, -20); contexto_grafico.bezierVertex(-63, 10, -68, 30, -58, 50); contexto_grafico.endShape(CLOSE);
+        contexto_grafico.beginShape(); contexto_grafico.vertex(68, 50); contexto_grafico.bezierVertex(83, 30, 93, 0, 83, -30); contexto_grafico.bezierVertex(88, -10, 78, 10, 68, 30); contexto_grafico.bezierVertex(73, 10, 63, -10, 58, -20); contexto_grafico.bezierVertex(63, 10, 68, 30, 58, 50); contexto_grafico.endShape(CLOSE);
     }
 
-    g.pop();
+    contexto_grafico.pop();
 }
 
-function DesenharSimboloVouk(g, x, y, s) {
+function DesenharSimboloVouk(contexto_grafico, pos_x, pos_y, escala) {
     let verde_agua = color(69, 181, 170);
     let verde_escuro = color(40, 140, 130);
     let verde_claro = color(100, 210, 200);
 
-    g.push();
-    g.translate(x, y);
-    g.scale(s);
-    g.stroke(20, 100, 90);
-    g.strokeWeight(3);
+    contexto_grafico.push();
+    contexto_grafico.translate(pos_x, pos_y);
+    contexto_grafico.scale(escala);
+    contexto_grafico.stroke(20, 100, 90);
+    contexto_grafico.strokeWeight(3);
 
     // Geometria do lobo (pirâmide abstrata)
-    g.fill(verde_agua); g.triangle(-30, -50, -15, -20, -45, -10);
-    g.fill(verde_escuro); g.triangle(-30, -50, -10, -40, -15, -20);
-    g.fill(verde_agua); g.triangle(30, -50, 15, -20, 45, -10);
-    g.fill(verde_escuro); g.triangle(30, -50, 10, -40, 15, -20);
-    g.fill(verde_claro); g.triangle(-15, -20, 15, -20, 0, 0);
-    g.fill(verde_escuro); g.triangle(-15, -20, -45, -10, -30, 20);
-    g.fill(verde_agua); g.triangle(-15, -20, -30, 20, 0, 0);
-    g.fill(verde_escuro); g.triangle(15, -20, 45, -10, 30, 20);
-    g.fill(verde_agua); g.triangle(15, -20, 30, 20, 0, 0);
-    g.fill(verde_claro); g.triangle(-30, 20, 0, 0, 0, 40);
-    g.fill(verde_agua); g.triangle(30, 20, 0, 0, 0, 40);
-    g.fill(verde_escuro); g.triangle(-30, 20, 0, 40, -15, 50);
-    g.fill(verde_agua); g.triangle(30, 20, 0, 40, 15, 50);
-    g.fill(verde_claro); g.triangle(-15, 50, 15, 50, 0, 40);
+    contexto_grafico.fill(verde_agua); contexto_grafico.triangle(-30, -50, -15, -20, -45, -10);
+    contexto_grafico.fill(verde_escuro); contexto_grafico.triangle(-30, -50, -10, -40, -15, -20);
+    contexto_grafico.fill(verde_agua); contexto_grafico.triangle(30, -50, 15, -20, 45, -10);
+    contexto_grafico.fill(verde_escuro); contexto_grafico.triangle(30, -50, 10, -40, 15, -20);
+    contexto_grafico.fill(verde_claro); contexto_grafico.triangle(-15, -20, 15, -20, 0, 0);
+    contexto_grafico.fill(verde_escuro); contexto_grafico.triangle(-15, -20, -45, -10, -30, 20);
+    contexto_grafico.fill(verde_agua); contexto_grafico.triangle(-15, -20, -30, 20, 0, 0);
+    contexto_grafico.fill(verde_escuro); contexto_grafico.triangle(15, -20, 45, -10, 30, 20);
+    contexto_grafico.fill(verde_agua); contexto_grafico.triangle(15, -20, 30, 20, 0, 0);
+    contexto_grafico.fill(verde_claro); contexto_grafico.triangle(-30, 20, 0, 0, 0, 40);
+    contexto_grafico.fill(verde_agua); contexto_grafico.triangle(30, 20, 0, 0, 0, 40);
+    contexto_grafico.fill(verde_escuro); contexto_grafico.triangle(-30, 20, 0, 40, -15, 50);
+    contexto_grafico.fill(verde_agua); contexto_grafico.triangle(30, 20, 0, 40, 15, 50);
+    contexto_grafico.fill(verde_claro); contexto_grafico.triangle(-15, 50, 15, 50, 0, 40);
 
-    g.pop();
+    contexto_grafico.pop();
 }
 
-function DesenharSimboloKingz(g, x, y, s) {
-    g.push();
-    g.translate(x, y);
-    g.scale(s);
-    g.stroke(40, 160, 80);
-    g.strokeWeight(8);
-    g.fill(220, 200, 50); // Dourado
+function DesenharSimboloKingz(contexto_grafico, pos_x, pos_y, escala) {
+    contexto_grafico.push();
+    contexto_grafico.translate(pos_x, pos_y);
+    contexto_grafico.scale(escala);
+    contexto_grafico.stroke(40, 160, 80);
+    contexto_grafico.strokeWeight(8);
+    contexto_grafico.fill(220, 200, 50); // Dourado
 
     // Coroa
-    g.beginShape();
-    g.vertex(-40, -30);
-    g.vertex(-25, 10);
-    g.vertex(0, -20);
-    g.vertex(25, 10);
-    g.vertex(40, -30);
-    g.vertex(30, 40);
-    g.vertex(0, 55);
-    g.vertex(-30, 40);
-    g.endShape(CLOSE);
+    contexto_grafico.beginShape();
+    contexto_grafico.vertex(-40, -30);
+    contexto_grafico.vertex(-25, 10);
+    contexto_grafico.vertex(0, -20);
+    contexto_grafico.vertex(25, 10);
+    contexto_grafico.vertex(40, -30);
+    contexto_grafico.vertex(30, 40);
+    contexto_grafico.vertex(0, 55);
+    contexto_grafico.vertex(-30, 40);
+    contexto_grafico.endShape(CLOSE);
 
     // Linha interna do chevron
-    g.noFill();
-    g.stroke(220, 220, 220);
-    g.strokeWeight(4);
-    g.beginShape();
-    g.vertex(-22, 30);
-    g.vertex(0, 45);
-    g.vertex(22, 30);
-    g.endShape();
+    contexto_grafico.noFill();
+    contexto_grafico.stroke(220, 220, 220);
+    contexto_grafico.strokeWeight(4);
+    contexto_grafico.beginShape();
+    contexto_grafico.vertex(-22, 30);
+    contexto_grafico.vertex(0, 45);
+    contexto_grafico.vertex(22, 30);
+    contexto_grafico.endShape();
 
-    g.pop();
+    contexto_grafico.pop();
 }
 
 // Inicialização e atualização de texturas
