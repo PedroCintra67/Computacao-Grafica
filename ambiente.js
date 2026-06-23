@@ -1,4 +1,7 @@
-// Ambiente interno da loja
+// Ambiente interno da loja (Dojo)
+// Lembrete da Física do Mundo: 
+// +Y cresce para CIMA (Teto), -Y desce para o CHÃO.
+// +X cresce para a ESQUERDA, -X para a DIREITA.
 
 function DesenharAmbienteLoja() {
     noStroke();
@@ -130,7 +133,9 @@ function DesenharAmbienteVitrine() {
 }
 
 function DesenharManequeinsVitrine() {
-    // Salvar estado atual da loja para restaurar após renderizar os manequeins
+    // Truque de "Salvar e Restaurar Estado"
+    // Tiramos uma foto das escolhas do usuário no carrinho para não estragar a customização
+    // enquanto desenhamos os 3 manequins fixos no fundo da loja.
     let marca_blusa_orig = estado_loja.blusa.marca;
     let marca_calca_orig = estado_loja.calca.marca;
     let cor_blusa_orig = estado_loja.blusa.cor;
@@ -143,14 +148,19 @@ function DesenharManequeinsVitrine() {
 
     window.modo_app = 'loja'; // Força o shader a exibir as marcas
 
-    // Função local para renderizar um manequim completo
+    // Função local para renderizar um manequim completo (O Lego Geométrico)
     const DesenharManequim = () => {
-        let s_blusa = ObterEscalaTamanho(estado_loja.blusa.tamanho);
+        let s_blusa = ObterEscalaTamanho(estado_loja.blusa.tamanho); // Ex: A3 -> [1.1, 1.1, 1.1]
         let s_calca = ObterEscalaTamanho(estado_loja.calca.tamanho, 'calca');
         let s_faixa = ObterEscalaTamanho(estado_loja.faixa.tamanho);
 
+        // 1. Desenha a blusa normal pelo centro do boneco
         push(); scale(s_blusa[0], s_blusa[1], s_blusa[2]); DesenharTroncoKimono(); pop();
 
+        // 2. A Matemática da Calça:
+        // O Y=68 é a altura padrão da cintura. A fórmula abaixo calcula quantos
+        // milímetros a calça precisa subir ou descer para não descolar da blusa
+        // caso os tamanhos das peças sejam misturados (ex: Blusa A4, Calça A1).
         push();
         let dy_calca = 68 * s_blusa[1] - 68 * s_calca[1];
         translate(0, dy_calca, 0);
@@ -158,6 +168,10 @@ function DesenharManequeinsVitrine() {
         DesenharCalca();
         pop();
 
+        // 3. A Matemática da Faixa:
+        // Assim como a calça, ela sofre compensação na altura (Y) pra achar a cintura.
+        // E usamos a LARGURA e PROFUNDIDADE da blusa (s_blusa[0] e [2]) no Scale
+        // para que a faixa "abrace" a barriga e não afunde dentro do tecido!
         push();
         let dy_faixa = 68 * s_blusa[1] - 68 * s_faixa[1];
         translate(0, dy_faixa, 0);
@@ -206,8 +220,6 @@ function DesenharVidroVitrine() {
     pop();
     shader(meu_shader); // Religa o shader para o próximo frame
 }
-
-// Renderizacao do vaso com planta decorativa
 
 function DesenharVasoEPlanta(x, z) {
     // Vaso cerâmico fosco
