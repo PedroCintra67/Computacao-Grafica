@@ -59,7 +59,8 @@
                     <span id="checkout-emb-team-desc">Personalização (Equipe)</span>
                     <span id="checkout-emb-team-price" style="color: white;">R$ 40</span>
                 </div>
-                <div id="checkout-discount-row" style="display: none; justify-content: space-between; font-weight: bold; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); color: #4ade80;">
+                <div id="checkout-discount-row"
+                    style="display: none; justify-content: space-between; font-weight: bold; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); color: #4ade80;">
                     <span>DESCONTO COMBO</span>
                     <span>- R$ <span id="checkout-discount-price">0</span>,00</span>
                 </div>
@@ -102,17 +103,19 @@
                     style="font-family: 'Outfit', sans-serif; font-size: 28px; color: #d4af37; letter-spacing: 2px; font-weight: 800; margin-bottom: 10px; text-transform: none;">
                     Delariva BJJ</h1>
                 <p style="color: #cbd5e0; font-size: 18px; line-height: 1.6;">
-                    Bem-vindo ao próximo nível de customização no Jiu-Jitsu. 
+                    Bem-vindo ao próximo nível de customização no Jiu-Jitsu.
                 </p>
                 <p style="color: #cbd5e0; font-size: 14px; line-height: 1.6;">
-                    Misture as melhores marcas do mundo, 
-                    ajuste o tamanho e visualize seu novo equipamento com riqueza de detalhes antes de entrar no tatame.</p>
+                    Misture as melhores marcas do mundo,
+                    ajuste o tamanho e visualize seu novo equipamento com riqueza de detalhes antes de entrar no tatame.
+                </p>
             </div>
 
             <div
                 style="background: rgba(0,0,0,0.4); padding: 15px; border-radius: 12px; border-left: 4px solid #d4af37; margin-bottom: 25px;">
-                <h3 style="color: white; font-size: 16px; margin-bottom: 12px; text-transform: uppercase;">Promoções da Semana</h3>
-                
+                <h3 style="color: white; font-size: 16px; margin-bottom: 12px; text-transform: uppercase;">Promoções da
+                    Semana</h3>
+
                 <div style="display: flex; flex-direction: column; gap: 8px;">
                     <button class="btn-kimono Vitrine-hover"
                         style="width: 100%; background: linear-gradient(90deg, #1a202c, #2d3748); border: 1px solid #d4af37; color: #d4af37; font-weight: bold; padding: 12px; font-size: 13px; text-align: left; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-radius: 6px;"
@@ -121,9 +124,11 @@
                             <span>Vouk Branco + Faixa Azul (A1)</span>
                             <span style="color: #4ade80; font-size: 14px; margin-top: 4px;">R$ 450</span>
                         </div>
-                        <span style="background: #d4af37; color: black; padding: 5px 10px; border-radius: 4px; font-size: 11px; text-transform: none;">Comprar ➔</span>
+                        <span
+                            style="background: #d4af37; color: black; padding: 5px 10px; border-radius: 4px; font-size: 11px; text-transform: none;">Comprar
+                            ➔</span>
                     </button>
-                    
+
                     <button class="btn-kimono Vitrine-hover"
                         style="width: 100%; background: linear-gradient(90deg, #1a202c, #2d3748); border: 1px solid #d4af37; color: #d4af37; font-weight: bold; padding: 12px; font-size: 13px; text-align: left; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-radius: 6px;"
                         onclick="CarregarDropDaSemana(2)">
@@ -131,9 +136,11 @@
                             <span>Atama Azul + Faixa Roxa (A2)</span>
                             <span style="color: #4ade80; font-size: 14px; margin-top: 4px;">R$ 720</span>
                         </div>
-                        <span style="background: #d4af37; color: black; padding: 5px 10px; border-radius: 4px; font-size: 11px; text-transform: none;">Comprar ➔</span>
+                        <span
+                            style="background: #d4af37; color: black; padding: 5px 10px; border-radius: 4px; font-size: 11px; text-transform: none;">Comprar
+                            ➔</span>
                     </button>
-                    
+
                     <button class="btn-kimono Vitrine-hover"
                         style="width: 100%; background: linear-gradient(90deg, #1a202c, #2d3748); border: 1px solid #d4af37; color: #d4af37; font-weight: bold; padding: 12px; font-size: 13px; text-align: left; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-radius: 6px;"
                         onclick="CarregarDropDaSemana(3)">
@@ -141,7 +148,9 @@
                             <span>Kingz Preto + Faixa Preta (A3)</span>
                             <span style="color: #4ade80; font-size: 14px; margin-top: 4px;">R$ 1080</span>
                         </div>
-                        <span style="background: #d4af37; color: black; padding: 5px 10px; border-radius: 4px; font-size: 11px; text-transform: none;">Comprar ➔</span>
+                        <span
+                            style="background: #d4af37; color: black; padding: 5px 10px; border-radius: 4px; font-size: 11px; text-transform: none;">Comprar
+                            ➔</span>
                     </button>
                 </div>
             </div>
@@ -168,10 +177,12 @@
                 onclick="EntrarNaLoja()">Selecionar Produtos</button>
         </aside>
         <aside class="painel-controle" id="painel-loja" style="display: none; flex-direction: column;">
-            <button onclick="VoltarVitrine()" class="btn-kimono Vitrine-hover" style="flex: none; background: #2b5b84; border: 1px solid rgba(255,255,255,0.2); color: white; cursor: pointer; font-size: 12px; font-weight: 600; padding: 8px 14px; margin-bottom: 15px; border-radius: 6px; display: inline-flex; align-items: center; gap: 8px; width: fit-content; align-self: flex-start; text-transform: none; letter-spacing: 0.5px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">
+            <button onclick="VoltarVitrine()" class="btn-kimono Vitrine-hover"
+                style="flex: none; background: #2b5b84; border: 1px solid rgba(255,255,255,0.2); color: white; cursor: pointer; font-size: 12px; font-weight: 600; padding: 8px 14px; margin-bottom: 15px; border-radius: 6px; display: inline-flex; align-items: center; gap: 8px; width: fit-content; align-self: flex-start; text-transform: none; letter-spacing: 0.5px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">
                 <span style="font-size: 14px;">⬅</span> Voltar ao Menu
             </button>
-            <h2 style="color: white; margin-bottom: 10px; margin-top: 0; font-family: 'Outfit'; font-size: 20px;">Customização do Kimono</h2>
+            <h2 style="color: white; margin-bottom: 10px; margin-top: 0; font-family: 'Outfit'; font-size: 20px;">
+                Customização do Kimono</h2>
             <div
                 style="display: flex; gap: 5px; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
                 <button id="tab-cart" class="btn-kimono active" style="flex:1; padding: 8px 4px; font-size:12px;"
@@ -343,7 +354,8 @@
 
                     <label class="input-label"
                         style="display:block; margin-bottom: 4px; color:#a0aec0; font-size:12px; text-transform:uppercase;">Graduação</label>
-                    <div class="gi-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px;">
+                    <div class="gi-grid"
+                        style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px;">
                         <button class="btn-faixa btn-color-belt active" data-belt="white"
                             onclick="SelecionarItem('faixa', 'color', 'white')">
                             <div class="belt-color-circle" style="background: white; border: 1px solid #ccc;"></div>
@@ -368,12 +380,14 @@
                         <button class="btn-faixa btn-color-belt" data-belt="coral"
                             onclick="SelecionarItem('faixa', 'color', 'coral')">
                             <div class="belt-color-circle"
-                                style="background: linear-gradient(90deg, red 50%, black 50%);"></div> Coral Vermelha/Preta
+                                style="background: linear-gradient(90deg, red 50%, black 50%);"></div> Coral
+                            Vermelha/Preta
                         </button>
                         <button class="btn-faixa btn-color-belt" data-belt="coral-white"
                             onclick="SelecionarItem('faixa', 'color', 'coral-white')">
                             <div class="belt-color-circle"
-                                style="background: linear-gradient(90deg, red 50%, white 50%);"></div> Coral Vermelha/Branca
+                                style="background: linear-gradient(90deg, red 50%, white 50%);"></div> Coral
+                            Vermelha/Branca
                         </button>
                         <button class="btn-faixa btn-color-belt" data-belt="red"
                             onclick="SelecionarItem('faixa', 'color', 'red')">
@@ -431,8 +445,7 @@
                                 id="cart-desc-pants">Atama / Branco / A0</span> <span
                                 style="float:right; color:#cbd5e0;">R$ <span id="cart-price-pants">180</span></span>
                         </div>
-                        <div id="cart-row-belt"
-                            style="margin-bottom: 8px;">
+                        <div id="cart-row-belt" style="margin-bottom: 8px;">
                             <strong>Faixa:</strong> <span id="cart-desc-belt">Branca</span> <span
                                 style="float:right; color:#cbd5e0;">R$ <span id="cart-price-belt">60</span></span>
                         </div>
@@ -447,7 +460,8 @@
 
                         <div id="cart-row-discount" style="display: none; padding-bottom: 8px; margin-bottom: 8px;">
                             <strong style="color: #4ade80;">🏷️ Desconto Combo:</strong> <span
-                                style="float:right; color:#4ade80;">- R$ <span id="cart-price-discount">0</span>,00</span>
+                                style="float:right; color:#4ade80;">- R$ <span
+                                    id="cart-price-discount">0</span>,00</span>
                         </div>
 
                         <div
@@ -456,24 +470,42 @@
                         </div>
                     </div>
                     <h3 class="section-title" style="margin-top: 20px;">Personalização</h3>
-                    
-                    <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border-left: 3px solid #d4af37; margin-bottom: 15px;">
-                        <label class="input-label" style="display:block; margin-bottom: 4px; color:#a0aec0; font-size:12px; text-transform:uppercase;">Bordado: Nome (Costas)</label>
+
+                    <div
+                        style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border-left: 3px solid #d4af37; margin-bottom: 15px;">
+                        <label class="input-label"
+                            style="display:block; margin-bottom: 4px; color:#a0aec0; font-size:12px; text-transform:uppercase;">Bordado:
+                            Nome (Costas)</label>
                         <div style="display: flex; gap: 8px; margin-bottom: 15px;">
-                            <input type="text" id="embroidery-name" oninput="ResetarEstadoBordado('name')" placeholder="Seu Nome" style="flex:1; padding: 8px; border-radius: 4px; border: none; background: #2d3748; color: white;">
-                            <button id="btn-apply-name" onclick="AplicarBordadoNome()" class="btn-kimono" style="background: #d4af37; color: black; font-weight: bold; padding: 10px; border: none; cursor: pointer; transition: all 0.3s ease;">+R$ 40</button>
+                            <input type="text" id="embroidery-name" oninput="ResetarEstadoBordado('name')"
+                                placeholder="Seu Nome"
+                                style="flex:1; padding: 8px; border-radius: 4px; border: none; background: #2d3748; color: white;">
+                            <button id="btn-apply-name" onclick="AplicarBordadoNome()" class="btn-kimono"
+                                style="background: #d4af37; color: black; font-weight: bold; padding: 10px; border: none; cursor: pointer; transition: all 0.3s ease;">+R$
+                                40</button>
                         </div>
-                        <label class="input-label" style="display:block; margin-bottom: 4px; color:#a0aec0; font-size:12px; text-transform:uppercase;">Bordado: Equipe (Saia)</label>
+                        <label class="input-label"
+                            style="display:block; margin-bottom: 4px; color:#a0aec0; font-size:12px; text-transform:uppercase;">Bordado:
+                            Equipe (Saia)</label>
                         <div style="display: flex; gap: 8px;">
-                            <input type="text" id="embroidery-team" oninput="ResetarEstadoBordado('team')" placeholder="Nome da Equipe" style="flex:1; padding: 8px; border-radius: 4px; border: none; background: #2d3748; color: white;">
-                            <button id="btn-apply-team" onclick="AplicarBordadoEquipe()" class="btn-kimono" style="background: #d4af37; color: black; font-weight: bold; padding: 10px; border: none; cursor: pointer; transition: all 0.3s ease;">+R$ 40</button>
+                            <input type="text" id="embroidery-team" oninput="ResetarEstadoBordado('team')"
+                                placeholder="Nome da Equipe"
+                                style="flex:1; padding: 8px; border-radius: 4px; border: none; background: #2d3748; color: white;">
+                            <button id="btn-apply-team" onclick="AplicarBordadoEquipe()" class="btn-kimono"
+                                style="background: #d4af37; color: black; font-weight: bold; padding: 10px; border: none; cursor: pointer; transition: all 0.3s ease;">+R$
+                                40</button>
                         </div>
                     </div>
                     <h3 class="section-title" style="margin-top: 20px;">Previsão de Desgaste</h3>
-                    <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border-left: 3px solid #ef4444; margin-bottom: 15px;">
-                        <label class="input-label" style="display:block; margin-bottom: 4px; color:#a0aec0; font-size:12px; text-transform:uppercase;">Tempo de Uso</label>
-                        <input type="range" id="wear-slider" class="custom-range" min="0" max="6" step="1" value="0" oninput="AtualizarNivelDesgaste(this.value)" style="width: 100%;">
-                        <div style="display: flex; justify-content: space-between; font-size: 10px; color: #a0aec0; margin-top: 5px;">
+                    <div
+                        style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border-left: 3px solid #ef4444; margin-bottom: 15px;">
+                        <label class="input-label"
+                            style="display:block; margin-bottom: 4px; color:#a0aec0; font-size:12px; text-transform:uppercase;">Tempo
+                            de Uso</label>
+                        <input type="range" id="wear-slider" class="custom-range" min="0" max="6" step="1" value="0"
+                            oninput="AtualizarNivelDesgaste(this.value)" style="width: 100%;">
+                        <div
+                            style="display: flex; justify-content: space-between; font-size: 10px; color: #a0aec0; margin-top: 5px;">
                             <span>Novo</span>
                             <span>6m</span>
                             <span>1a</span>
@@ -508,4 +540,3 @@
 </body>
 
 </html>
-

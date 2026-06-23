@@ -91,7 +91,6 @@ function DesenharFaixaENos() {
     box(12, 30, 6);
 
     // Tarja de graduação
-    let espessura_listra = 1.2;
 
     let altura_tarja;
     let cor_tarja_principal;

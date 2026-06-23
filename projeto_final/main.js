@@ -53,63 +53,63 @@ function AtualizarNivelDesgaste(val) {
 
 function RedesenharBordado() {
     // Busca os valores digitados no painel. Se a caixa de texto não existir, usa vazio ("")
-    let nome_str = document.getElementById('embroidery-name')?.value || "";
-    let equipe_str = document.getElementById('embroidery-team')?.value || "";
+    let texto_do_nome = document.getElementById('embroidery-name')?.value || "";
+    let texto_da_equipe = document.getElementById('embroidery-team')?.value || "";
 
-    if (!estado_loja.bordadoNome) nome_str = "";
-    if (!estado_loja.bordadoEquipe) equipe_str = "";
+    if (!estado_loja.bordadoNome) texto_do_nome = "";
+    if (!estado_loja.bordadoEquipe) texto_da_equipe = "";
 
-    if (estado_loja.bordadoNome && !nome_str) nome_str = "SEU NOME";
-    if (estado_loja.bordadoEquipe && !equipe_str) equipe_str = "SUA EQUIPE";
+    if (estado_loja.bordadoNome && !texto_do_nome) texto_do_nome = "SEU NOME";
+    if (estado_loja.bordadoEquipe && !texto_da_equipe) texto_da_equipe = "SUA EQUIPE";
 
     textura_bordado.clear();
     textura_bordado.background(0, 0, 0, 0);
 
     // Cor do texto: preto para kimono claro, branco para escuro
-    let cor_gi = estado_loja.blusa.cor;
-    let gi_claro = (cor_gi === 'white' || cor_gi === 'branco' || cor_gi === '');
-    textura_bordado.fill(gi_claro ? 20 : 255);
+    let cor_da_blusa = estado_loja.blusa.cor;
+    let blusa_e_clara = (cor_da_blusa === 'white' || cor_da_blusa === 'branco' || cor_da_blusa === '');
+    textura_bordado.fill(blusa_e_clara ? 20 : 255);
 
     // Reduz a fonte se o texto for muito longo
-    function AjustarTextoAoEspaco(txt, y, fonte_maxima) {
-        let s = fonte_maxima;
-        textura_bordado.textSize(s);
-        while (textura_bordado.textWidth(txt) > 900 && s > 30) {
-            s -= 5;
-            textura_bordado.textSize(s);
+    function AjustarTextoAoEspaco(texto_para_desenhar, posicao_y, tamanho_fonte_maxima) {
+        let tamanho_fonte_atual = tamanho_fonte_maxima;
+        textura_bordado.textSize(tamanho_fonte_atual);
+        while (textura_bordado.textWidth(texto_para_desenhar) > 900 && tamanho_fonte_atual > 30) {
+            tamanho_fonte_atual -= 5;
+            textura_bordado.textSize(tamanho_fonte_atual);
         }
-        textura_bordado.text(txt, 512, y);
+        textura_bordado.text(texto_para_desenhar, 512, posicao_y);
     }
 
-    if (nome_str) AjustarTextoAoEspaco(nome_str, 220, 100);
-    if (equipe_str) AjustarTextoAoEspaco(equipe_str, 870, 80);
+    if (texto_do_nome) AjustarTextoAoEspaco(texto_do_nome, 220, 100);
+    if (texto_da_equipe) AjustarTextoAoEspaco(texto_da_equipe, 870, 80);
 
     imagem_bordado_cache = textura_bordado.get();
 }
 
 
-function AlternarBordado(tipo) {
-    let prop = tipo === 'name' ? 'bordadoNome' : 'bordadoEquipe';
-    estado_loja[prop] = !estado_loja[prop];
+function AlternarBordado(tipo_bordado) {
+    let propriedade_estado = (tipo_bordado === 'name') ? 'bordadoNome' : 'bordadoEquipe';
+    estado_loja[propriedade_estado] = !estado_loja[propriedade_estado];
     RedesenharBordado();
     if (typeof AtualizarTotalCarrinho === 'function') AtualizarTotalCarrinho();
 
-    let btn = document.getElementById(`btn-apply-${tipo}`);
-    if (btn) {
-        if (estado_loja[prop]) {
-            btn.innerText = "✓ Adicionado"; btn.style.background = "#4ade80"; btn.style.color = "#0f172a";
+    let botao_interface = document.getElementById(`btn-apply-${tipo_bordado}`);
+    if (botao_interface) {
+        if (estado_loja[propriedade_estado]) {
+            botao_interface.innerText = "✓ Adicionado"; botao_interface.style.background = "#4ade80"; botao_interface.style.color = "#0f172a";
         } else {
-            btn.innerText = "+R$ 40"; btn.style.background = "#d4af37"; btn.style.color = "black";
+            botao_interface.innerText = "+R$ 40"; botao_interface.style.background = "#d4af37"; botao_interface.style.color = "black";
         }
     }
 }
 
-function ResetarEstadoBordado(tipo) {
-    let prop = tipo === 'name' ? 'bordadoNome' : 'bordadoEquipe';
-    if (estado_loja[prop]) {
-        estado_loja[prop] = false;
-        let btn = document.getElementById(`btn-apply-${tipo}`);
-        if (btn) { btn.innerText = "+R$ 40"; btn.style.background = "#d4af37"; btn.style.color = "black"; }
+function ResetarEstadoBordado(tipo_bordado) {
+    let propriedade_estado = (tipo_bordado === 'name') ? 'bordadoNome' : 'bordadoEquipe';
+    if (estado_loja[propriedade_estado]) {
+        estado_loja[propriedade_estado] = false;
+        let botao_interface = document.getElementById(`btn-apply-${tipo_bordado}`);
+        if (botao_interface) { botao_interface.innerText = "+R$ 40"; botao_interface.style.background = "#d4af37"; botao_interface.style.color = "black"; }
         RedesenharBordado();
         if (typeof AtualizarTotalCarrinho === 'function') AtualizarTotalCarrinho();
     }

@@ -46,6 +46,8 @@ function IniciarGeometriaKimono() {
         let linhas  = 40;
         let colunas = 50;
 
+        // O loop duplo (r, c) varre um grid 2D (u, v) de 0 a 1 e o enrola em um tubo 3D.
+        // 'v' é a altura (0 = gola, 1 = barra da saia). 'u' é a volta ao redor do corpo (0 a 360 graus).
         for (let r = 0; r <= linhas; r++) {
             let v     = r / linhas;
             let y_base = v * 145;
@@ -53,7 +55,7 @@ function IniciarGeometriaKimono() {
             for (let c = 0; c <= colunas; c++) {
                 let u      = c / colunas;
                 let angulo = u * TWO_PI;
-                let nx     = cos(angulo);
+                let nx     = cos(angulo); // nx e nz criam a base circular perfeita (cilindro)
                 let nz     = sin(angulo);
                 let rX, rZ;
                 let y = y_base;
@@ -76,7 +78,8 @@ function IniciarGeometriaKimono() {
                         rX = lerp(68, 32, suave_t2);
                         rZ = lerp(38, 28, suave_t2);
                     }
-                    // Volume do peito
+                    // Volume do peito: usamos sin(t*PI) pois ele começa em 0 (gola), 
+                    // atinge o volume máximo no meio do peito, e volta a 0 na cintura!
                     let volume_peito = sin(t * PI);
                     rX += volume_peito * 2.0;
                     rZ += volume_peito * 4.0;
@@ -93,10 +96,12 @@ function IniciarGeometriaKimono() {
                 let px = rX * nx;
                 let pz = rZ * nz;
 
-                // Dobras procedurais do tecido
+                // DOBRAS PROCEDURAIS (O grande truque para não parecer plástico duro):
+                // Misturamos múltiplos senos para simular ondas verticais e diagonais no tecido.
                 let escala_dobra = map(y, 0, 145, 0.6, 1.0);
 
-                // Suavizar dobras na área da faixa para evitar cortes na malha
+                // Suavizar dobras perto da cintura (Y=68) para a faixa conseguir abraçar 
+                // a barriga sem atravessar o tecido amassado. Usamos Smoothstep matemático.
                 let dist_faixa = abs(y - 68.0);
                 if (dist_faixa < 12.0) {
                     let t_s = dist_faixa / 12.0;
@@ -104,6 +109,7 @@ function IniciarGeometriaKimono() {
                     escala_dobra *= t_smooth;
                 }
 
+                // O '6.0' no multiplicador de TWO_PI cria exatamente 6 dobras ao redor do corpo.
                 let dobra = sin(u * TWO_PI * 6.0 + v * 3.0) * sin(v * PI * 3.0) * 1.5;
                 px += nx * dobra * escala_dobra;
                 pz += nz * dobra * escala_dobra;
@@ -151,11 +157,14 @@ function IniciarGeometriaKimono() {
     malha_lapela_direita.id   = 'lapelRight_geom';
     malha_lapela_direita.gid  = 'lapelRight_geom';
 
-  // Calça perna única com deslocamento lateral crescente (+X), espelhada para a perna esquerda
+    // Calça: Modelamos APENAS UMA PERNA reta. 
+    // O pulo do gato é o 'spread_x': ele empurra a barra da calça para o lado (diagonal).
+    // Mais tarde, no DesenharCalca(), nós espelhamos essa mesma malha com scale(-1, 1, 1) 
+    // para formar a perna esquerda, criando o formato de "V" invertido de uma calça natural.
     malha_calca = new p5.Geometry(1, 1, function () {
         let linhas   = 40;
         let colunas  = 30;
-        let spread_x = 14; // Deslocamento lateral cresce conforme desce
+        let spread_x = 14; // Deslocamento lateral cresce conforme desce (canela mais aberta que a coxa)
 
         for (let r = 0; r <= linhas; r++) {
             let v         = r / linhas;

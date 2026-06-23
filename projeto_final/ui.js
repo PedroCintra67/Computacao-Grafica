@@ -23,12 +23,12 @@ function ResetarEstadoInicial() {
     modo_app = 'Vitrine';
 
     // Câmera
-    alvo_raio_orbita      = 900;
+    alvo_raio_orbita = 900;
     alvo_altura_foco_camera = 120;
-    rotacao_orbita_x      = 0.0;
-    rotacao_orbita_y      = 0.0;
-    alvo_olhar_camera     = createVector(-50, 120, 10);
-    alvo_pos_camera       = createVector(-50, 120, 900);
+    rotacao_orbita_x = 0.0;
+    rotacao_orbita_y = 0.0;
+    alvo_olhar_camera = createVector(-50, 120, 10);
+    alvo_pos_camera = createVector(-50, 120, 900);
 
     // Desgaste do kimono
     if (typeof nivel_desgaste !== 'undefined') nivel_desgaste = 0.0;
@@ -37,36 +37,36 @@ function ResetarEstadoInicial() {
     if (slider) slider.value = 0;
 
     // Estado do carrinho
-    estado_loja.blusa  = { marca: 'Vouk', cor: 'white', tamanho: 'A2', preco: 330, equipado: false };
-    estado_loja.calca  = { marca: 'Vouk', cor: 'white', tamanho: 'A2', preco: 170, equipado: false };
-    estado_loja.faixa  = { cor: 'white', tamanho: 'A2', preco: 100, equipado: false };
-    estado_loja.desconto     = 0;
-    estado_loja.passoAtual   = 'blusa';
-    estado_loja.bordadoNome  = false;
+    estado_loja.blusa = { marca: 'Vouk', cor: 'white', tamanho: 'A2', preco: 330, equipado: false };
+    estado_loja.calca = { marca: 'Vouk', cor: 'white', tamanho: 'A2', preco: 170, equipado: false };
+    estado_loja.faixa = { cor: 'white', tamanho: 'A2', preco: 100, equipado: false };
+    estado_loja.desconto = 0;
+    estado_loja.passoAtual = 'blusa';
+    estado_loja.bordadoNome = false;
     estado_loja.bordadoEquipe = false;
 
     if (typeof imagem_bordado_cache !== 'undefined') imagem_bordado_cache = null;
 
     // Limpar campos de bordado
-    let campo_nome  = document.getElementById('embroidery-name');
-    if (campo_nome)  campo_nome.value = '';
+    let campo_nome = document.getElementById('embroidery-name');
+    if (campo_nome) campo_nome.value = '';
     let campo_equipe = document.getElementById('embroidery-team');
     if (campo_equipe) campo_equipe.value = '';
 
     // Resetar visual dos botões de bordado
-    ['name', 'team'].forEach(id => {
-        let btn = document.getElementById('btn-apply-' + id);
-        if (btn) { btn.innerText = '+R$ 40'; btn.style.background = '#d4af37'; btn.style.color = 'black'; }
+    ['name', 'team'].forEach(nome_do_botao => {
+        let elemento_botao = document.getElementById('btn-apply-' + nome_do_botao);
+        if (elemento_botao) { elemento_botao.innerText = '+R$ 40'; elemento_botao.style.background = '#d4af37'; elemento_botao.style.color = 'black'; }
     });
 
     // Resetar botões do carrinho
-    ['blusa', 'calca', 'faixa'].forEach(id => {
-        let btn = document.getElementById('btn-alternar-' + id);
-        if (btn) { btn.innerText = '🛒 Colocar no Carrinho'; btn.style.background = '#2b5b84'; btn.style.color = 'white'; }
+    ['blusa', 'calca', 'faixa'].forEach(nome_da_peca => {
+        let elemento_botao = document.getElementById('btn-alternar-' + nome_da_peca);
+        if (elemento_botao) { elemento_botao.innerText = '🛒 Colocar no Carrinho'; elemento_botao.style.background = '#2b5b84'; elemento_botao.style.color = 'white'; }
     });
 
     if (typeof AtualizarTotalCarrinho === 'function') AtualizarTotalCarrinho();
-    if (typeof SincronizarInterface   === 'function') SincronizarInterface();
+    if (typeof SincronizarInterface === 'function') SincronizarInterface();
 }
 
 function VoltarVitrine() {
@@ -78,24 +78,24 @@ function VoltarVitrine() {
 // Drops e promoções
 
 function CarregarDropDaSemana(opcao) {
-    estado_loja.blusa.equipado  = true;
-    estado_loja.calca.equipado  = true;
-    estado_loja.faixa.equipado  = true;
+    estado_loja.blusa.equipado = true;
+    estado_loja.calca.equipado = true;
+    estado_loja.faixa.equipado = true;
 
     if (opcao === 1) {
-        estado_loja.blusa.marca = 'Vouk';  estado_loja.blusa.cor = 'white'; estado_loja.blusa.tamanho = 'A1';
-        estado_loja.calca.marca = 'Vouk';  estado_loja.calca.cor = 'white'; estado_loja.calca.tamanho = 'A1';
-        estado_loja.faixa.cor = 'blue';    estado_loja.faixa.tamanho = 'A1';
+        estado_loja.blusa.marca = 'Vouk'; estado_loja.blusa.cor = 'white'; estado_loja.blusa.tamanho = 'A1';
+        estado_loja.calca.marca = 'Vouk'; estado_loja.calca.cor = 'white'; estado_loja.calca.tamanho = 'A1';
+        estado_loja.faixa.cor = 'blue'; estado_loja.faixa.tamanho = 'A1';
         estado_loja.desconto = 121;
     } else if (opcao === 2) {
-        estado_loja.blusa.marca = 'Atama'; estado_loja.blusa.cor = 'blue';  estado_loja.blusa.tamanho = 'A2';
-        estado_loja.calca.marca = 'Atama'; estado_loja.calca.cor = 'blue';  estado_loja.calca.tamanho = 'A2';
-        estado_loja.faixa.cor = 'purple';  estado_loja.faixa.tamanho = 'A2';
+        estado_loja.blusa.marca = 'Atama'; estado_loja.blusa.cor = 'blue'; estado_loja.blusa.tamanho = 'A2';
+        estado_loja.calca.marca = 'Atama'; estado_loja.calca.cor = 'blue'; estado_loja.calca.tamanho = 'A2';
+        estado_loja.faixa.cor = 'purple'; estado_loja.faixa.tamanho = 'A2';
         estado_loja.desconto = 180;
     } else if (opcao === 3) {
         estado_loja.blusa.marca = 'Kingz'; estado_loja.blusa.cor = 'black'; estado_loja.blusa.tamanho = 'A3';
         estado_loja.calca.marca = 'Kingz'; estado_loja.calca.cor = 'black'; estado_loja.calca.tamanho = 'A3';
-        estado_loja.faixa.cor = 'black';   estado_loja.faixa.tamanho = 'A3';
+        estado_loja.faixa.cor = 'black'; estado_loja.faixa.tamanho = 'A3';
         estado_loja.desconto = 285;
     }
 
@@ -116,13 +116,13 @@ function FinalizarCompra() {
     } else {
         let mapa_faixa = { 'white': 'Branca', 'blue': 'Azul', 'purple': 'Roxa', 'brown': 'Marrom', 'black': 'Preta', 'coral': 'Coral V/P', 'coral-white': 'Coral V/B', 'red': 'Vermelha' };
 
-        document.getElementById('checkout-top-desc').innerText   = `${estado_loja.blusa.marca} / ${NomeCorPortugues(estado_loja.blusa.cor)} / ${estado_loja.blusa.tamanho}`;
+        document.getElementById('checkout-top-desc').innerText = `${estado_loja.blusa.marca} / ${NomeCorPortugues(estado_loja.blusa.cor)} / ${estado_loja.blusa.tamanho}`;
         document.getElementById('checkout-pants-desc').innerText = `${estado_loja.calca.marca} / ${NomeCorPortugues(estado_loja.calca.cor)} / ${estado_loja.calca.tamanho}`;
-        document.getElementById('checkout-belt-desc').innerText  = `${mapa_faixa[estado_loja.faixa.cor]} / ${estado_loja.faixa.tamanho}`;
+        document.getElementById('checkout-belt-desc').innerText = `${mapa_faixa[estado_loja.faixa.cor]} / ${estado_loja.faixa.tamanho}`;
 
-        document.getElementById('checkout-top-price').innerText   = `R$ ${estado_loja.blusa.preco},00`;
+        document.getElementById('checkout-top-price').innerText = `R$ ${estado_loja.blusa.preco},00`;
         document.getElementById('checkout-pants-price').innerText = `R$ ${estado_loja.calca.preco},00`;
-        document.getElementById('checkout-belt-price').innerText  = `R$ ${estado_loja.faixa.preco},00`;
+        document.getElementById('checkout-belt-price').innerText = `R$ ${estado_loja.faixa.preco},00`;
 
         let total = estado_loja.blusa.preco + estado_loja.calca.preco + estado_loja.faixa.preco;
 
@@ -136,9 +136,9 @@ function FinalizarCompra() {
         }
 
         document.getElementById('checkout-total-price').innerText = `R$ ${total},00`;
-        document.getElementById('checkout-row-top').style.display    = estado_loja.blusa.equipado ? 'flex' : 'none';
-        document.getElementById('checkout-row-pants').style.display  = estado_loja.calca.equipado ? 'flex' : 'none';
-        document.getElementById('checkout-row-belt').style.display   = estado_loja.faixa.equipado ? 'flex' : 'none';
+        document.getElementById('checkout-row-top').style.display = estado_loja.blusa.equipado ? 'flex' : 'none';
+        document.getElementById('checkout-row-pants').style.display = estado_loja.calca.equipado ? 'flex' : 'none';
+        document.getElementById('checkout-row-belt').style.display = estado_loja.faixa.equipado ? 'flex' : 'none';
 
         let linha_emb = document.getElementById('checkout-row-embroidery');
         if (linha_emb) linha_emb.style.display = estado_loja.bordado ? 'flex' : 'none';
@@ -162,7 +162,7 @@ function DefinirPasso(nome_passo) {
     // Ocultar todas as seções e exibir apenas a do passo atual
     document.querySelectorAll('.step-section').forEach(el => el.style.display = 'none');
     let id_conteudo = (nome_passo === 'cart') ? 'step-cart' : 'passo-' + nome_passo;
-    let conteudo    = document.getElementById(id_conteudo);
+    let conteudo = document.getElementById(id_conteudo);
     if (conteudo) conteudo.style.display = 'block';
 
     // Resetar slider de desgaste ao trocar de aba
@@ -177,7 +177,7 @@ function DefinirPasso(nome_passo) {
         if (el.id && (el.id.startsWith('tab-') || el.id.startsWith('aba-'))) el.classList.remove('active');
     });
     let id_aba = (nome_passo === 'cart') ? 'tab-cart' : 'aba-' + nome_passo;
-    let aba    = document.getElementById(id_aba);
+    let aba = document.getElementById(id_aba);
     if (aba) aba.classList.add('active');
 
     // Texto do botão de checkout
@@ -188,10 +188,10 @@ function DefinirPasso(nome_passo) {
 
     // Ajustar câmera conforme o passo
     if (modo_app === 'loja') {
-        if      (nome_passo === 'blusa')  { alvo_altura_foco_camera = 100; alvo_raio_orbita = 350; }
-        else if (nome_passo === 'calca')  { alvo_altura_foco_camera = 15;  alvo_raio_orbita = 320; }
-        else if (nome_passo === 'faixa')  { alvo_altura_foco_camera = 65;  alvo_raio_orbita = 250; }
-        else if (nome_passo === 'cart')   { alvo_altura_foco_camera = 60;  alvo_raio_orbita = 450; }
+        if (nome_passo === 'blusa') { alvo_altura_foco_camera = 100; alvo_raio_orbita = 350; }
+        else if (nome_passo === 'calca') { alvo_altura_foco_camera = 15; alvo_raio_orbita = 320; }
+        else if (nome_passo === 'faixa') { alvo_altura_foco_camera = 65; alvo_raio_orbita = 250; }
+        else if (nome_passo === 'cart') { alvo_altura_foco_camera = 60; alvo_raio_orbita = 450; }
     }
 }
 
@@ -213,22 +213,22 @@ function AlternarItemCarrinho(parte) {
 
 function SincronizarInterface() {
     let partes = {
-        'blusa': { dom: 'top',   props: ['marca', 'cor', 'tamanho'] },
+        'blusa': { dom: 'top', props: ['marca', 'cor', 'tamanho'] },
         'calca': { dom: 'pants', props: ['marca', 'cor', 'tamanho'] },
-        'faixa': { dom: 'belt',  props: ['cor', 'tamanho'] }
+        'faixa': { dom: 'belt', props: ['cor', 'tamanho'] }
     };
 
     for (let parte in partes) {
         let dom_parte = partes[parte].dom;
         for (let prop of partes[parte].props) {
-            let valor    = estado_loja[parte][prop];
-            let ui_prop  = prop === 'marca' ? 'brand' : prop === 'cor' ? 'color' : 'size';
-            let classe   = '.btn-' + ui_prop + '-' + dom_parte;
+            let valor = estado_loja[parte][prop];
+            let ui_prop = prop === 'marca' ? 'brand' : prop === 'cor' ? 'color' : 'size';
+            let classe = '.btn-' + ui_prop + '-' + dom_parte;
             document.querySelectorAll(classe).forEach(el => el.classList.remove('active'));
             document.querySelectorAll(classe).forEach(el => {
                 if (ui_prop === 'color' && (el.getAttribute('data-color') === valor || el.getAttribute('data-belt') === valor)) el.classList.add('active');
                 if (ui_prop === 'brand' && el.getAttribute('data-brand') === valor) el.classList.add('active');
-                if (ui_prop === 'size'  && el.getAttribute('data-size')  === valor) el.classList.add('active');
+                if (ui_prop === 'size' && el.getAttribute('data-size') === valor) el.classList.add('active');
             });
         }
         let btn = document.getElementById('btn-alternar-' + parte);
@@ -249,16 +249,16 @@ function SelecionarItem(parte, propriedade, valor) {
     estado_loja[parte][prop_mapeada] = valor;
     estado_loja.desconto = 0;
 
-    let mapa_dom  = { 'blusa': 'top', 'calca': 'pants', 'faixa': 'belt' };
+    let mapa_dom = { 'blusa': 'top', 'calca': 'pants', 'faixa': 'belt' };
     let dom_parte = mapa_dom[parte] || parte;
 
     let classe = '.btn-' + propriedade + '-' + dom_parte;
     document.querySelectorAll(classe).forEach(el => el.classList.remove('active'));
     document.querySelectorAll(classe).forEach(el => {
         if (propriedade === 'color' && el.getAttribute('data-color') === valor) el.classList.add('active');
-        if (propriedade === 'color' && el.getAttribute('data-belt')  === valor) el.classList.add('active');
+        if (propriedade === 'color' && el.getAttribute('data-belt') === valor) el.classList.add('active');
         if (propriedade === 'brand' && el.getAttribute('data-brand') === valor) el.classList.add('active');
-        if (propriedade === 'size'  && el.getAttribute('data-size')  === valor) el.classList.add('active');
+        if (propriedade === 'size' && el.getAttribute('data-size') === valor) el.classList.add('active');
     });
 
     // Atualizar cor do círculo de tamanho da faixa dinamicamente
@@ -298,12 +298,12 @@ function AtualizarTotalCarrinho() {
     let base_blusa = precos_blusa[estado_loja.blusa.marca] || 0;
     let base_calca = precos_calca[estado_loja.calca.marca] || 0;
 
-    let base_faixa  = 100;
+    let base_faixa = 100;
 
-    let preco_blusa  = estado_loja.blusa.equipado  ? Math.round(base_blusa  * ObterMultiplicadorPreco(estado_loja.blusa.tamanho))  : 0;
-    let preco_calca  = estado_loja.calca.equipado  ? Math.round(base_calca  * ObterMultiplicadorPreco(estado_loja.calca.tamanho))  : 0;
-    let preco_faixa  = estado_loja.faixa.equipado  ? Math.round(base_faixa  * ObterMultiplicadorPreco(estado_loja.faixa.tamanho))  : 0;
-    let preco_nome   = estado_loja.bordadoNome   ? 40 : 0;
+    let preco_blusa = estado_loja.blusa.equipado ? Math.round(base_blusa * ObterMultiplicadorPreco(estado_loja.blusa.tamanho)) : 0;
+    let preco_calca = estado_loja.calca.equipado ? Math.round(base_calca * ObterMultiplicadorPreco(estado_loja.calca.tamanho)) : 0;
+    let preco_faixa = estado_loja.faixa.equipado ? Math.round(base_faixa * ObterMultiplicadorPreco(estado_loja.faixa.tamanho)) : 0;
+    let preco_nome = estado_loja.bordadoNome ? 40 : 0;
     let preco_equipe = estado_loja.bordadoEquipe ? 40 : 0;
 
     let total = preco_blusa + preco_calca + preco_faixa + preco_nome + preco_equipe;
@@ -324,32 +324,32 @@ function AtualizarTotalCarrinho() {
 
     let cor_blusa_pt = NomeCorPortugues(estado_loja.blusa.cor);
     let cor_calca_pt = NomeCorPortugues(estado_loja.calca.cor);
-    let mapa_faixa   = { 'white': 'Branca', 'blue': 'Azul', 'purple': 'Roxa', 'brown': 'Marrom', 'black': 'Preta', 'coral': 'Coral V/P', 'coral-white': 'Coral V/B', 'red': 'Vermelha' };
+    let mapa_faixa = { 'white': 'Branca', 'blue': 'Azul', 'purple': 'Roxa', 'brown': 'Marrom', 'black': 'Preta', 'coral': 'Coral V/P', 'coral-white': 'Coral V/B', 'red': 'Vermelha' };
 
-    document.getElementById('cart-desc-top').innerText   = `${estado_loja.blusa.marca} / ${cor_blusa_pt} / ${estado_loja.blusa.tamanho}`;
-    document.getElementById('cart-price-top').innerText  = preco_blusa;
+    document.getElementById('cart-desc-top').innerText = `${estado_loja.blusa.marca} / ${cor_blusa_pt} / ${estado_loja.blusa.tamanho}`;
+    document.getElementById('cart-price-top').innerText = preco_blusa;
     document.getElementById('cart-row-top').style.display = estado_loja.blusa.equipado ? 'block' : 'none';
 
-    document.getElementById('cart-desc-pants').innerText  = `${estado_loja.calca.marca} / ${cor_calca_pt} / ${estado_loja.calca.tamanho}`;
+    document.getElementById('cart-desc-pants').innerText = `${estado_loja.calca.marca} / ${cor_calca_pt} / ${estado_loja.calca.tamanho}`;
     document.getElementById('cart-price-pants').innerText = preco_calca;
     document.getElementById('cart-row-pants').style.display = estado_loja.calca.equipado ? 'block' : 'none';
 
-    document.getElementById('cart-desc-belt').innerText  = `${mapa_faixa[estado_loja.faixa.cor]} / ${estado_loja.faixa.tamanho}`;
+    document.getElementById('cart-desc-belt').innerText = `${mapa_faixa[estado_loja.faixa.cor]} / ${estado_loja.faixa.tamanho}`;
     document.getElementById('cart-price-belt').innerText = preco_faixa;
     document.getElementById('cart-row-belt').style.display = estado_loja.faixa.equipado ? 'block' : 'none';
 
-    let linha_emb_nome  = document.getElementById('cart-row-emb-name');
-    if (linha_emb_nome)  linha_emb_nome.style.display  = estado_loja.bordadoNome   ? 'block' : 'none';
+    let linha_emb_nome = document.getElementById('cart-row-emb-name');
+    if (linha_emb_nome) linha_emb_nome.style.display = estado_loja.bordadoNome ? 'block' : 'none';
     let linha_emb_equipe = document.getElementById('cart-row-emb-team');
     if (linha_emb_equipe) linha_emb_equipe.style.display = estado_loja.bordadoEquipe ? 'block' : 'none';
 
-    let ck_nome  = document.getElementById('checkout-row-emb-name');
-    if (ck_nome)  ck_nome.style.display  = estado_loja.bordadoNome   ? 'flex' : 'none';
+    let ck_nome = document.getElementById('checkout-row-emb-name');
+    if (ck_nome) ck_nome.style.display = estado_loja.bordadoNome ? 'flex' : 'none';
     let ck_equipe = document.getElementById('checkout-row-emb-team');
     if (ck_equipe) ck_equipe.style.display = estado_loja.bordadoEquipe ? 'flex' : 'none';
 
-    document.getElementById('cart-price-total').innerText  = total + ",00";
-    document.getElementById('total-flutuante').innerText   = "R$ " + total + ",00";
+    document.getElementById('cart-price-total').innerText = total + ",00";
+    document.getElementById('total-flutuante').innerText = "R$ " + total + ",00";
 
     let subtotal_viewport = document.getElementById('valor-subtotal-viewport');
     if (subtotal_viewport) subtotal_viewport.innerText = `R$ ${total},00`;
@@ -383,7 +383,7 @@ function ObterEscalaTamanho(tamanho_str, tipo = 'blusa') {
 // Converte identificador de cor para nome em português exibível
 function NomeCorPortugues(cor) {
     if (cor === 'white') return 'Branco';
-    if (cor === 'blue')  return 'Azul';
+    if (cor === 'blue') return 'Azul';
     if (cor === 'black') return 'Preto';
     return cor;
 }
