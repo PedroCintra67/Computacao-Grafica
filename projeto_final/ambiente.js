@@ -1,7 +1,5 @@
 // Ambiente interno da loja (Dojo)
 // Lembrete da Física do Mundo: 
-// +Y cresce para CIMA (Teto), -Y desce para o CHÃO.
-// +X cresce para a ESQUERDA, -X para a DIREITA.
 
 function DesenharAmbienteLoja() {
     noStroke();
