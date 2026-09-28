@@ -1,0 +1,60 @@
+# ==========================================
+# Ignorar arquivos do Sistema Operacional
+# ==========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ==========================================
+# Ignorar arquivos de IDEs e Editores
+# ==========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+.project
+.settings/
+
+# ==========================================
+# Ignorar caches do Python
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+env/
+venv/
+
+# ==========================================
+# Ignorar Logs e Temporários
+# ==========================================
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.cache/
+tmp/
+temp/
+
+# ==========================================
+# Dependências Node (se houver)
+# ==========================================
+node_modules/
+dist/
+build/
+
+# ==========================================
+# Caches de Agentes e IAs
+# ==========================================
+.gemini/
+.agents/
+brain/
+scratch/
